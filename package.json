@@ -1,0 +1,28 @@
+{
+  "name": "laundry-mountain",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/tool.mjs vite --host 0.0.0.0",
+    "build": "tsc -b && node scripts/tool.mjs vite build",
+    "preview": "node scripts/tool.mjs vite preview --host 0.0.0.0",
+    "test": "node scripts/tool.mjs vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run test && npm run build"
+  },
+  "dependencies": {
+    "lucide-react": "1.52.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "typescript": "7.0.2",
+    "vite": "7.3.6",
+    "vitest": "4.1.11"
+  }
+}
