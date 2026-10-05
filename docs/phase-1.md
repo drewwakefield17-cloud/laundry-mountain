@@ -23,7 +23,9 @@ Deterministic unit tests and synthetic camera E2E checks must never be reported 
 
 These results are software verification only. The physical gate below is still not run.
 
-- Phone/browser: awaiting product owner.
+- First physical attempt: product owner could not start the test and reported confusing camera orientation, a close camera view and difficulty fitting the pile inside the source box. No accuracy result was obtained.
+- Setup follow-up: calibrate only empty work/completed zones, bound calibration to eight seconds with retry, explain Start availability, add a nearby Start action, synchronise horizontal flipping in preview and analysis, request a full 4:3 frame, use minimum supported lens zoom and give the camera a dedicated landscape row. Source is a pickup region; the whole pile need not fit inside it.
+- Phone/browser: Pixel 9 Pro, Microsoft Edge. Product owner clarified that calibration did complete; completion correctness and the Start action were unclear. Calibration capture does not verify semantic emptiness, so the UI now tells the user to check the two empty areas and highlights the nearby Start action.
 - Correct folding detections / 20: not measured.
 - Duplicates: not measured.
 - Two-minute negative-control events: not measured.
