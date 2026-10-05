@@ -23,7 +23,7 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
   const calibrationFrames = useRef<Uint8ClampedArray[]>([]), calibrating = useRef(false), lastVideoTime = useRef(-1)
   const callbacks = useRef({ active, onEvent, onObservation, onReady, onInterrupt })
   useEffect(() => { callbacks.current = { active, onEvent, onObservation, onReady, onInterrupt } }, [active, onEvent, onObservation, onReady, onInterrupt])
-  const [camera, setCamera] = useState<'off' | 'requesting' | 'on'>('off'), [facing, setFacing] = useState<'user' | 'environment'>('user')
+  const [camera, setCamera] = useState<'off' | 'requesting' | 'on'>('off')
   const [error, setError] = useState(''), [zones, setZones] = useState<Zones>(DEFAULT_ZONES), [selected, setSelected] = useState<ZoneName>('work')
   const [editing, setEditing] = useState(false), [ready, setReady] = useState(false), [calibrationCount, setCalibrationCount] = useState(0)
   const [ratio, setRatio] = useState(16 / 9), [config, setConfig] = useState<VisionConfig>({ ...VISION })
@@ -40,14 +40,15 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
     requestId.current++; stream.current?.getTracks().forEach(t => t.stop()); stream.current = null
     setCamera('off'); setZoom(null); invalidate()
   }
-  async function startCamera(nextFacing = facing) {
+  async function startCamera() {
     stopCamera(); setError(''); setCamera('requesting'); const request = ++requestId.current
     try {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Open the HTTPS test URL in Safari or Chrome. Camera access is unavailable in this browser/context.')
-      const s = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: nextFacing }, width: { ideal: 1280 }, height: { ideal: 960 }, aspectRatio: { ideal: 4 / 3 }, frameRate: { ideal: 24, max: 30 } } })
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Open the HTTPS test URL in Edge, Chrome or Safari. Camera access is unavailable in this browser/context.')
+      const s = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { exact: 'user' }, width: { ideal: 1280 }, height: { ideal: 960 }, aspectRatio: { ideal: 4 / 3 }, frameRate: { ideal: 24, max: 30 } } })
       if (request !== requestId.current) { s.getTracks().forEach(t => t.stop()); return }
       stream.current = s
       const track = s.getVideoTracks()[0]
+      if (track.getSettings().facingMode && track.getSettings().facingMode !== 'user') throw new Error('The browser selected a rear camera. This test requires the front camera so you can watch your climb. Check camera access in Edge, then retry.')
       const capability = (track.getCapabilities?.() as MediaTrackCapabilities & { zoom?: { min: number; max: number; step?: number } })?.zoom
       if (capability && capability.max > capability.min) {
         try {
@@ -62,7 +63,7 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
     } catch (e) {
       if (request !== requestId.current) return
       stopCamera(); const message = e instanceof Error ? e.message : 'Camera unavailable'
-      setError(/permission|denied/i.test(message) ? 'Camera permission was denied. Allow camera in your browser site settings, then retry.' : message)
+      setError(e instanceof DOMException && e.name === 'OverconstrainedError' ? 'The front camera could not be opened. Check camera access in Edge and close other camera apps, then retry. This test requires the front camera so you can watch your climb.' : /permission|denied/i.test(message) ? 'Camera permission was denied. Allow camera in your browser site settings, then retry.' : message)
     }
   }
   useEffect(() => () => { requestId.current++; stream.current?.getTracks().forEach(t => t.stop()) }, [])
@@ -138,15 +139,15 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
       <video ref={video} muted playsInline autoPlay style={{ transform: flipped ? 'scaleX(-1)' : 'none' }} aria-label={`${flipped ? 'Flipped' : 'Original'} full-frame live camera preview`} />
       {camera !== 'on' && <div className="camera-empty"><Camera size={36} /><strong>{camera === 'requesting' ? 'Allow camera access in your browser' : 'Your chore is the controller'}</strong><span>Turn on your front camera to set up the folding test.</span></div>}
       {camera === 'on' && ZONE_NAMES.map((name, i) => <div key={name} className={`zone zone-${name}`} style={{ left: `${zones[name].x * 100}%`, top: `${zones[name].y * 100}%`, width: `${zones[name].w * 100}%`, height: `${zones[name].h * 100}%` }}><span>{i + 1} · {name === 'source' ? 'Source pile' : name === 'work' ? 'Fold here' : 'Completed'}</span></div>)}
-      {camera === 'on' && <span className="preview-label">{flipped ? 'Flipped view' : 'Original view'} · full camera frame</span>}
+      {camera === 'on' && <span className="preview-label">{flipped ? 'Flipped view' : 'Original view'} · front camera · full frame</span>}
     </div>
     {error && <p className="error" role="alert">{error}</p>}
     <div className="camera-actions">{camera !== 'on' ? <button className="primary" disabled={camera === 'requesting'} onClick={() => void startCamera()}><Camera size={18} /> Enable camera</button> : <>
-      <button disabled={active} onClick={() => { invalidate(); setEditing(!editing) }}><Move size={16} /> {editing ? 'Finish zone setup' : 'Adjust zones'}</button>
+      {!active && <><button onClick={() => { invalidate(); setEditing(!editing) }}><Move size={16} /> {editing ? 'Finish zone setup' : 'Adjust zones'}</button>
       <button disabled={active || editing || overlap || (calibrationCount > 0 && !ready)} className={ready ? '' : 'primary'} onClick={() => { invalidate(); setError(''); calibrationFrames.current = []; calibrationStarted.current = Date.now(); calibrating.current = true; setCalibrationCount(1) }}><RefreshCw size={16} /> {ready ? 'Recalibrate' : calibrationCount ? `Hold still… ${Math.min(100, Math.round(calibrationCount / 16 * 100))}%` : 'Calibrate empty work area'}</button>
       {ready && !active && <button className="primary" onClick={onStart}>Start folding now</button>}
       <button disabled={active} aria-pressed={flipped} onClick={() => { invalidate(); setFlipped(value => !value) }}>Flip view</button>
-      <button disabled={active} onClick={() => { const next = facing === 'user' ? 'environment' : 'user'; setFacing(next); setFlipped(false); void startCamera(next) }}>{facing === 'user' ? 'Use rear camera' : 'Use front camera'}</button>
+      </>}
       <button onClick={() => { stopCamera(); callbacks.current.onInterrupt('Camera turned off') }}>Camera off</button>
     </>}{camera === 'requesting' && <button onClick={stopCamera}>Cancel</button>}</div>
     {zoom && <label className="zoom-control">Lens zoom · lowest setting gives the widest view<input type="range" aria-label="Lens zoom" disabled={active} min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value} onChange={async e => {
@@ -154,9 +155,9 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
       if (!track) return
       invalidate()
       try { await track.applyConstraints({ advanced: [{ zoom: value } as MediaTrackConstraintSet] }); setZoom(current => current && ({ ...current, value })) }
-      catch { setError('This browser could not change lens zoom. Move the phone further away or try the rear camera.') }
+      catch { setError('This browser could not change lens zoom. Move the phone further away while keeping its screen facing you.') }
     }} /></label>}
-    {camera === 'on' && !zoom && <p className="framing-note">Seeing too little of the table? Move the phone further away or try Use rear camera. This lens does not expose browser zoom controls.</p>}
+    {camera === 'on' && !zoom && <p className="framing-note">Seeing too little of the table? Move the phone further away, with its screen facing you. This lens does not expose browser zoom controls.</p>}
     {editing && <div className="zone-editor"><label>Zone to draw <select value={selected} onChange={e => setSelected(e.target.value as ZoneName)}>{ZONE_NAMES.map(n => <option key={n} value={n}>{n}</option>)}</select></label><p>Drag a rectangle in the preview. Keep zones separate and below the top strip.</p><button onClick={() => setZones(DEFAULT_ZONES)}>Reset zones</button></div>}
     {overlap && <p className="error">Zones overlap. Adjust them before calibrating.</p>}
     <p className={`setup-note ${ready ? 'calibrated' : ''}`} role="status">{ready ? <><Check size={20} /> {active ? 'Test running. Fold in the centre, place in Completed, then wait for Ready.' : 'Calibration captured. If Fold here and Completed are empty, tap Start folding now.'}</> : camera !== 'on' ? 'Step 1: Enable camera.' : editing ? 'Finish zone setup before calibrating.' : overlap ? 'Separate the zones before calibrating.' : calibrationCount ? 'Calibrating the two empty areas. Keep your hands out for about 2 seconds.' : 'Step 2: Empty Fold here and Completed, withdraw hands, then tap Calibrate. The source box only needs to cover where you pick items up; the rest of the pile can be outside it.'}</p>

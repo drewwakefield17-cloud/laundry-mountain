@@ -37,3 +37,9 @@ These results are software verification only. The physical gate below is still n
 The product owner requested instructions on the phone screen while testing. A field-test-only guide now follows camera/setup state and real detector stages. It prompts saving the folding report, gives three timed negative-control instructions (pause, wave/reach, rearrange), marks controls shorter than two minutes as incomplete, and supports a recorded-position/reload check. It distinguishes saved-state restoration from physical detection accuracy. Guide buttons never create laundry events or award metres.
 
 Do not proceed to further product phases until the product owner supplies real physical results. The desired target is 18/20 correct, no duplicates and no negative-control events; shortfalls must be reported with exact counts and likely causes.
+
+### Front-camera requirement
+
+The product owner confirmed the front camera is essential so the screen and gamification remain visible. This supersedes the optional rear-camera setup guidance. Requests now require facingMode=user explicitly and reject a reported rear camera, stopping its stream. The live landscape layout places the preview beside the mountain and saved metre counter. On-screen setup keeps the screen facing the user.
+
+Validation: 18 unit tests and seven Playwright software checks passed, including unavailable-front-camera handling, incorrect rear-camera rejection, both preview orientations and camera/scene/metre-counter viewport bounds at 844 x 390. Synthetic pixels remain test-only. Real Pixel 9 Pro / Edge camera framing, performance and 20-item accuracy are still pending.

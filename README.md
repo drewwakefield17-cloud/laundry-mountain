@@ -20,8 +20,8 @@ Test URL: https://laundry-mountain-folding.netlify.app
 
 The temporary on-screen field-test guide walks through camera permission, framing, calibration, per-cycle folding instructions, report saving, a timed two-minute negative control, and a saved-position reload check. Instructions stay beside the camera and can be hidden/restored. Interrupted controls are marked incomplete; neither guides nor manual guide buttons award metres.
 
-1. Open in normal Safari (iPhone) or Chrome (Android), rotate to landscape, enable the front camera.
-2. Prop the phone securely facing the table at roughly 45 degrees. Start about 1–1.5 metres from the work surface and adjust until the folding area and completed area fit the full camera view. Try the rear camera for a wider view; Flip view changes both preview and analysis. Supported lenses start at minimum zoom.
+1. Open in normal Edge (Pixel 9 Pro), Chrome (Android) or Safari (iPhone), rotate to landscape, enable the front camera.
+2. Prop the phone securely facing the table at roughly 45 degrees. Start about 1–1.5 metres from the work surface and adjust until the folding area and completed area fit the full camera view. Keep the screen facing you: the front camera is required and there is no rear-camera fallback; Flip view changes both preview and analysis. Supported lenses start at minimum zoom.
 3. The source box only needs to cover the pickup spot, not the whole laundry pile. Leave Fold here and Completed empty. Adjust the zone rectangles if needed, withdraw hands, then calibrate. Tap Start folding now when ready. Calibration retries after eight seconds if the empty areas cannot settle.
 4. Start folding test. Fold one item in the middle, move it completely into Completed, withdraw hands, and wait until Ready before taking the next item. Finish after 20; download the report.
 5. Start negative control for two minutes: pause, wave, reach and rearrange the source pile without completing a fold/placement cycle. Finish and download that report too.
@@ -52,3 +52,5 @@ Only new milestone commits with real timestamps. Never amend, backdate, rebase, 
 4. Additional mountain environments and secondary product screens.
 
 Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. Phase 1 has no community seed data.
+
+During a live landscape test, the front-camera preview and Ben Nevis progress sit side by side. Front-camera access is required explicitly; unsupported access stops setup with an explanation. Physical framing and accuracy still require the Pixel 9 Pro / Edge test.

@@ -24,6 +24,33 @@ test('permission denial explains recovery without granting progress', async ({ p
   await expect(page.getByText('0 m climbed', { exact: true })).toBeVisible()
 })
 
+test('front camera is required without retrying a rear camera', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.mediaDevices, 'getUserMedia', { value: async (constraints: MediaStreamConstraints) => {
+      Object.defineProperty(window, 'requestedCamera', { value: constraints, configurable: true })
+      throw new DOMException('Requested lens unavailable', 'OverconstrainedError')
+    } })
+  })
+  await page.goto('/'); await page.getByRole('button', { name: 'Enable camera' }).click()
+  await expect(page.getByRole('alert')).toContainText('front camera could not be opened')
+  expect(await page.evaluate(() => (window as unknown as { requestedCamera: MediaStreamConstraints }).requestedCamera.video)).toMatchObject({ facingMode: { exact: 'user' } })
+  await expect(page.getByRole('button', { name: 'Use rear camera' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Start folding test' })).toBeDisabled()
+})
+
+test('an incorrectly selected rear camera is stopped before calibration', async ({ page }) => {
+  await page.addInitScript(() => {
+    const canvas = document.createElement('canvas'), stream = canvas.captureStream(30), track = stream.getVideoTracks()[0]
+    Object.defineProperty(track, 'getSettings', { value: () => ({ facingMode: 'environment' }) })
+    Object.defineProperty(window, 'testCameraTrack', { value: track })
+    Object.defineProperty(navigator.mediaDevices, 'getUserMedia', { value: async () => stream })
+  })
+  await page.goto('/'); await page.getByRole('button', { name: 'Enable camera' }).click()
+  await expect(page.getByRole('alert')).toContainText('requires the front camera')
+  expect(await page.evaluate(() => (window as unknown as { testCameraTrack: MediaStreamTrack }).testCameraTrack.readyState)).toBe('ended')
+  await expect(page.getByRole('button', { name: 'Start folding test' })).toBeDisabled()
+})
+
 test('moving workspace calibration times out and can be retried', async ({ page }) => {
   await page.addInitScript(() => {
     const canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720
@@ -92,6 +119,17 @@ for (const flipped of [false, true]) test(`synthetic camera cycle works with ${f
   await page.waitForTimeout(3500)
   await page.evaluate(() => (window as unknown as { setSyntheticFrame: (s: string) => void }).setSyntheticFrame('placed'))
   await expect(page.getByText('10 m climbed', { exact: true })).toBeVisible({ timeout: 10_000 })
+  if (flipped) {
+    await page.evaluate(() => document.querySelector('.live-layout')?.scrollIntoView({ block: 'start' }))
+    for (const selector of ['.camera-preview', '.mountain-canvas', '.progress-line']) {
+      const bounds = await page.locator(selector).boundingBox()
+      expect(bounds).not.toBeNull(); expect(bounds!.y).toBeGreaterThanOrEqual(0)
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(390)
+    }
+    const camera = await page.locator('.camera-preview').boundingBox(), mountain = await page.locator('.mountain-canvas').boundingBox()
+    expect(camera!.x + camera!.width).toBeLessThan(mountain!.x)
+    await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-front-camera-live.png') })
+  }
   await page.getByTestId('field-test-guide').getByRole('button', { name: 'Finish test' }).click()
   await expect(page.getByTestId('field-test-guide')).toContainText('Record the folding result')
   if (flipped) {

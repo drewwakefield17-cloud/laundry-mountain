@@ -7,3 +7,13 @@
 .setup-note.calibrated{padding:12px;background:#e5f5ec;border:1px solid #79d7a6;border-radius:10px;color:#12352d;font-weight:700}
 .field-guide{position:sticky;top:8px;z-index:5;margin:0 0 12px;padding:12px 16px;background:#e5f5ec;border:1px solid #79d7a6;border-radius:12px;box-shadow:0 4px 12px #12352d0a}.field-guide-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}.field-guide-top>span{font-size:9px;letter-spacing:1px;font-weight:800;color:#1e5a49}.field-guide-top button{min-height:32px;padding:4px 8px;font-size:10px;border:0;background:transparent}.field-guide strong{font-size:15px;color:#12352d}.field-guide p{font-size:12px;color:#12352d;margin-top:4px}.field-guide small{display:block;font-size:10px;color:#6f7e77;margin-top:6px}.field-guide-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.field-guide-actions button{font-size:11px;min-height:40px;padding:8px 12px}.show-test-guide{margin-bottom:12px;font-size:11px}@media(orientation:landscape) and (max-height:600px){.field-guide{top:4px;padding:8px 12px}.field-guide p{font-size:11px}.field-guide small{font-size:9px}.field-guide-top{margin-bottom:0}.camera-section:has(.field-guide) .camera-preview{width:min(100%,calc(50vh * var(--camera-ratio)))}}
 @media(orientation:landscape) and (max-height:600px){.intro,.app-header{display:none}.lab-layout{grid-template-columns:1fr}.climb-column{margin-top:8px}.camera-preview{max-width:100%;width:min(100%,calc(65vh * var(--camera-ratio)));margin:0 auto}.camera-section .section-heading{margin-bottom:8px}.camera-actions{margin-top:8px}.camera-actions button{font-size:12px}.camera-section{padding:12px}.session-controls{margin-top:12px}.test-guide{display:none}}
+
+@media(orientation:landscape) and (max-height:600px){
+.live-layout{grid-template-columns:minmax(0,1.4fr) minmax(240px,1fr);gap:12px;scroll-margin-top:8px}
+.live-layout .climb-column{margin-top:0;position:sticky;top:8px;align-self:start}
+.live-layout .camera-section>.section-heading,.live-layout .framing-note,.live-layout .zoom-control,.live-layout .setup-note,.live-layout .advanced,.live-layout .lifetime,.live-layout .mountain-panel>.small-print{display:none}
+.live-layout .mountain-title{margin-bottom:8px}.live-layout .mountain-title h2{font-size:20px;margin-top:0}
+.live-layout .mountain-canvas{height:160px}.live-layout .progress-line{margin-top:12px}
+.live-layout .field-guide{position:static}.live-layout .field-guide-top button{min-height:24px}
+.live-layout .camera-section:has(.field-guide) .camera-preview{width:min(100%,calc(38vh * var(--camera-ratio)))}
+}

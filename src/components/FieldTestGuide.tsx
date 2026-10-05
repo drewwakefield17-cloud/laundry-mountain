@@ -36,9 +36,9 @@ export function testInstruction(setup: SetupStage, session: GuideSession) {
   }
   if (session.reportKind === 'folding') return { step: 5, title: 'Record the folding result', text: 'Download the folding report. Note correct detections out of 20, misses and duplicates. Then start the two-minute negative control without processing any laundry.', detail: 'The total detection count alone does not establish accuracy' }
   const instructions = {
-    camera: { step: 1, title: 'Choose your camera', text: 'Rotate to landscape. Prop the phone securely facing your table, then tap Enable camera. Keep this guide on screen as you go.' },
+    camera: { step: 1, title: 'Set up your front camera', text: 'Rotate to landscape. Prop the phone securely with its screen facing you and the front lens tilted down at the table, then tap Enable camera. Keep this guide on screen as you go.' },
     permission: { step: 1, title: 'Allow the camera in Edge', text: 'Accept the browser camera prompt. We use no microphone and do not save or upload footage.' },
-    framing: { step: 2, title: 'Frame your workspace', text: 'See the pickup spot, folding area and completed area. The whole pile need not fit. Try Flip view or Use rear camera if needed. Adjust zones, then tap My workspace fits.' },
+    framing: { step: 2, title: 'Frame your workspace', text: 'See the pickup spot, folding area and completed area. The whole pile need not fit. Move the phone further away with its screen facing you. Use Flip view if left and right feel confusing. Adjust zones, then tap My workspace fits.' },
     clear: { step: 3, title: 'Clear the two working areas', text: 'Leave Fold here and Completed empty. The source pile can stay in place. Withdraw your hands and tap Calibrate empty work area.' },
     calibrating: { step: 3, title: 'Capturing the empty areas', text: 'Keep the phone still and your hands outside Fold here and Completed for about two seconds. If calibration times out, follow the retry message.' },
     ready: { step: 4, title: 'You are ready to start', text: 'Check Fold here and Completed were empty during calibration. Tap Start folding now. The next instructions will follow your folding movements.' },
