@@ -16,11 +16,17 @@ export default function App() {
   const ledgerRef = useRef(ledger), storageBlocked = useRef(false)
   useEffect(() => { try { parseLedger(localStorage.getItem(STORAGE_KEY)) } catch (e) { storageBlocked.current = true; setStorageError(e instanceof Error ? e.message : 'Storage unavailable') } }, [])
   const [calibration, setCalibration] = useState<Calibration | null>(null), [active, setActive] = useState(false)
-  const runRef = useRef<FieldRun | null>(null), liveLayout = useRef<HTMLDivElement>(null)
+  const runRef = useRef<FieldRun | null>(null), liveLayout = useRef<HTMLDivElement>(null), reportView = useRef<HTMLElement>(null)
   useEffect(() => { if (active) liveLayout.current?.scrollIntoView({ block: 'start' }) }, [active])
   const [report, setReport] = useState<FieldRun | null>(() => { try { const raw = localStorage.getItem(REPORT_KEY); return raw ? JSON.parse(raw) : null } catch { return null } })
   const [observation, setObservation] = useState<Observation | null>(null), [count, setCount] = useState(0), [clock, setClock] = useState(Date.now())
-  const [message, setMessage] = useState(''), [close, setClose] = useState(false), [notes, setNotes] = useState(''), [burst, setBurst] = useState('')
+  const [message, setMessage] = useState(''), [close, setClose] = useState(false), [notes, setNotes] = useState(() => report?.notes ?? ''), [burst, setBurst] = useState('')
+  const [reportMessage, setReportMessage] = useState('')
+  useEffect(() => {
+    if (!report || active) return
+    try { localStorage.setItem(REPORT_KEY, JSON.stringify({ ...report, notes })) }
+    catch { setReportMessage('Notes could not be saved. Copy the summary before leaving.') }
+  }, [notes, report, active])
   const [returnTarget, setReturnTarget] = useState<{ metres: number; returned: boolean } | null>(() => {
     try { const raw = localStorage.getItem(RETURN_KEY); if (!raw) return null; const value = JSON.parse(raw); return Number.isFinite(value.metres) ? { metres: value.metres, returned: true } : null } catch { return null }
   })
@@ -29,7 +35,7 @@ export default function App() {
   useEffect(() => { if (!burst) return; const timer = setTimeout(() => setBurst(''), 2500); return () => clearTimeout(timer) }, [burst])
   const stop = useCallback((reason = 'Test finished. Results are ready below.') => {
     const run = runRef.current; if (!run) return
-    run.endedAt = Date.now(); runRef.current = null; setReport({ ...run }); setActive(false); setMessage(reason)
+    run.endedAt = Date.now(); runRef.current = null; setReport({ ...run }); setActive(false); setMessage(reason); setReportMessage(''); requestAnimationFrame(() => reportView.current?.scrollIntoView({ block: 'start' }))
     try { localStorage.setItem(REPORT_KEY, JSON.stringify(run)) } catch { setStorageError('Report could not be saved. Download it before leaving.') }
   }, [])
   function start(kind: FieldRun['kind']) {
@@ -38,7 +44,7 @@ export default function App() {
     try { localStorage.removeItem(RETURN_KEY) } catch { /* Existing storage error handling remains authoritative. */ }
     const at = Date.now()
     runRef.current = { id: crypto.randomUUID(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, zones: structuredClone(calibration.zones), frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
-    setReport(null); setNotes(''); setActive(true); setCount(0); setClock(at); setMessage(''); lastDiagnostic.current = 0
+    setReport(null); setReportMessage(''); setNotes(''); setActive(true); setCount(0); setClock(at); setMessage(''); lastDiagnostic.current = 0
   }
   const acceptEvent = useCallback((evidence: string) => {
     const run = runRef.current; if (!run) return
@@ -61,11 +67,28 @@ export default function App() {
     }
   }, [])
   const ready = useCallback((value: Calibration | null) => setCalibration(value), [])
+  const reportSeconds = report ? Math.max(0, ((report.endedAt ?? report.startedAt) - report.startedAt) / 1000) : 0
+  const reportSummary = report ? [
+    `Laundry Mountain: ${report.kind} test`,
+    `Automatic events: ${report.events.length} (not confirmed correct folds)`,
+    `Duration: ${Math.round(reportSeconds)} seconds`,
+    `Analysis: ${report.frames} frames; ${(report.frames / Math.max(1, reportSeconds)).toFixed(1)} fps`,
+    `Last recorded stage: ${report.diagnostics.at(-1)?.stage ?? 'No diagnostic frames recorded'}`,
+    `Stages observed: ${[...new Set(report.diagnostics.map(d => d.stage))].join(', ') || 'none'}`,
+    `Mean processing: ${(report.processingMs / Math.max(1, report.frames)).toFixed(1)} ms/frame`,
+    `Physical result / what failed: ${notes || 'Not yet recorded'}`,
+    `Browser: ${report.userAgent}`,
+    `Run ID: ${report.id}`,
+  ].join('\n') : ''
+  async function copySummary() {
+    try { await navigator.clipboard.writeText(reportSummary); setReportMessage('Summary copied. Paste it into our chat.') }
+    catch { setReportMessage('Copy was unavailable. Select the summary text below and copy it manually.') }
+  }
   function download() {
     if (!report) return
     const data = { ...report, notes, progress: stats, status: 'physical results require human assessment', version: 1 }
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
-    const a = document.createElement('a'); a.href = url; a.download = `laundry-mountain-${report.kind}-${report.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+    const a = document.createElement('a'); a.href = url; a.download = `laundry-mountain-${report.kind}-${report.id}.json`; a.click(); setReportMessage(`Download requested: ${a.download}. Look in Edge’s Downloads menu or your phone’s Downloads folder. If it is missing, use Copy test summary below.`); setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   const elapsed = runRef.current ? Math.max(0, Math.floor((clock - runRef.current.startedAt) / 1000)) : 0
   function prepareReturnCheck() {
@@ -74,7 +97,7 @@ export default function App() {
   }
   const returnCheck = returnTarget ? !returnTarget.returned ? 'waiting' : !storageError && returnTarget.metres === stats.mountainMetres ? 'passed' : 'failed' : undefined
   const guideActions = !active && returnCheck === 'waiting' ? <button onClick={() => location.reload()}>Reload and check</button>
-    : !active && report ? <><button onClick={download}>{report.kind === 'folding' ? 'Download folding report' : 'Download control report'}</button>{report.kind === 'folding' || ((report.endedAt ?? report.startedAt) - report.startedAt < 120_000 && !returnCheck) ? <button disabled={!calibration || !!storageError} onClick={() => start('negative-control')}>{report.kind === 'folding' ? 'Begin two-minute control' : 'Retry two-minute control'}</button> : null}{report.kind === 'negative-control' && !returnCheck && <button onClick={prepareReturnCheck}>Check saved position</button>}</>
+    : !active && report ? <><button onClick={() => reportView.current?.scrollIntoView({ block: 'start' })}>View results</button><button onClick={download}>{report.kind === 'folding' ? 'Download folding report' : 'Download control report'}</button>{report.kind === 'folding' || ((report.endedAt ?? report.startedAt) - report.startedAt < 120_000 && !returnCheck) ? <button disabled={!calibration || !!storageError} onClick={() => start('negative-control')}>{report.kind === 'folding' ? 'Begin two-minute control' : 'Retry two-minute control'}</button> : null}{report.kind === 'negative-control' && !returnCheck && <button onClick={prepareReturnCheck}>Check saved position</button>}</>
     : active ? <button onClick={() => stop()}>Finish test</button> : null
   return <>
     <header className="app-header"><a className="brand" href="/" aria-label="Laundry Mountain home"><Mountain size={33} strokeWidth={2.4} /><span>LAUNDRY<span>MOUNTAIN</span></span></a><span className="phase-label">Folding field test · Phase 1</span></header>
@@ -94,7 +117,7 @@ export default function App() {
         </section><section className="test-guide"><h3>A clear path to proof</h3><ol><li>The source zone marks the pickup spot, not your entire pile. Keep the folding and completed areas separate and visible.</li><li>Fold in the work zone. Place the item fully in Completed, withdraw your hands and wait for Ready.</li><li>20 items, then a separate 2-minute negative control. Target: 18/20, no duplicates, no false events.</li></ol></section></aside>
       </div>
       <details className="diagnostics"><summary>Live diagnostics · experimental folding detector</summary><p>This detector infers a processing cycle from movement and stable placement. It does not recognise garments or verify fold quality.</p><div className="diagnostic-grid">{(['source', 'work', 'completed'] as const).map(n => <div key={n}><strong>{n}</strong><span>Movement: {((observation?.signals.motion[n] ?? 0) * 100).toFixed(1)}%</span><span>Baseline change: {((observation?.signals.occupancy[n] ?? 0) * 100).toFixed(1)}%</span></div>)}<div><strong>Frame analysis</strong><span>{observation?.processingMs.toFixed(1) ?? '—'} ms / frame</span><span>Placement change: {((observation?.change ?? 0) * 100).toFixed(1)}%</span></div></div></details>
-      {report && <section className="report"><div className="section-heading"><div><h2>{report.kind === 'folding' ? 'Folding test results' : 'Negative-control results'}</h2><p>{report.events.length} automatic events · {Math.round(((report.endedAt ?? report.startedAt) - report.startedAt) / 1000)} seconds · {report.frames} analysed frames</p></div><button onClick={download}><Download size={18} /> Download report</button></div><label>What happened physically?<textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Correct detections / 20, missed item numbers, duplicates, false events, phone/browser and lighting." /></label><p className="small-print">Match automatic events to the actual laundry actions to assess accuracy. Reports contain numbers and timestamps, never camera images.</p></section>}
+      {report && <section ref={reportView} className="report" aria-label="Saved test results"><div className="section-heading"><div><h2>{report.kind === 'folding' ? 'Folding test results' : 'Negative-control results'}</h2><p>{report.events.length} automatic events · {Math.round(((report.endedAt ?? report.startedAt) - report.startedAt) / 1000)} seconds · {report.frames} analysed frames</p></div><button onClick={download}><Download size={18} /> Download report</button></div><p className="notice">Your latest finished test is saved in this browser. No downloaded file is needed to read these results.</p><p className="notice">Analysis: {(report.frames / Math.max(1, reportSeconds)).toFixed(1)} fps · Last recorded stage: {report.diagnostics.at(-1)?.stage ?? 'No diagnostic frames recorded'}</p><label>What happened physically?<textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Correct detections / 20, missed item numbers, duplicates, false events, phone/browser and lighting." /></label><button onClick={() => void copySummary()}>Copy test summary</button>{reportMessage && <p role="status" className="notice">{reportMessage}</p>}<label>Summary to send back<textarea aria-label="Summary to send back" readOnly value={reportSummary} onFocus={e => e.currentTarget.select()} /></label><p className="small-print">Match automatic events to the actual laundry actions to assess accuracy. Reports contain numbers and timestamps, never camera images.</p></section>}
     </main><footer>Real laundry. Higher ground.<span>Built during the event · no simulated player activity</span></footer>
   </>
 }

@@ -43,3 +43,9 @@ Do not proceed to further product phases until the product owner supplies real p
 The product owner confirmed the front camera is essential so the screen and gamification remain visible. This supersedes the optional rear-camera setup guidance. Requests now require facingMode=user explicitly and reject a reported rear camera, stopping its stream. The live landscape layout places the preview beside the mountain and saved metre counter. On-screen setup keeps the screen facing the user.
 
 Validation: 18 unit tests and seven Playwright software checks passed, including unavailable-front-camera handling, incorrect rear-camera rejection, both preview orientations and camera/scene/metre-counter viewport bounds at 844 x 390. Synthetic pixels remain test-only. Real Pixel 9 Pro / Edge camera framing, performance and 20-item accuracy are still pending.
+
+### Failed physical attempt and report access
+
+The product owner reported that the phone test failed and could not locate the downloaded report. The owner then confirmed zero automatic counts. The physical item count and failure stage have not yet been supplied; no acceptance pass is claimed. The detector and its thresholds remain unchanged pending physical evidence.
+
+The latest finished report can now be opened with View results and read or copied in the app. The summary includes automatic event count, duration, analysis FPS, observed/last recorded stages and human notes. Notes persist with the report across reloads. Download requests explain the filename and where to look, while offering a text fallback. This does not remotely collect phone diagnostics; the owner must share the summary.

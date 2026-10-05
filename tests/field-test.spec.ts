@@ -132,6 +132,14 @@ for (const flipped of [false, true]) test(`synthetic camera cycle works with ${f
   }
   await page.getByTestId('field-test-guide').getByRole('button', { name: 'Finish test' }).click()
   await expect(page.getByTestId('field-test-guide')).toContainText('Record the folding result')
+  await page.getByRole('button', { name: 'View results' }).click()
+  await expect(page.getByRole('textbox', { name: 'Summary to send back' })).toContainText('Automatic events: 1')
+  await page.getByRole('textbox', { name: 'What happened physically?' }).fill('Synthetic software check: one event; physical accuracy not tested.')
+  if (!flipped) {
+    await page.reload()
+    await expect(page.getByRole('textbox', { name: 'What happened physically?' })).toHaveValue('Synthetic software check: one event; physical accuracy not tested.')
+    await expect(page.getByRole('textbox', { name: 'Summary to send back' })).toContainText('Stages observed:')
+  }
   if (flipped) {
     await page.getByRole('button', { name: 'Begin two-minute control' }).click()
     await expect(page.getByTestId('field-test-guide')).toContainText('Pause with your hands')
@@ -145,4 +153,26 @@ for (const flipped of [false, true]) test(`synthetic camera cycle works with ${f
   await page.reload()
   await expect(page.getByText('10 m climbed', { exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: flipped ? 'Negative-control results' : 'Folding test results' })).toBeVisible()
+})
+
+
+test('previously saved failed report is readable without camera and has a copy fallback', async ({ page }) => {
+  // Isolated browser fixture only; no report is seeded into the real phone or shared app.
+  await page.addInitScript(() => {
+    localStorage.setItem('laundry-mountain:field-report:v1', JSON.stringify({
+      id: 'synthetic-report-fixture', kind: 'folding', startedAt: 1000, endedAt: 31000,
+      events: [], frames: 240, processingMs: 480,
+      diagnostics: [{ at: 30000, stage: 'working', motion: [0, .2, 0], occupancy: [0, .2, 0], outsideMotion: 0 }],
+      config: {}, zones: {}, notes: 'Synthetic report fixture; physical accuracy untested.', userAgent: 'Test-only browser',
+    }))
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new Error('Copy denied') } } })
+  })
+  await page.setViewportSize({ width: 390, height: 844 }); await page.goto('/')
+  await page.getByRole('button', { name: 'View results' }).click()
+  await expect(page.getByRole('heading', { name: 'Folding test results' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Summary to send back' })).toHaveValue(/Automatic events: 0[\s\S]*8.0 fps[\s\S]*Last recorded stage: working/)
+  await page.getByRole('button', { name: 'Copy test summary' }).click()
+  await expect(page.getByText('Copy was unavailable. Select the summary text below and copy it manually.')).toBeVisible()
+  await page.getByRole('button', { name: 'View results' }).click()
+  await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-readable-report.png') })
 })

@@ -54,3 +54,5 @@ Only new milestone commits with real timestamps. Never amend, backdate, rebase, 
 Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. Phase 1 has no community seed data.
 
 During a live landscape test, the front-camera preview and Ben Nevis progress sit side by side. Front-camera access is required explicitly; unsupported access stops setup with an explanation. Physical framing and accuracy still require the Pixel 9 Pro / Edge test.
+
+If a field test fails, tap View results, describe what happened, then Copy test summary and paste it into the build chat. The latest finished report and its notes stay in the same browser across refreshes. Starting and finishing another test replaces that latest report, so copy it first. JSON download is optional; its filename is shown after requesting it.
