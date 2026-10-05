@@ -1,53 +1,61 @@
 import { useEffect, useRef } from 'react'
 import { BEN_NEVIS } from '../domain/config'
+import { routePosition } from '../domain/expedition'
+import { drawHighlands } from './mountainTerrain'
 
-export function MountainScene({ metres, close }: { metres: number; close: boolean }) {
-  const canvas = useRef<HTMLCanvasElement>(null)
-  const shown = useRef(metres)
+export function MountainScene({ metres, close, focusMetres }: { metres: number; close: boolean; focusMetres?: number }) {
+  const canvas = useRef<HTMLCanvasElement>(null), shown = useRef(metres)
   useEffect(() => {
-    const el = canvas.current!
-    let frame = 0
+    const el = canvas.current!, ctx = el.getContext('2d')!
+    const terrain = document.createElement('canvas'), backdrop = terrain.getContext('2d')!
+    let frame = 0, width = 0, height = 0, ratio = 1, disposed = false
+    const motion = matchMedia('(prefers-reduced-motion: reduce)')
     const draw = () => {
-      const ctx = el.getContext('2d')!
-      const w = el.clientWidth, h = el.clientHeight, ratio = Math.min(devicePixelRatio, 2)
-      if (el.width !== w * ratio || el.height !== h * ratio) { el.width = w * ratio; el.height = h * ratio }
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-      shown.current += (metres - shown.current) * .055
-      const p = Math.min(1, shown.current / BEN_NEVIS.elevation), route = BEN_NEVIS.route
-      const t = p * (route.length - 1), index = Math.min(route.length - 2, Math.floor(t)), f = t - index
-      const px = route[index][0] + (route[index + 1][0] - route[index][0]) * f
-      const py = route[index][1] + (route[index + 1][1] - route[index][1]) * f
-      const sky = ctx.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#c5ddd8'); sky.addColorStop(1, '#f0eee0')
-      ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h); ctx.save()
-      if (close) { ctx.translate(w * .5, h * .65); ctx.scale(2.1, 2.1); ctx.translate(-px * w, -py * h) }
-      const shape = (points: number[][], color: string) => {
-        ctx.fillStyle = color; ctx.beginPath(); points.forEach(([x, y], i) => i ? ctx.lineTo(x * w, y * h) : ctx.moveTo(x * w, y * h)); ctx.closePath(); ctx.fill()
+      frame = 0; if (disposed || !width || !height || document.hidden) return
+      const difference = metres - shown.current
+      shown.current = motion.matches || Math.abs(difference) < .05 ? metres : shown.current + difference * .14
+      const player = routePosition(shown.current), focus = routePosition(focusMetres ?? shown.current)
+      ctx.setTransform(ratio,0,0,ratio,0,0); ctx.clearRect(0,0,width,height); ctx.save()
+      if (close) { const x=Math.max(.5/2.05,Math.min(1-.5/2.05,focus.x)), y=Math.max(.57/2.05,Math.min(1-.43/2.05,focus.y)); ctx.translate(width*.5,height*.57);ctx.scale(2.05,2.05);ctx.translate(-x*width,-y*height) }
+      ctx.drawImage(terrain,0,0,width,height)
+      const path = (progress: number) => {
+        ctx.beginPath(); const t=progress*(BEN_NEVIS.route.length-1), last=Math.floor(t)
+        BEN_NEVIS.route.forEach(([x,y],i)=>{ if(i<=last) i?ctx.lineTo(x*width,y*height):ctx.moveTo(x*width,y*height) })
+        const end=routePosition(progress*BEN_NEVIS.elevation);ctx.lineTo(end.x*width,end.y*height)
       }
-      shape([[-.2, .6], [.02, .39], [.15, .47], [.3, .27], [.44, .45], [.6, .36], [.78, .48], [1.1, .25], [1.2, 1], [-.2, 1]], '#a3b9ae')
-      shape([[-.1, 1], [.09, .64], [.24, .48], [.35, .39], [.45, .28], [.54, .25], [.58, .23], [.68, .23], [.74, .3], [.8, .42], [1.1, .87], [1.1, 1]], BEN_NEVIS.palette.rock)
-      shape([[.1, 1], [.3, .62], [.45, .43], [.54, .25], [.57, .44], [.67, .58], [.8, .72], [1.1, 1]], '#83917b')
-      shape([[-.1, .9], [.12, .77], [.35, .66], [.5, .59], [.57, .72], [.8, .91], [1.1, 1], [-.1, 1]], BEN_NEVIS.palette.grass)
-      shape([[.54, .25], [.58, .23], [.68, .23], [.72, .28], [.63, .3], [.6, .29]], '#b6bab0')
-      for (let i = 0; i < 26; i++) {
-        const x = .38 + i * .015, y = .48 + i * .012
-        ctx.strokeStyle = '#55685a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x * w, y * h); ctx.lineTo((x + .09) * w, (y + .03) * h); ctx.stroke()
+      ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='#233f3855';ctx.lineWidth=5;path(1);ctx.stroke()
+      ctx.setLineDash([3,5]);ctx.strokeStyle='#f4f0d7';ctx.lineWidth=2;path(1);ctx.stroke();ctx.setLineDash([])
+      ctx.strokeStyle='#79d7a6';ctx.lineWidth=3;path(player.progress);ctx.stroke()
+      for (const checkpoint of BEN_NEVIS.checkpoints) {
+        const p=routePosition(checkpoint.metres), reached=metres>=checkpoint.metres
+        ctx.fillStyle=reached?'#2dbe78':'#faf8e8';ctx.strokeStyle='#31554a';ctx.lineWidth=1.5
+        ctx.beginPath();ctx.arc(p.x*width,p.y*height,3.5,0,Math.PI*2);ctx.fill();ctx.stroke()
       }
-      ctx.strokeStyle = '#99bfb8'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(.9 * w, h); ctx.bezierCurveTo(.6 * w, .84 * h, .77 * w, .83 * h, .51 * w, .77 * h); ctx.stroke()
-      for (let i = 0; i < 18; i++) {
-        const x = (i / 18) * w, y = h * (.93 + Math.sin(i * 4) * .025)
-        ctx.fillStyle = i % 3 ? '#3c5940' : '#65735a'; ctx.beginPath(); ctx.ellipse(x, y, 20, 7, 0, 0, Math.PI * 2); ctx.fill()
+      const summit=routePosition(BEN_NEVIS.elevation), sx=summit.x*width,sy=summit.y*height
+      ctx.fillStyle='#d6d6bd';ctx.beginPath();ctx.moveTo(sx-5,sy+2);ctx.lineTo(sx,sy-7);ctx.lineTo(sx+5,sy+2);ctx.closePath();ctx.fill()
+      ctx.strokeStyle='#435b50';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sx,sy-5);ctx.lineTo(sx,sy-24);ctx.stroke()
+      ctx.fillStyle='#f5bf4f';ctx.beginPath();ctx.moveTo(sx,sy-24);ctx.lineTo(sx+13,sy-20);ctx.lineTo(sx,sy-16);ctx.closePath();ctx.fill()
+      if (focusMetres!==undefined) {
+        ctx.strokeStyle='#f5bf4f';ctx.lineWidth=2;ctx.beginPath();ctx.arc(focus.x*width,focus.y*height,9,0,Math.PI*2);ctx.stroke()
       }
-      ctx.setLineDash([4, 7]); ctx.strokeStyle = '#f9f6e5'; ctx.lineWidth = 2.5; ctx.beginPath()
-      route.forEach(([x, y], i) => i ? ctx.lineTo(x * w, y * h) : ctx.moveTo(x * w, y * h)); ctx.stroke(); ctx.setLineDash([])
-      for (const n of [0, 2, 4, 6, 7]) {
-        ctx.fillStyle = n / 7 <= p ? '#2dbe78' : '#e7e9d9'; ctx.beginPath(); ctx.arc(route[n][0] * w, route[n][1] * h, 4, 0, Math.PI * 2); ctx.fill()
-      }
-      ctx.strokeStyle = '#12352d'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px * w, py * h); ctx.lineTo(px * w, py * h - 29); ctx.stroke()
-      shape([[px, py - 29 / h], [px + 23 / w, py - 23 / h], [px, py - 17 / h]], '#f48a32')
-      ctx.fillStyle = '#12352d'; ctx.beginPath(); ctx.arc(px * w, py * h, 6, 0, Math.PI * 2); ctx.fill(); ctx.restore()
-      frame = requestAnimationFrame(draw)
+      const px=player.x*width,py=player.y*height
+      ctx.fillStyle='#12352d';ctx.beginPath();ctx.ellipse(px,py+2,7,3,0,0,Math.PI*2);ctx.fill()
+      ctx.strokeStyle='#fff8e2';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py-26);ctx.stroke()
+      ctx.fillStyle='#f48a32';ctx.beginPath();ctx.moveTo(px+1,py-26);ctx.quadraticCurveTo(px+11,py-28,px+19,py-21);ctx.lineTo(px+1,py-15);ctx.closePath();ctx.fill()
+      ctx.restore()
+      if (Math.abs(metres-shown.current)>.01) frame=requestAnimationFrame(draw)
     }
-    draw(); return () => cancelAnimationFrame(frame)
-  }, [metres, close])
+    const requestDraw=()=>{ if (!frame && !disposed) frame=requestAnimationFrame(draw) }
+    const resize = () => {
+      width=el.clientWidth;height=el.clientHeight;ratio=Math.min(devicePixelRatio||1,2)
+      if (!width || !height) return
+      el.width=Math.round(width*ratio);el.height=Math.round(height*ratio)
+      terrain.width=el.width;terrain.height=el.height;backdrop.setTransform(ratio,0,0,ratio,0,0)
+      drawHighlands(backdrop,width,height);requestDraw()
+    }
+    const observer=new ResizeObserver(resize);observer.observe(el)
+    document.addEventListener('visibilitychange',requestDraw);motion.addEventListener('change',requestDraw);resize()
+    return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();document.removeEventListener('visibilitychange',requestDraw);motion.removeEventListener('change',requestDraw)}
+  }, [metres,close,focusMetres])
   return <canvas ref={canvas} className="mountain-canvas" aria-label={`Ben Nevis stylised route. Your position: ${Math.round(metres)} of 1,345 Laundry Metres.`} role="img" />
 }

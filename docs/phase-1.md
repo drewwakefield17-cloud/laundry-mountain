@@ -49,3 +49,13 @@ Validation: 18 unit tests and seven Playwright software checks passed, including
 The product owner reported that the phone test failed and could not locate the downloaded report. The owner then confirmed zero automatic counts. The physical item count and failure stage have not yet been supplied; no acceptance pass is claimed. The detector and its thresholds remain unchanged pending physical evidence.
 
 The latest finished report can now be opened with View results and read or copied in the app. The summary includes automatic event count, duration, analysis FPS, observed/last recorded stages and human notes. Notes persist with the report across reloads. Download requests explain the filename and where to look, while offering a text fallback. This does not remotely collect phone diagnostics; the owner must share the summary.
+
+### Independent work while physical testing is unavailable
+
+The product owner explicitly requested other build work while unable to complete the test. We are developing the Ben Nevis expedition view without marking the camera gate passed, extending other mountains, or fabricating progress. The scene, checkpoints and saved ledger view can be developed independently. The earlier stop-at-physical-testing restriction is relaxed for this requested independent work only.
+
+Expedition route: `/?view=expedition`; original field-test route: `/`. The flag derives from the same saved metres in both views. Checkpoint selection focuses the scene without changing the ledger or unlocking a mountain. No community seed records or simulated current-user events are created. Navigation retains the saved field report, stops the camera, and invalidates calibration before returning.
+
+The existing reference informs forest/cream colours, flat buttons, scenic focus and numerical hierarchy. Intentional limits: this milestone adds a single Ben Nevis overview and code-rendered scene rather than all ten reference screens, baked artwork, fake player profiles or unmeasured environmental savings. Supabase/cloud identity remains outstanding. Physical folding acceptance remains zero detections reported, exact human item count unknown.
+
+Independent milestone validation: 20 Vitest tests and 11 Playwright checks passed. Verified checkpoint boundaries, route restoration, portrait/landscape overflow, scene controls, report preservation, stopped camera tracks, recalibration on return, and the existing synthetic camera pipeline. Browser console inspection found no relevant errors. No physical camera acceptance is implied.

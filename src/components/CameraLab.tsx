@@ -66,7 +66,7 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
       setError(e instanceof DOMException && e.name === 'OverconstrainedError' ? 'The front camera could not be opened. Check camera access in Edge and close other camera apps, then retry. This test requires the front camera so you can watch your climb.' : /permission|denied/i.test(message) ? 'Camera permission was denied. Allow camera in your browser site settings, then retry.' : message)
     }
   }
-  useEffect(() => () => { requestId.current++; stream.current?.getTracks().forEach(t => t.stop()) }, [])
+  useEffect(() => () => { requestId.current++; stream.current?.getTracks().forEach(t => t.stop()); callbacks.current.onReady(null); callbacks.current.onInterrupt('Left camera view; test ended and progress saved') }, [])
   useEffect(() => {
     const visibility = () => { if (document.hidden) { stopCamera(); callbacks.current.onInterrupt('App left the foreground; test ended and progress saved') } }
     document.addEventListener('visibilitychange', visibility); return () => document.removeEventListener('visibilitychange', visibility)

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Download, Flag, Mountain, Play, Square } from 'lucide-react'
+import { Expedition } from './components/Expedition'
 import { CameraLab } from './components/CameraLab'
 import type { Calibration, Observation } from './components/CameraLab'
 import { MountainScene } from './components/MountainScene'
@@ -11,6 +12,10 @@ const REPORT_KEY = 'laundry-mountain:field-report:v1'
 const RETURN_KEY = 'laundry-mountain:field-return:v1'
 const stageLabels: Record<string, string> = { ready: 'Ready for an item', source: 'Source reached', working: 'Folding in progress', placement: 'Checking placement', cooldown: 'Item counted · cooldown' }
 export default function App() {
+  const [view, setView] = useState(() => new URLSearchParams(location.search).get('view') === 'expedition' ? 'expedition' : 'field')
+  useEffect(() => { const navigate = () => setView(new URLSearchParams(location.search).get('view') === 'expedition' ? 'expedition' : 'field'); window.addEventListener('popstate', navigate); return () => window.removeEventListener('popstate', navigate) }, [])
+  useEffect(() => { document.title = view === 'expedition' ? 'Laundry Mountain · Your expedition' : 'Laundry Mountain · Folding field test' }, [view])
+  function navigate(next: 'expedition' | 'field') { history.pushState(null, '', next === 'expedition' ? '/?view=expedition' : '/'); setView(next); scrollTo(0, 0) }
   const [storageError, setStorageError] = useState('')
   const [ledger, setLedger] = useState(() => { try { return parseLedger(localStorage.getItem(STORAGE_KEY)) } catch { return emptyLedger() } })
   const ledgerRef = useRef(ledger), storageBlocked = useRef(false)
@@ -99,8 +104,9 @@ export default function App() {
   const guideActions = !active && returnCheck === 'waiting' ? <button onClick={() => location.reload()}>Reload and check</button>
     : !active && report ? <><button onClick={() => reportView.current?.scrollIntoView({ block: 'start' })}>View results</button><button onClick={download}>{report.kind === 'folding' ? 'Download folding report' : 'Download control report'}</button>{report.kind === 'folding' || ((report.endedAt ?? report.startedAt) - report.startedAt < 120_000 && !returnCheck) ? <button disabled={!calibration || !!storageError} onClick={() => start('negative-control')}>{report.kind === 'folding' ? 'Begin two-minute control' : 'Retry two-minute control'}</button> : null}{report.kind === 'negative-control' && !returnCheck && <button onClick={prepareReturnCheck}>Check saved position</button>}</>
     : active ? <button onClick={() => stop()}>Finish test</button> : null
+  if (view === 'expedition') return <Expedition stats={stats} storageError={storageError} hasReport={!!report} onOpenTest={() => navigate('field')} />
   return <>
-    <header className="app-header"><a className="brand" href="/" aria-label="Laundry Mountain home"><Mountain size={33} strokeWidth={2.4} /><span>LAUNDRY<span>MOUNTAIN</span></span></a><span className="phase-label">Folding field test · Phase 1</span></header>
+    <header className="app-header"><a className="brand" href="/" aria-label="Laundry Mountain home"><Mountain size={33} strokeWidth={2.4} /><span>LAUNDRY<span>MOUNTAIN</span></span></a><button disabled={active} onClick={() => navigate('expedition')}>Your expedition</button></header>
     <main><div className="intro"><div><h1>Small loads.<br />Higher ground.</h1><p>Fold real laundry. Watch your climb begin.</p></div><div className="test-status"><span className="status-dot" />Physical accuracy awaiting your phone test</div></div>
       {storageError && <p className="error" role="alert">{storageError}</p>}
       <div ref={liveLayout} className={`lab-layout ${active ? 'live-layout' : ''}`}><div className="workspace-column"><CameraLab active={active} onEvent={acceptEvent} onObservation={observe} onReady={ready} onInterrupt={stop} onStart={() => start('folding')} guideSession={{ active, kind: runRef.current?.kind, elapsed, count, stage: observation?.stage, reason: observation?.reason, reportKind: report?.kind, reportSeconds: report ? Math.floor(((report.endedAt ?? report.startedAt) - report.startedAt) / 1000) : undefined, returnCheck, savedMetres: returnTarget?.metres }} guideActions={guideActions} />

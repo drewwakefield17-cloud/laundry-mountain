@@ -36,7 +36,7 @@ Report correct detections out of 20 (not simply the total count), missed item nu
 - Similar garment/table colours, auto-exposure, shadows, occlusion and a completed stack covering the entire zone may cause missed or false detections.
 - The camera and test end when the page is backgrounded. Re-enable and recalibrate for a fresh test. Metres already accepted are saved immediately.
 - Phase 1 persistence is local to the browser origin; Supabase identity/cloud sync is not wired yet. Private browsing, cleared site data or another browser/device will not restore it.
-- Ben Nevis is an early code-rendered visual for the technical loop, not finished scene art. Further environments, summit transitions, Surge and achievements wait behind the physical folding gate.
+- The Ben Nevis expedition interface is being developed independently while the folding gate is pending, at the product owner's request. Further environments, summit transitions, Surge and achievements remain gated.
 - Test diagnostics deliberately remain visible in this field-test build; the normal consumer experience will hide them.
 - No video, images or audio are stored, sent to a backend or included in exported reports.
 
@@ -56,3 +56,11 @@ Any seeded community records must include `is_demo: true` and be labelled as dem
 During a live landscape test, the front-camera preview and Ben Nevis progress sit side by side. Front-camera access is required explicitly; unsupported access stops setup with an explanation. Physical framing and accuracy still require the Pixel 9 Pro / Edge test.
 
 If a field test fails, tap View results, describe what happened, then Copy test summary and paste it into the build chat. The latest finished report and its notes stay in the same browser across refreshes. Starting and finishing another test replaces that latest report, so copy it first. JSON download is optional; its filename is shown after requesting it.
+
+## Independent expedition milestone
+
+Open `/?view=expedition` for the Ben Nevis overview, full/climb views, checkpoint exploration and existing saved statistics. The camera spike stays at `/`. Checkpoint exploration changes only the camera focus; it cannot create events or award metres. The original ledger and latest finished report keep their existing storage keys. Returning to camera setup requires fresh calibration.
+
+The scene is entirely code-rendered Canvas 2D with deterministic terrain, a broad rocky summit, lower green glen, lochan, forest and atmosphere. Player animation runs only while progress changes; idle scenes stop requesting frames. Terrain is cached during each animation and rebuilt on resize. Pixel hardware performance still requires manual validation.
+
+Visual references: [VisitScotland Ben Nevis](https://www.visitscotland.com/things-to-do/outdoor-activities/walking/mountains-hills/ben-nevis) and [John Muir Trust Ben Nevis](https://www.johnmuirtrust.org/about-us/where-we-work/ben-nevis). Checkpoint names/targets and route positions are game design, never real navigation data.
