@@ -30,7 +30,7 @@ export default function App() {
   function start(kind: FieldRun['kind']) {
     if (!calibration || storageBlocked.current) return
     const at = Date.now()
-    runRef.current = { id: crypto.randomUUID(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
+    runRef.current = { id: crypto.randomUUID(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, zones: structuredClone(calibration.zones), frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
     setReport(null); setNotes(''); setActive(true); setCount(0); setClock(at); setMessage(''); lastDiagnostic.current = 0
   }
   const acceptEvent = useCallback((evidence: string) => {
@@ -56,7 +56,7 @@ export default function App() {
   const ready = useCallback((value: Calibration | null) => setCalibration(value), [])
   function download() {
     if (!report) return
-    const data = { ...report, notes, calibration, progress: stats, status: 'physical results require human assessment', version: 1 }
+    const data = { ...report, notes, progress: stats, status: 'physical results require human assessment', version: 1 }
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
     const a = document.createElement('a'); a.href = url; a.download = `laundry-mountain-${report.kind}-${report.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
   }

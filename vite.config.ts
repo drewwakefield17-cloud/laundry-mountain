@@ -1,10 +1,9 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import { execFileSync } from 'node:child_process'
-
-// Vite treats '#' in an absolute Windows path as a URL fragment.
-// Use the existing 8.3 alias for this same checkout; no copying or renaming.
-const root = process.platform === 'win32' && process.cwd().includes('#')
-  ? execFileSync('cmd.exe', ['/d', '/c', 'for %I in (.) do @echo %~sI'], { encoding: 'utf8' }).trim()
-  : process.cwd()
-export default defineConfig({ root, server: { fs: { allow: [root, process.cwd()] } }, resolve: { preserveSymlinks: true }, plugins: [react()] })
+import os from 'node:os'
+import path from 'node:path'
+import { createHash } from 'node:crypto'
+const cacheDir = process.platform === 'win32'
+  ? path.join(os.tmpdir(), `laundry-mountain-vite-${createHash('sha256').update(process.cwd()).digest('hex').slice(0, 12)}`)
+  : undefined
+export default defineConfig({ root: process.cwd(), cacheDir, resolve: { preserveSymlinks: true }, plugins: [react()], test: { include: ['src/**/*.test.ts'] } })

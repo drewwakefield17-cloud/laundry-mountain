@@ -1,3 +1,4 @@
+import type { Zones } from '../vision/signals'
 export type LaundryAction = 'folding' | 'hanging' | 'ironing'
 export interface LaundryEvent {
   id: string
@@ -17,6 +18,7 @@ export interface FieldRun {
   events: LaundryEvent[]
   diagnostics: { at: number; stage: string; motion: number[]; occupancy: number[]; outsideMotion: number }[]
   config: Record<string, number>
+  zones: Zones
   frames: number
   processingMs: number
   notes: string
