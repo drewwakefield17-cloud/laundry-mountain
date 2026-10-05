@@ -8,6 +8,7 @@ import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from './d
 import type { FieldRun, LaundryEvent } from './domain/events'
 
 const REPORT_KEY = 'laundry-mountain:field-report:v1'
+const RETURN_KEY = 'laundry-mountain:field-return:v1'
 const stageLabels: Record<string, string> = { ready: 'Ready for an item', source: 'Source reached', working: 'Folding in progress', placement: 'Checking placement', cooldown: 'Item counted · cooldown' }
 export default function App() {
   const [storageError, setStorageError] = useState('')
@@ -19,6 +20,9 @@ export default function App() {
   const [report, setReport] = useState<FieldRun | null>(() => { try { const raw = localStorage.getItem(REPORT_KEY); return raw ? JSON.parse(raw) : null } catch { return null } })
   const [observation, setObservation] = useState<Observation | null>(null), [count, setCount] = useState(0), [clock, setClock] = useState(Date.now())
   const [message, setMessage] = useState(''), [close, setClose] = useState(false), [notes, setNotes] = useState(''), [burst, setBurst] = useState('')
+  const [returnTarget, setReturnTarget] = useState<{ metres: number; returned: boolean } | null>(() => {
+    try { const raw = localStorage.getItem(RETURN_KEY); if (!raw) return null; const value = JSON.parse(raw); return Number.isFinite(value.metres) ? { metres: value.metres, returned: true } : null } catch { return null }
+  })
   const stats = summary(ledger), lastDiagnostic = useRef(0)
   useEffect(() => { if (!active) return; const timer = setInterval(() => setClock(Date.now()), 1000); return () => clearInterval(timer) }, [active])
   useEffect(() => { if (!burst) return; const timer = setTimeout(() => setBurst(''), 2500); return () => clearTimeout(timer) }, [burst])
@@ -29,6 +33,8 @@ export default function App() {
   }, [])
   function start(kind: FieldRun['kind']) {
     if (!calibration || storageBlocked.current) return
+    setReturnTarget(null)
+    try { localStorage.removeItem(RETURN_KEY) } catch { /* Existing storage error handling remains authoritative. */ }
     const at = Date.now()
     runRef.current = { id: crypto.randomUUID(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, zones: structuredClone(calibration.zones), frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
     setReport(null); setNotes(''); setActive(true); setCount(0); setClock(at); setMessage(''); lastDiagnostic.current = 0
@@ -61,11 +67,19 @@ export default function App() {
     const a = document.createElement('a'); a.href = url; a.download = `laundry-mountain-${report.kind}-${report.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   const elapsed = runRef.current ? Math.max(0, Math.floor((clock - runRef.current.startedAt) / 1000)) : 0
+  function prepareReturnCheck() {
+    try { localStorage.setItem(RETURN_KEY, JSON.stringify({ metres: stats.mountainMetres })); setReturnTarget({ metres: stats.mountainMetres, returned: false }) }
+    catch { setStorageError('The return-check target could not be saved. Download the report and tell us this error.') }
+  }
+  const returnCheck = returnTarget ? !returnTarget.returned ? 'waiting' : !storageError && returnTarget.metres === stats.mountainMetres ? 'passed' : 'failed' : undefined
+  const guideActions = !active && returnCheck === 'waiting' ? <button onClick={() => location.reload()}>Reload and check</button>
+    : !active && report ? <><button onClick={download}>{report.kind === 'folding' ? 'Download folding report' : 'Download control report'}</button>{report.kind === 'folding' || ((report.endedAt ?? report.startedAt) - report.startedAt < 120_000 && !returnCheck) ? <button disabled={!calibration || !!storageError} onClick={() => start('negative-control')}>{report.kind === 'folding' ? 'Begin two-minute control' : 'Retry two-minute control'}</button> : null}{report.kind === 'negative-control' && !returnCheck && <button onClick={prepareReturnCheck}>Check saved position</button>}</>
+    : active ? <button onClick={() => stop()}>Finish test</button> : null
   return <>
     <header className="app-header"><a className="brand" href="/" aria-label="Laundry Mountain home"><Mountain size={33} strokeWidth={2.4} /><span>LAUNDRY<span>MOUNTAIN</span></span></a><span className="phase-label">Folding field test · Phase 1</span></header>
     <main><div className="intro"><div><h1>Small loads.<br />Higher ground.</h1><p>Fold real laundry. Watch your climb begin.</p></div><div className="test-status"><span className="status-dot" />Physical accuracy awaiting your phone test</div></div>
       {storageError && <p className="error" role="alert">{storageError}</p>}
-      <div className="lab-layout"><div className="workspace-column"><CameraLab active={active} onEvent={acceptEvent} onObservation={observe} onReady={ready} onInterrupt={stop} onStart={() => start('folding')} />
+      <div className="lab-layout"><div className="workspace-column"><CameraLab active={active} onEvent={acceptEvent} onObservation={observe} onReady={ready} onInterrupt={stop} onStart={() => start('folding')} guideSession={{ active, kind: runRef.current?.kind, elapsed, count, stage: observation?.stage, reason: observation?.reason, reportKind: report?.kind, reportSeconds: report ? Math.floor(((report.endedAt ?? report.startedAt) - report.startedAt) / 1000) : undefined, returnCheck, savedMetres: returnTarget?.metres }} guideActions={guideActions} />
         <section className="session-controls"><div className="section-heading"><div><h2>{active ? stageLabels[observation?.stage ?? 'ready'] : 'Make the first climb count'}</h2><p>{active ? observation?.reason ?? 'Take one item from the source pile.' : 'Calibrate your workspace, then start the 20-item folding test.'}</p></div></div>
           <div className="session-stats"><div><strong>{count}</strong><span>{runRef.current?.kind === 'negative-control' ? 'false events' : 'detected items'}</span></div><div><strong>{String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}</strong><span>test time</span></div><div><strong>{active && runRef.current ? (runRef.current.frames / Math.max(1, elapsed)).toFixed(1) : '—'}</strong><span>analysis fps</span></div></div>
           <div className="test-buttons">{active ? <button className="primary" onClick={() => stop()}><Square size={16} /> Finish test</button> : <><button className="primary" disabled={!calibration || !!storageError} onClick={() => start('folding')}><Play size={18} /> Start folding test</button><button disabled={!calibration || !!storageError} onClick={() => start('negative-control')}>Start negative control</button></>}</div>

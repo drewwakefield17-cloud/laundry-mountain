@@ -32,4 +32,8 @@ These results are software verification only. The physical gate below is still n
 - Mobile analysis fps / heat / permission behaviour: not measured.
 - Leave/return position on phone: not measured.
 
+## Guided physical test
+
+The product owner requested instructions on the phone screen while testing. A field-test-only guide now follows camera/setup state and real detector stages. It prompts saving the folding report, gives three timed negative-control instructions (pause, wave/reach, rearrange), marks controls shorter than two minutes as incomplete, and supports a recorded-position/reload check. It distinguishes saved-state restoration from physical detection accuracy. Guide buttons never create laundry events or award metres.
+
 Do not proceed to further product phases until the product owner supplies real physical results. The desired target is 18/20 correct, no duplicates and no negative-control events; shortfalls must be reported with exact counts and likely causes.

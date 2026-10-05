@@ -18,6 +18,8 @@ The Windows launcher uses a temporary junction to this exact checkout when its p
 
 Test URL: https://laundry-mountain-folding.netlify.app
 
+The temporary on-screen field-test guide walks through camera permission, framing, calibration, per-cycle folding instructions, report saving, a timed two-minute negative control, and a saved-position reload check. Instructions stay beside the camera and can be hidden/restored. Interrupted controls are marked incomplete; neither guides nor manual guide buttons award metres.
+
 1. Open in normal Safari (iPhone) or Chrome (Android), rotate to landscape, enable the front camera.
 2. Prop the phone securely facing the table at roughly 45 degrees. Start about 1–1.5 metres from the work surface and adjust until the folding area and completed area fit the full camera view. Try the rear camera for a wider view; Flip view changes both preview and analysis. Supported lenses start at minimum zoom.
 3. The source box only needs to cover the pickup spot, not the whole laundry pile. Leave Fold here and Completed empty. Adjust the zone rectangles if needed, withdraw hands, then calibrate. Tap Start folding now when ready. Calibration retries after eight seconds if the empty areas cannot settle.

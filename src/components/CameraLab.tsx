@@ -4,13 +4,18 @@ import { Camera, Check, Move, RefreshCw, ShieldCheck } from 'lucide-react'
 import { FoldingDetector } from '../vision/detector'
 import { DEFAULT_ZONES, VISION, ZONE_NAMES, difference, extractSignals } from '../vision/signals'
 import type { Rect, Signals, VisionConfig, ZoneName, Zones } from '../vision/signals'
+import { FieldTestGuide } from './FieldTestGuide'
+import type { GuideSession } from './FieldTestGuide'
+import type { ReactNode } from 'react'
 
 export interface Observation { signals: Signals; stage: string; reason: string; change: number; processingMs: number }
 export interface Calibration { zones: Zones; config: VisionConfig }
-export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt, onStart }: {
+export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt, onStart, guideSession, guideActions }: {
   active: boolean; onEvent: (evidence: string) => void; onObservation: (o: Observation) => void
   onReady: (c: Calibration | null) => void; onInterrupt: (reason: string) => void
   onStart: () => void
+  guideSession: GuideSession
+  guideActions?: ReactNode
 }) {
   const video = useRef<HTMLVideoElement>(null), stream = useRef<MediaStream | null>(null), requestId = useRef(0)
   const detector = useRef(new FoldingDetector())
@@ -23,12 +28,13 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
   const [editing, setEditing] = useState(false), [ready, setReady] = useState(false), [calibrationCount, setCalibrationCount] = useState(0)
   const [ratio, setRatio] = useState(16 / 9), [config, setConfig] = useState<VisionConfig>({ ...VISION })
   const [flipped, setFlipped] = useState(false)
+  const [framed, setFramed] = useState(false)
   const [zoom, setZoom] = useState<{ min: number; max: number; step: number; value: number } | null>(null)
   const calibrationStarted = useRef(0)
   const drag = useRef<{ x: number; y: number } | null>(null)
   function invalidate() {
     baseline.current = null; previous.current = null; cycleFrame.current = null; calibrating.current = false
-    detector.current.reset(); setReady(false); setCalibrationCount(0); callbacks.current.onReady(null)
+    detector.current.reset(); setReady(false); setFramed(false); setCalibrationCount(0); callbacks.current.onReady(null)
   }
   function stopCamera() {
     requestId.current++; stream.current?.getTracks().forEach(t => t.stop()); stream.current = null
@@ -124,6 +130,10 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
   }))
   return <section className="camera-section">
     <div className="section-heading"><div><h2>Your folding workspace</h2><p>Camera frames stay on this device. No microphone.</p></div><ShieldCheck size={24} /></div>
+    <FieldTestGuide setup={camera === 'requesting' ? 'permission' : camera !== 'on' ? 'camera' : ready ? 'ready' : calibrationCount ? 'calibrating' : framed ? 'clear' : 'framing'} session={guideSession}>
+      {guideActions}
+      {!guideSession.active && !guideSession.reportKind && !guideSession.returnCheck && camera === 'on' && !ready && !calibrationCount && !framed && !editing && <button onClick={() => setFramed(true)}>My workspace fits</button>}
+    </FieldTestGuide>
     <div className={`camera-preview ${editing ? 'editing' : ''}`} style={{ aspectRatio: ratio, '--camera-ratio': ratio } as CSSProperties} onPointerDown={e => { if (editing) { e.currentTarget.setPointerCapture(e.pointerId); drag.current = position(e) } }} onPointerMove={drawZone} onPointerUp={e => { drawZone(e); drag.current = null }} onPointerCancel={() => { drag.current = null }}>
       <video ref={video} muted playsInline autoPlay style={{ transform: flipped ? 'scaleX(-1)' : 'none' }} aria-label={`${flipped ? 'Flipped' : 'Original'} full-frame live camera preview`} />
       {camera !== 'on' && <div className="camera-empty"><Camera size={36} /><strong>{camera === 'requesting' ? 'Allow camera access in your browser' : 'Your chore is the controller'}</strong><span>Turn on your front camera to set up the folding test.</span></div>}
