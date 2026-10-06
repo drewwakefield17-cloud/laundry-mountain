@@ -16,7 +16,9 @@ The Windows launcher uses a temporary junction to this exact checkout when its p
 
 ## Phone field test
 
-Test URL: https://laundry-mountain-folding.netlify.app
+Existing field-test URL (older deployed spike, not the current local game screens): https://laundry-mountain-folding.netlify.app
+
+Current screen work is local at http://localhost:5173/?view=home. Do not deploy updates until the owner requests it.
 
 The temporary on-screen field-test guide walks through camera permission, framing, calibration, per-cycle folding instructions, report saving, a timed two-minute negative control, and a saved-position reload check. Instructions stay beside the camera and can be hidden/restored. Interrupted controls are marked incomplete; neither guides nor manual guide buttons award metres.
 
@@ -36,7 +38,7 @@ Report correct detections out of 20 (not simply the total count), missed item nu
 - Similar garment/table colours, auto-exposure, shadows, occlusion and a completed stack covering the entire zone may cause missed or false detections.
 - The camera and test end when the page is backgrounded. Re-enable and recalibrate for a fresh test. Metres already accepted are saved immediately.
 - Phase 1 persistence is local to the browser origin; Supabase identity/cloud sync is not wired yet. Private browsing, cleared site data or another browser/device will not restore it.
-- The Ben Nevis expedition interface is being developed independently while the folding gate is pending, at the product owner's request. Further environments, summit transitions, Surge and achievements remain gated.
+- The Ben Nevis expedition interface is being developed independently while the folding gate is pending, at the product owner's request. Further environments, summit transitions and Surge remain gated. The independent game UI includes badges based only on accepted local progress.
 - Test diagnostics deliberately remain visible in this field-test build; the normal consumer experience will hide them.
 - No video, images or audio are stored, sent to a backend or included in exported reports.
 
@@ -51,7 +53,7 @@ Only new milestone commits with real timestamps. Never amend, backdate, rebase, 
 3. Cloud persistence, then hanging and ironing completion workflows.
 4. Additional mountain environments and secondary product screens.
 
-Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. Phase 1 has no community seed data.
+Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. The independent game UI includes three fictional demo profiles with these identifiers; no real community accounts or backend exist.
 
 During a live landscape test, the front-camera preview and Ben Nevis progress sit side by side. Front-camera access is required explicitly; unsupported access stops setup with an explanation. Physical framing and accuracy still require the Pixel 9 Pro / Edge test.
 
@@ -67,6 +69,6 @@ Visual references: [VisitScotland Ben Nevis](https://www.visitscotland.com/thing
 
 ## Game screen work
 
-Open `/?view=home` for the mobile game interface: home, load/goal setup, front-camera calibration, live climb, results, mountain progress and local session history. The camera field-test interface remains at `/`; the latest failed test report retains its existing storage key and is not replaced by game sessions. Screens share the actual camera pipeline and event ledger. No Supabase account is required for this local milestone. Progress and session records stay in this browser; accounts, cloud sync and asynchronous competition are not implemented yet.
+Open `/?view=home` for the mobile game interface: welcome, home, load/goal setup, front-camera calibration, live climb, results, mountain progress, achievements, a labelled demo community, a local profile and session history. The camera field-test interface remains at `/`; the latest failed test report retains its existing storage key and is not replaced by game sessions. Screens share the actual camera pipeline and event ledger. No Supabase account is required for this local milestone. Progress and session records stay in this browser; accounts, cloud sync and asynchronous competition are not implemented yet.
 
-The original polygon scene has been replaced with smooth textured code terrain, branching woodland, a lochan and atmosphere. The visual targets and fidelity review live in `docs/design/README.md`. This is a substantial visual pass; the procedural terrain remains more stylised than the supplied target artwork, and physical camera accuracy and Pixel performance remain unproven. No Netlify deployment is made during this screen work.
+The scene uses a code-built height field, lit rocky summit, green glen, lochan and stream, curved trail, and detailed illustrated pine/boulder/cloud assets. The flag and map label move from accepted Laundry Metres. The original ten-screen board is the visual source; see `docs/design/README.md` for provenance and `design-qa.md` for the comparison review. Physical camera accuracy and Pixel performance remain unproven. No Netlify deployment is made during this screen work.

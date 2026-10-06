@@ -1,3 +1,5 @@
+import { BEN_NEVIS_TRAIL } from './terrain'
+
 export const GAME = {
   metresPerItem: 10,
   momentumResetMs: 90_000,
@@ -9,7 +11,7 @@ export const BEN_NEVIS = {
   id: 'ben-nevis', name: 'Ben Nevis', region: 'Scottish Highlands', elevation: 1345,
   palette: { sky: '#dce9e5', distant: '#9cb4ac', rock: '#63756a', grass: '#536a45', forest: '#244e3b' },
   // Stylised game path, never a navigation route.
-  route: [[0.16, 0.88], [0.3, 0.78], [0.24, 0.67], [0.46, 0.58], [0.38, 0.49], [0.58, 0.4], [0.53, 0.32], [0.68, 0.23]],
+  route: BEN_NEVIS_TRAIL,
   // Laundry-game milestones, not geographic waypoints or real route elevations.
   checkpoints: [
     { metres: 0, name: 'Base camp', description: 'Every expedition starts with one item.' },
