@@ -64,3 +64,9 @@ Open `/?view=expedition` for the Ben Nevis overview, full/climb views, checkpoin
 The scene is entirely code-rendered Canvas 2D with deterministic terrain, a broad rocky summit, lower green glen, lochan, forest and atmosphere. Player animation runs only while progress changes; idle scenes stop requesting frames. Terrain is cached during each animation and rebuilt on resize. Pixel hardware performance still requires manual validation.
 
 Visual references: [VisitScotland Ben Nevis](https://www.visitscotland.com/things-to-do/outdoor-activities/walking/mountains-hills/ben-nevis) and [John Muir Trust Ben Nevis](https://www.johnmuirtrust.org/about-us/where-we-work/ben-nevis). Checkpoint names/targets and route positions are game design, never real navigation data.
+
+## Game screen work
+
+Open `/?view=home` for the mobile game interface: home, load/goal setup, front-camera calibration, live climb, results, mountain progress and local session history. The camera field-test interface remains at `/`; the latest failed test report retains its existing storage key and is not replaced by game sessions. Screens share the actual camera pipeline and event ledger. No Supabase account is required for this local milestone. Progress and session records stay in this browser; accounts, cloud sync and asynchronous competition are not implemented yet.
+
+The original polygon scene has been replaced with smooth textured code terrain, branching woodland, a lochan and atmosphere. The visual targets and fidelity review live in `docs/design/README.md`. This is a substantial visual pass; the procedural terrain remains more stylised than the supplied target artwork, and physical camera accuracy and Pixel performance remain unproven. No Netlify deployment is made during this screen work.

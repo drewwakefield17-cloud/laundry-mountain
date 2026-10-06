@@ -5,9 +5,12 @@ import { drawHighlands } from './mountainTerrain'
 
 export function MountainScene({ metres, close, focusMetres }: { metres: number; close: boolean; focusMetres?: number }) {
   const canvas = useRef<HTMLCanvasElement>(null), shown = useRef(metres)
+  const terrainCache = useRef<{ canvas: HTMLCanvasElement; width: number; height: number; textured: boolean } | null>(null)
   useEffect(() => {
     const el = canvas.current!, ctx = el.getContext('2d')!
-    const terrain = document.createElement('canvas'), backdrop = terrain.getContext('2d')!
+    const cache = terrainCache.current ?? (terrainCache.current = { canvas: document.createElement('canvas'), width: 0, height: 0, textured: false })
+    const terrain = cache.canvas, backdrop = terrain.getContext('2d')!
+    const rock = new Image(); rock.src = '/textures/highland-rock.png'
     let frame = 0, width = 0, height = 0, ratio = 1, disposed = false
     const motion = matchMedia('(prefers-reduced-motion: reduce)')
     const draw = () => {
@@ -50,10 +53,15 @@ export function MountainScene({ metres, close, focusMetres }: { metres: number; 
       width=el.clientWidth;height=el.clientHeight;ratio=Math.min(devicePixelRatio||1,2)
       if (!width || !height) return
       el.width=Math.round(width*ratio);el.height=Math.round(height*ratio)
-      terrain.width=el.width;terrain.height=el.height;backdrop.setTransform(ratio,0,0,ratio,0,0)
-      drawHighlands(backdrop,width,height);requestDraw()
+      const textured = !!(rock.complete && rock.naturalWidth)
+      if (cache.width !== el.width || cache.height !== el.height || cache.textured !== textured) {
+        terrain.width=el.width;terrain.height=el.height;backdrop.setTransform(ratio,0,0,ratio,0,0)
+        drawHighlands(backdrop,width,height,rock);cache.width=el.width;cache.height=el.height;cache.textured=textured
+      }
+      requestDraw()
     }
     const observer=new ResizeObserver(resize);observer.observe(el)
+    rock.onload = () => { if (!disposed) resize() }
     document.addEventListener('visibilitychange',requestDraw);motion.addEventListener('change',requestDraw);resize()
     return()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();document.removeEventListener('visibilitychange',requestDraw);motion.removeEventListener('change',requestDraw)}
   }, [metres,close,focusMetres])

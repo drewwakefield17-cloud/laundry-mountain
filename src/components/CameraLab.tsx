@@ -10,8 +10,9 @@ import type { ReactNode } from 'react'
 
 export interface Observation { signals: Signals; stage: string; reason: string; change: number; processingMs: number }
 export interface Calibration { zones: Zones; config: VisionConfig }
-export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt, onStart, guideSession, guideActions }: {
+export function CameraLab({ active, paused = false, presentation = 'field', onEvent, onObservation, onReady, onInterrupt, onStart, guideSession, guideActions }: {
   active: boolean; onEvent: (evidence: string) => void; onObservation: (o: Observation) => void
+  paused?: boolean; presentation?: 'field' | 'game'
   onReady: (c: Calibration | null) => void; onInterrupt: (reason: string) => void
   onStart: () => void
   guideSession: GuideSession
@@ -22,7 +23,7 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
   const baseline = useRef<Uint8ClampedArray | null>(null), previous = useRef<Uint8ClampedArray | null>(null), cycleFrame = useRef<Uint8ClampedArray | null>(null)
   const calibrationFrames = useRef<Uint8ClampedArray[]>([]), calibrating = useRef(false), lastVideoTime = useRef(-1)
   const callbacks = useRef({ active, onEvent, onObservation, onReady, onInterrupt })
-  useEffect(() => { callbacks.current = { active, onEvent, onObservation, onReady, onInterrupt } }, [active, onEvent, onObservation, onReady, onInterrupt])
+  useEffect(() => { callbacks.current = { active: active && !paused, onEvent, onObservation, onReady, onInterrupt } }, [active, paused, onEvent, onObservation, onReady, onInterrupt])
   const [camera, setCamera] = useState<'off' | 'requesting' | 'on'>('off')
   const [error, setError] = useState(''), [zones, setZones] = useState<Zones>(DEFAULT_ZONES), [selected, setSelected] = useState<ZoneName>('work')
   const [editing, setEditing] = useState(false), [ready, setReady] = useState(false), [calibrationCount, setCalibrationCount] = useState(0)
@@ -71,7 +72,7 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
     const visibility = () => { if (document.hidden) { stopCamera(); callbacks.current.onInterrupt('App left the foreground; test ended and progress saved') } }
     document.addEventListener('visibilitychange', visibility); return () => document.removeEventListener('visibilitychange', visibility)
   }, [])
-  useEffect(() => { detector.current.reset(); cycleFrame.current = null }, [active])
+  useEffect(() => { detector.current.reset(); cycleFrame.current = null }, [active, paused])
   useEffect(() => {
     if (camera !== 'on') return
     const canvas = document.createElement('canvas'); canvas.width = config.width; canvas.height = config.height
@@ -129,12 +130,12 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
   const overlap = ZONE_NAMES.some((a, i) => ZONE_NAMES.slice(i + 1).some(b => {
     const x = zones[a], y = zones[b]; return x.x < y.x + y.w && x.x + x.w > y.x && x.y < y.y + y.h && x.y + x.h > y.y
   }))
-  return <section className="camera-section">
+  return <section className={`camera-section ${presentation === 'game' ? 'game-camera' : ''}`}>
     <div className="section-heading"><div><h2>Your folding workspace</h2><p>Camera frames stay on this device. No microphone.</p></div><ShieldCheck size={24} /></div>
-    <FieldTestGuide setup={camera === 'requesting' ? 'permission' : camera !== 'on' ? 'camera' : ready ? 'ready' : calibrationCount ? 'calibrating' : framed ? 'clear' : 'framing'} session={guideSession}>
+    {presentation === 'field' && <FieldTestGuide setup={camera === 'requesting' ? 'permission' : camera !== 'on' ? 'camera' : ready ? 'ready' : calibrationCount ? 'calibrating' : framed ? 'clear' : 'framing'} session={guideSession}>
       {guideActions}
       {!guideSession.active && !guideSession.reportKind && !guideSession.returnCheck && camera === 'on' && !ready && !calibrationCount && !framed && !editing && <button onClick={() => setFramed(true)}>My workspace fits</button>}
-    </FieldTestGuide>
+    </FieldTestGuide>}
     <div className={`camera-preview ${editing ? 'editing' : ''}`} style={{ aspectRatio: ratio, '--camera-ratio': ratio } as CSSProperties} onPointerDown={e => { if (editing) { e.currentTarget.setPointerCapture(e.pointerId); drag.current = position(e) } }} onPointerMove={drawZone} onPointerUp={e => { drawZone(e); drag.current = null }} onPointerCancel={() => { drag.current = null }}>
       <video ref={video} muted playsInline autoPlay style={{ transform: flipped ? 'scaleX(-1)' : 'none' }} aria-label={`${flipped ? 'Flipped' : 'Original'} full-frame live camera preview`} />
       {camera !== 'on' && <div className="camera-empty"><Camera size={36} /><strong>{camera === 'requesting' ? 'Allow camera access in your browser' : 'Your chore is the controller'}</strong><span>Turn on your front camera to set up the folding test.</span></div>}
@@ -161,8 +162,8 @@ export function CameraLab({ active, onEvent, onObservation, onReady, onInterrupt
     {editing && <div className="zone-editor"><label>Zone to draw <select value={selected} onChange={e => setSelected(e.target.value as ZoneName)}>{ZONE_NAMES.map(n => <option key={n} value={n}>{n}</option>)}</select></label><p>Drag a rectangle in the preview. Keep zones separate and below the top strip.</p><button onClick={() => setZones(DEFAULT_ZONES)}>Reset zones</button></div>}
     {overlap && <p className="error">Zones overlap. Adjust them before calibrating.</p>}
     <p className={`setup-note ${ready ? 'calibrated' : ''}`} role="status">{ready ? <><Check size={20} /> {active ? 'Test running. Fold in the centre, place in Completed, then wait for Ready.' : 'Calibration captured. If Fold here and Completed are empty, tap Start folding now.'}</> : camera !== 'on' ? 'Step 1: Enable camera.' : editing ? 'Finish zone setup before calibrating.' : overlap ? 'Separate the zones before calibrating.' : calibrationCount ? 'Calibrating the two empty areas. Keep your hands out for about 2 seconds.' : 'Step 2: Empty Fold here and Completed, withdraw hands, then tap Calibrate. The source box only needs to cover where you pick items up; the rest of the pile can be outside it.'}</p>
-    <details className="advanced"><summary>Detection settings · field-test tools</summary><p>Changing settings requires recalibration. Values are experimental.</p>
+    {presentation === 'field' && <details className="advanced"><summary>Detection settings · field-test tools</summary><p>Changing settings requires recalibration. Values are experimental.</p>
       {([{ key: 'motionThreshold', label: 'Movement threshold', min: .02, max: .2, step: .005 }, { key: 'placementThreshold', label: 'Placement change threshold', min: .02, max: .3, step: .005 }, { key: 'occupancyThreshold', label: 'Work area clear threshold', min: .02, max: .2, step: .005 }, { key: 'minimumWorkMs', label: 'Minimum work time (ms)', min: 1000, max: 6000, step: 250 }, { key: 'stableMs', label: 'Stable placement time (ms)', min: 500, max: 3000, step: 100 }, { key: 'cooldownMs', label: 'Cooldown (ms)', min: 1000, max: 6000, step: 250 }, { key: 'cycleTimeoutMs', label: 'Cycle timeout (ms)', min: 30000, max: 180000, step: 10000 }] as const).map(s => <label key={s.key}>{s.label} <output>{config[s.key]}</output><input aria-label={s.label} type="range" disabled={active} min={s.min} max={s.max} step={s.step} value={config[s.key]} onChange={e => { invalidate(); setConfig(c => ({ ...c, [s.key]: Number(e.target.value) })) }} /></label>)}
-    </details>
+    </details>}
   </section>
 }
