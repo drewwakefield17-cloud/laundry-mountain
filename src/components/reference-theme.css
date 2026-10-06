@@ -925,18 +925,18 @@
 /* Session ring records accepted items; an empty goal is not drawn as complete. */
 .scenic-dial {
   outline: 0;
-  border: 7px solid #fffff5;
+  border: 7px solid #fffffb;
   overflow: visible;
   box-shadow:
     0 0 0 2px #d8edce,
-    0 8px 24px #16805024;
+    0 5px 18px #1680501c;
 }
 .scenic-dial::before {
   content: '';
   position: absolute;
   inset: -15px;
   border-radius: 50%;
-  background: conic-gradient(#0baa65 var(--session-progress), #dcebd4 var(--session-progress));
+  background: conic-gradient(#009864 var(--session-progress), #dceee3 var(--session-progress));
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 0);
   mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 0);
   pointer-events: none;
@@ -944,12 +944,46 @@
 .scenic-dial .mountain-canvas {
   border-radius: 50%;
 }
+.dial-emblem {
+  position: absolute;
+  left: 22%;
+  top: 8%;
+  width: 56%;
+  height: 56%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 3px #103a3a33);
+}
 .scenic-dial .dial-time {
-  bottom: 7px;
-  left: 15%;
-  right: 15%;
-  border-radius: 30px;
-  padding: 7px 0;
+  bottom: 5%;
+  left: 19%;
+  right: 19%;
+  border-radius: 50% 50% 38% 38% / 45% 45% 55% 55%;
+  padding: 10px 0 9px;
+  background: #fffff6f0;
+  box-shadow: 0 -2px 8px #fffff647;
+}
+.scenic-dial .dial-time strong {
+  font:
+    700 clamp(23px, 7vw, 31px) / 1 'Roboto Condensed',
+    sans-serif;
+}
+.scenic-dial .dial-time span {
+  font:
+    11px/1.5 'Roboto',
+    sans-serif;
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .is-live .scenic-dial .dial-time {
+    padding: 5px 0 4px;
+  }
+  .is-live .scenic-dial .dial-time strong {
+    font-size: 23px;
+  }
+  .is-live .scenic-dial .dial-time span {
+    font-size: 9px;
+    line-height: 1.3;
+  }
 }
 .game-shell .view-control button[aria-pressed='true'] {
   background: #008655;
@@ -959,6 +993,8 @@
 .screen-mountain .map-tagline {
   left: 3%;
   right: auto;
-  bottom: 12%;
-  width: 102px;
+  bottom: 14%;
+  width: 86px;
+  transform: none;
+  pointer-events: none;
 }

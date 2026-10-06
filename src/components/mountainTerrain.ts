@@ -1,10 +1,11 @@
 import {
   BEN_NEVIS_GEOGRAPHY as geo,
   WORLD,
-  cameraDepth,
-  viewDepth,
+  cameraDepth as mapDepth,
+  viewDepth as mapViewDepth,
   heightAt,
-  projectWorld,
+  projectWorld as mapProject,
+  landscapeCamera,
   scenePoint,
   terrainNoise
 } from '../domain/terrain'
@@ -30,7 +31,11 @@ function landCover() {
   c.fillRect(0, 0, LAND_SIZE, LAND_SIZE)
   for (const kind of ['wood', 'water', 'river'])
     for (const feature of geo.features) {
-      if (feature.kind !== kind || (kind === 'river' && feature.name !== 'River Nevis')) continue
+      if (
+        feature.kind !== kind ||
+        (kind === 'river' && !['River Nevis', 'Allt a’ Mhuilinn', "Allt a' Mhuilinn"].includes(feature.name))
+      )
+        continue
       c.beginPath()
       feature.points.forEach(([x, z], i) => {
         const px = ((x - WORLD.minX) / 13) * LAND_SIZE,
@@ -40,7 +45,7 @@ function landCover() {
       })
       if (kind === 'river') {
         c.strokeStyle = '#0000ff'
-        c.lineWidth = feature.name === 'River Nevis' ? 2 : 0.45
+        c.lineWidth = feature.name === 'River Nevis' ? 2 : 1
         c.stroke()
       } else {
         c.closePath()
@@ -58,21 +63,31 @@ function coverAt(data: Uint8ClampedArray, x: number, z: number) {
   return { wood: data[i + 1] > 100, water: data[i + 2] > 80 }
 }
 const materialCache = new WeakMap<HTMLImageElement, Uint8ClampedArray>()
+const MATERIAL_SIZE = 256
 function material(image?: HTMLImageElement) {
   if (!image?.complete || !image.naturalWidth) return undefined
   let data = materialCache.get(image)
   if (!data) {
     const c = document.createElement('canvas')
-    c.width = c.height = 128
+    c.width = c.height = MATERIAL_SIZE
     const ctx = c.getContext('2d')!
-    ctx.drawImage(image, 0, 0, 128, 128)
-    data = ctx.getImageData(0, 0, 128, 128).data
+    ctx.drawImage(image, 0, 0, MATERIAL_SIZE, MATERIAL_SIZE)
+    data = ctx.getImageData(0, 0, MATERIAL_SIZE, MATERIAL_SIZE).data
     materialCache.set(image, data)
   }
   return data
 }
 type Vertex = { x: number; y: number; wx: number; wz: number; height: number; invDepth: number }
-export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: number, assets: SceneAssets = {}) {
+export function drawHighlands(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  assets: SceneAssets = {},
+  scenic = false
+) {
+  const projectWorld = scenic ? landscapeCamera.project : mapProject
+  const viewDepth = scenic ? landscapeCamera.depth : mapViewDepth
+  const cameraDepth = scenic ? (x: number, z: number) => landscapeCamera.depth(x, z, 0) - 5 : mapDepth
   const sky = ctx.createLinearGradient(0, 0, 0, h)
   sky.addColorStop(0, '#80cbd8')
   sky.addColorStop(0.55, '#e5f3df')
@@ -138,7 +153,11 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
     [240, 218, 170]
   ]
   const face = (a: Vertex, b: Vertex, c: Vertex) => {
-    if (Math.max(a.invDepth, b.invDepth, c.invDepth) > 1 / 0.75) return
+    if (
+      Math.min(a.invDepth, b.invDepth, c.invDepth) <= 0 ||
+      Math.max(a.invDepth, b.invDepth, c.invDepth) > 1 / (scenic ? 0.1 : 0.75)
+    )
+      return
     const ax = a.x * density,
       ay = a.y * density,
       bx = b.x * density,
@@ -156,7 +175,7 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
     const dx = ((b.height - a.height) * (c.wz - a.wz) - (c.height - a.height) * (b.wz - a.wz)) / det
     const dz = ((c.height - a.height) * (b.wx - a.wx) - (b.height - a.height) * (c.wx - a.wx)) / det
     const slope = Math.hypot(dx, dz)
-    const light = clamp((0.65 + dx * 0.7 - dz * 0.85) / Math.hypot(1, dx, dz), 0.01, 1)
+    const light = clamp((0.65 + dx * 0.75 + dz * 0.35) / Math.hypot(1, dx, dz), 0.01, 1)
     const wx = (a.wx + b.wx + c.wx) / 3,
       wz = (a.wz + b.wz + c.wz) / 3
     const curvature =
@@ -190,14 +209,18 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
         // Repeat a small painted material across the real slopes. Use luminance
         // for crevices, with the scene palette supplying coherent ink/sun colours.
         const warp = terrainNoise(x * 7, z * 7) * 0.055
-        const tx = ((Math.floor((x + elevation * 0.7 + warp) * 240) % 128) + 128) % 128
-        const tz = ((Math.floor((z + elevation * 1.4 - warp) * 240) % 128) + 128) % 128
-        const ti = (tz * 128 + tx) * 4
+        // Larger painted planes retain the material's brushwork at phone scale;
+        // tiny repeated contrast made the previous crags read as noisy stone.
+        const tx =
+          ((Math.floor((x + elevation * 0.7 + warp) * 200) % MATERIAL_SIZE) + MATERIAL_SIZE) % MATERIAL_SIZE
+        const tz =
+          ((Math.floor((z + elevation * 1.4 - warp) * 200) % MATERIAL_SIZE) + MATERIAL_SIZE) % MATERIAL_SIZE
+        const ti = (tz * MATERIAL_SIZE + tx) * 4
         const stoneLight = stone
           ? (stone[ti] * 0.25 + stone[ti + 1] * 0.55 + stone[ti + 2] * 0.2) / 255
           : 0.55
         const grassLight = meadow ? (meadow[ti] + meadow[ti + 1] + meadow[ti + 2]) / 765 : 0.5
-        const grain = lerp((grassLight - 0.5) * 0.7, (stoneLight - 0.47) * 3.4, rock)
+        const grain = lerp((grassLight - 0.5) * 0.45, (stoneLight - 0.47) * 1.15, rock)
         const shade = clamp(light * 3.8 - crevice * rock * 0.6 + grain, 0, 3.999)
         const low = Math.floor(shade),
           blend = shade - low
@@ -214,7 +237,7 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
             value = lerp(
               [10, 48, 49][k],
               [121, 160, 81][k],
-              clamp(canopy * 0.57 + grove * 0.24 + light * 0.22 - 0.12)
+              clamp(canopy * 0.32 + grove * 0.38 + light * 0.22 - 0.08)
             )
           if (land.water)
             value = lerp(
@@ -261,14 +284,22 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
       seed = (seed * 16807) % 2147483647
       return seed / 2147483647
     }
-    const trees = Array.from({ length: 42000 }, () => ({
-      x: lerp(-6, 1, random()),
-      z: lerp(-3, 6, random()),
-      size: lerp(0.015, 0.027, random())
-    }))
+    const trees = [
+      ...Array.from({ length: 42000 }, () => ({
+        x: lerp(-4, 2, random()),
+        z: lerp(-2, 6, random()),
+        size: lerp(0.015, 0.027, random())
+      })),
+      ...Array.from({ length: scenic ? 3500 : 0 }, () => ({
+        x: lerp(-2.3, 0.15, random()),
+        z: lerp(3.3, 5.3, random()),
+        size: lerp(0.018, 0.03, random())
+      }))
+    ]
       .filter((p) => coverAt(cover, p.x, p.z).wood && heightAt(p.x, p.z) < 0.55)
       .sort((a, b) => cameraDepth(b.x, b.z) - cameraDepth(a.x, a.z))
     for (const t of trees) {
+      if (viewDepth(t.x, t.z) < 0.12) continue
       const p = scenePoint(projectWorld(t.x, t.z), w, h),
         top = scenePoint(projectWorld(t.x, t.z, heightAt(t.x, t.z) + t.size), w, h)
       const th = p.y - top.y,

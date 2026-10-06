@@ -70,6 +70,11 @@ for x, y in sample:
 
 osm_path = fetch(OSM_URL, CACHE / 'ben-nevis-map.osm')
 root = ET.parse(osm_path).getroot()
+# Separate modest extract avoids the OSM map API node cap while covering the
+# Torlundy woodlands seen by the low scenic camera.
+NORTH_OSM_URL = 'https://api.openstreetmap.org/api/0.6/map?bbox=-5.068,56.817,-4.994,56.854'
+north_path = fetch(NORTH_OSM_URL, CACHE / 'ben-nevis-north-map.osm')
+root.extend(ET.parse(north_path).getroot())
 nodes = {n.get('id'): local(float(n.get('lat')), float(n.get('lon'))) for n in root.findall('node')}
 ways = {w.get('id'): w for w in root.findall('way')}
 tags = lambda e: {t.get('k'): t.get('v') for t in e.findall('tag')}
@@ -121,6 +126,7 @@ out.mkdir(exist_ok=True)
 (out/'ben-nevis.json').write_text(json.dumps(data, separators=(',', ':')), encoding='utf-8')
 manifest = {'fetchedForBuild': '2026-10-06', 'terrainTiles': [{'url': url, 'sha256': sha} for _, _, url, sha in downloaded],
             'osm': {'url': OSM_URL, 'sha256': hashlib.sha256(osm_path.read_bytes()).hexdigest(), 'routeWays': route_ids},
+            'northOsm': {'url': NORTH_OSM_URL, 'sha256': hashlib.sha256(north_path.read_bytes()).hexdigest()},
             'gridSpacingMetres': STEP*1000, 'verticalScale': 1, 'routeLengthKm': round(seen[end], 3)}
 (ROOT/'docs/design/geography-sources.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
 print('Saved', SIZE*SIZE, 'elevations;', len(route), 'route points;', len(features), 'features; route km', round(seen[end], 3), flush=True)

@@ -71,6 +71,10 @@
       "301139403"
     ]
   },
+  "northOsm": {
+    "url": "https://api.openstreetmap.org/api/0.6/map?bbox=-5.068,56.817,-4.994,56.854",
+    "sha256": "fb9f5f80af36020383dc5abfec36331c3d2682a5d5b2d5b5f8a8a83352957e94"
+  },
   "gridSpacingMetres": 50.0,
   "verticalScale": 1,
   "routeLengthKm": 7.892

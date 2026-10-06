@@ -467,6 +467,9 @@ export function GameApp() {
           </div>
         )}
         {mode === 'dial' && (
+          <img className="dial-emblem" src="/brand/laundry-mountain-emblem.webp" alt="" aria-hidden="true" />
+        )}
+        {mode === 'dial' && (
           <div className="dial-time">
             <strong>{time(elapsed)}</strong>
             <span>{paused ? 'Session paused' : 'Time climbing'}</span>
@@ -906,7 +909,7 @@ export function GameApp() {
             <div className="map-scene">
               {scenic('map')}
               <div className="map-tagline">
-                <img src="/art/trail-sign.webp" alt="Cleaner clothes. Brighter days. Higher you." />
+                <img src="/art/trail-sign-refined.webp" alt="Cleaner clothes. Brighter days. Higher you." />
               </div>
               <div className="view-control">
                 <button aria-pressed={!close} onClick={() => setClose(false)}>

@@ -6,7 +6,11 @@
   "pageId": "0:1",
   "referenceEvidenceId": "5:16",
   "reviewId": "5:20",
-  "screens": { "home": "5:24", "mountain": "5:25", "live": "5:26" },
+  "screens": {
+    "home": "5:24",
+    "mountain": "5:25",
+    "live": "5:26"
+  },
   "entities": {
     "collection": "VariableCollectionId:5:2",
     "button": "7:92",
@@ -17,7 +21,30 @@
     "statStar": "7:179",
     "navigation": "7:98"
   },
-  "verified": ["whole-board-render", "asset-rendering", "progress-arc-rendering", "editable-layer-inventory", "font-families", "phone-bounds"],
-  "pending": ["mountain-illustration-acceptance", "reference-fidelity-acceptance", "landscape-design", "existing-app-implementation-and-regression", "physical-camera-test"],
-  "visualAcceptance": "NOT PASSED"
+  "verified": [
+    "whole-board-render",
+    "asset-rendering",
+    "progress-arc-rendering",
+    "editable-layer-inventory",
+    "font-families",
+    "phone-bounds"
+  ],
+  "pending": [
+    "mountain-illustration-acceptance",
+    "reference-fidelity-acceptance",
+    "landscape-design",
+    "existing-app-implementation-and-regression",
+    "physical-camera-test"
+  ],
+  "visualAcceptance": "NOT PASSED",
+  "latestRefinement": {
+    "date": "2026-10-06",
+    "liveEmblem": "7:280",
+    "timerPlate": "19:63",
+    "trailSign": "19:64",
+    "mapUnderlay": "7:233",
+    "removedOversizedPine": "7:234",
+    "renderVerification": "BLOCKED: Starter-plan MCP tool quota",
+    "appVerification": "24 unit tests, build, 7 affected browser tests, then 2 camera checks after timer adjustment"
+  }
 }

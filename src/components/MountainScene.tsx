@@ -66,6 +66,7 @@ export function MountainScene({
     width: number
     height: number
     textured: number
+    scenic: boolean
     paint: typeof drawHighlands
   } | null>(null)
   useEffect(() => {
@@ -78,6 +79,7 @@ export function MountainScene({
         width: 0,
         height: 0,
         textured: 0,
+        scenic: !scenic,
         paint: drawHighlands
       })
     let terrain = cache.canvas
@@ -117,14 +119,7 @@ export function MountainScene({
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
       ctx.clearRect(0, 0, width, height)
       ctx.save()
-      if (scenic) {
-        // A closer landscape composition for cards/medallions. Uniform camera
-        // zoom preserves the measured landform; the navigable map retains its route.
-        const summit = viewportPosition(BEN_NEVIS.elevation)
-        ctx.translate(width * 0.63, height * 0.27)
-        ctx.scale(1.55, 1.55)
-        ctx.translate(-summit.x * width, -summit.y * height)
-      } else if (close) {
+      if (close && !scenic) {
         const x = Math.max(0.5 / 2.05, Math.min(1 - 0.5 / 2.05, focus.x)),
           y = Math.max(0.57 / 2.05, Math.min(1 - 0.43 / 2.05, focus.y))
         ctx.translate(width * 0.5, height * 0.57)
@@ -300,9 +295,10 @@ export function MountainScene({
         cache.width !== el.width ||
         cache.height !== el.height ||
         cache.textured !== textured ||
+        cache.scenic !== scenic ||
         cache.paint !== drawHighlands
       ) {
-        const key = `${width}:${height}:${ratio}:${textured}`
+        const key = `${width}:${height}:${ratio}:${textured}:${scenic}`
         const shared = backdrops.get(key)
         const paintStarted = performance.now()
         if (shared?.paint === drawHighlands) {
@@ -316,7 +312,7 @@ export function MountainScene({
           terrain.height = el.height
           const backdrop = terrain.getContext('2d')!
           backdrop.setTransform(ratio, 0, 0, ratio, 0, 0)
-          drawHighlands(backdrop, width, height, { pine, rocks, clouds, meadow, stone })
+          drawHighlands(backdrop, width, height, { pine, rocks, clouds, meadow, stone }, scenic)
           backdrops.set(key, { canvas: terrain, paint: drawHighlands })
           while (backdrops.size > 4) backdrops.delete(backdrops.keys().next().value!)
           el.dataset.terrainCache = 'painted'
@@ -326,6 +322,7 @@ export function MountainScene({
         cache.width = el.width
         cache.height = el.height
         cache.textured = textured
+        cache.scenic = scenic
         cache.paint = drawHighlands
       }
       requestDraw()

@@ -84,3 +84,17 @@ it does not resolve the remaining mountain-art gap. Next focus is illustrated te
 detail on Ben Nevis, checked at phone scale against the supplied reference. Adapt
 accepted details to the existing renderer and then verify real interactions. Tests
 passing must not override a known visual failure. No backend or deployment was created.
+
+## Latest app refinement — 6 October 2026
+
+The preserved scenic camera/north OSM work has now been inspected and regression
+checked alongside the live dial and sign refinement. Icon-only live emblem, curved
+timer plate and slimmer warm painted sign are implemented in the current app.
+24 unit tests/build and seven affected browser tests passed; both camera-flow checks
+passed again after the final landscape timer adjustment. Source briefs and remaining
+gaps: `docs/design/dial-and-sign-pass.md`.
+
+Figma live/map edits saved, but the Starter-plan MCP tool limit was reached before
+the final screenshot verification. Continue directly in the existing app and browser;
+no upgrade is required for implementation/testing. Figma's latest render is unverified.
+Overall mountain illustration acceptance and physical camera validation remain open.

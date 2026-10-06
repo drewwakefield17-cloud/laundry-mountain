@@ -57,6 +57,34 @@ export function scenePoint(point: { x: number; y: number }, width: number, heigh
     y: height * 0.58 - Math.max(0, height - width) * 0.18 + (point.y - 0.5) * scale
   }
 }
+// A low, north-northwest scenic viewpoint near Torlundy. The camera looks
+// towards the actual North Face; all vectors and terrain dimensions stay in km.
+const eye = { x: -1.25, z: 5.15, y: heightAt(-1.25, 5.15) + 0.025 }
+const target = { x: 1.3, z: -0.45, y: 0.62 }
+const vx = target.x - eye.x,
+  vy = target.y - eye.y,
+  vz = target.z - eye.z
+const distance = Math.hypot(vx, vy, vz),
+  horizontal = Math.hypot(vx, vz)
+const forward = { x: vx / distance, y: vy / distance, z: vz / distance }
+const right = { x: vz / horizontal, z: -vx / horizontal }
+const up = { x: forward.y * right.z, y: forward.z * right.x - forward.x * right.z, z: -forward.y * right.x }
+export const landscapeCamera = {
+  depth(x: number, z: number, y = heightAt(x, z)) {
+    return (x - eye.x) * forward.x + (y - eye.y) * forward.y + (z - eye.z) * forward.z
+  },
+  project(x: number, z: number, y = heightAt(x, z)) {
+    const xx = x - eye.x,
+      yy = y - eye.y,
+      zz = z - eye.z
+    const d = Math.max(0.08, xx * forward.x + yy * forward.y + zz * forward.z)
+    return {
+      x: 0.73 + ((xx * right.x + zz * right.z) * 2.2) / d,
+      y: 0.47 - ((xx * up.x + yy * up.y + zz * up.z) * 2.2) / d
+    }
+  }
+}
+
 // Equal-distance samples retain the mapped path's bends and switchbacks.
 const route = geography.route,
   lengths = [0]

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { BEN_NEVIS_GEOGRAPHY as geo, BEN_NEVIS_TRAIL, heightAt, projectWorld, scenePoint } from './terrain'
+import {
+  BEN_NEVIS_GEOGRAPHY as geo,
+  BEN_NEVIS_TRAIL,
+  heightAt,
+  projectWorld,
+  scenePoint,
+  landscapeCamera
+} from './terrain'
 
 describe('Ben Nevis geography', () => {
   it('retains a plausible measured summit and low Glen Nevis start', () => {
@@ -15,6 +22,13 @@ describe('Ben Nevis geography', () => {
     expect(BEN_NEVIS_TRAIL.at(-1)![0]).toBeCloseTo(summit.x, 5)
     expect(BEN_NEVIS_TRAIL.at(-1)![1]).toBeCloseTo(summit.y, 5)
     expect(geo.features.some((f) => f.kind === 'water' && f.name === 'Lochan Meall an t-Suidhe')).toBe(true)
+  })
+  it('centres the scenic camera on its look target and preserves upward elevation', () => {
+    const target = landscapeCamera.project(1.3, -0.45, 0.62)
+    expect(target.x).toBeCloseTo(0.73, 8)
+    expect(target.y).toBeCloseTo(0.47, 8)
+    expect(landscapeCamera.project(1.3, -0.45, 1.3).y).toBeLessThan(target.y)
+    expect(landscapeCamera.depth(1.3, -0.45, 0.62)).toBeGreaterThan(0)
   })
   it('preserves projected proportions through portrait and landscape resizing', () => {
     const a = projectWorld(-1, 0, 0.2),

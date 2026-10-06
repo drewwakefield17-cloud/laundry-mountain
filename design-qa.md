@@ -87,3 +87,13 @@ pass should focus on the mountain renderer, not repeatedly rework every control.
 - No Netlify deployment. Only new, normally timestamped Git commits are permitted.
 
 Design acceptance is deliberately not inferred from these software checks.
+
+## Dial and sign feedback pass — 6 October 2026
+
+Implemented icon-only live medallion and slimmer warm painted trail signs. Retained
+real terrain, route and front camera; adjusted timer proportions in landscape.
+24 unit tests and the production build passed; seven affected browser tests passed,
+then both camera-flow checks passed after the timer adjustment. Actual app screenshots
+were inspected in phone portrait and landscape. See `docs/design/dial-and-sign-pass.md`.
+Figma edits saved, but its Starter-plan MCP limit blocked the final render check.
+The overall illustrated mountain acceptance remains **NOT PASSED**.
