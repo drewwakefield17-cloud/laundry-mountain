@@ -2,6 +2,7 @@ import {
   BEN_NEVIS_GEOGRAPHY as geo,
   WORLD,
   cameraDepth,
+  viewDepth,
   heightAt,
   projectWorld,
   scenePoint,
@@ -73,8 +74,8 @@ function material(image?: HTMLImageElement) {
 type Vertex = { x: number; y: number; wx: number; wz: number; height: number }
 export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: number, assets: SceneAssets = {}) {
   const sky = ctx.createLinearGradient(0, 0, 0, h)
-  sky.addColorStop(0, '#b8e5e9')
-  sky.addColorStop(0.55, '#eff6dd')
+  sky.addColorStop(0, '#80cbd8')
+  sky.addColorStop(0.55, '#e5f3df')
   sky.addColorStop(1, '#e3e9bf')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
@@ -114,6 +115,11 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
   ctx.lineWidth = 0.6
   const face = (a: Vertex, b: Vertex, c: Vertex) => {
     if (
+      Math.min(
+        viewDepth(a.wx, a.wz, a.height),
+        viewDepth(b.wx, b.wz, b.height),
+        viewDepth(c.wx, c.wz, c.height)
+      ) < 0.75 ||
       Math.max(a.x, b.x, c.x) < -2 ||
       Math.min(a.x, b.x, c.x) > w + 2 ||
       Math.max(a.y, b.y, c.y) < -2 ||
@@ -123,10 +129,13 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
     const x = (a.wx + b.wx + c.wx) / 3,
       z = (a.wz + b.wz + c.wz) / 3,
       elevation = (a.height + b.height + c.height) / 3
-    const dx = (heightAt(x + 0.035, z) - heightAt(x - 0.035, z)) / 0.07,
-      dz = (heightAt(x, z + 0.035) - heightAt(x, z - 0.035)) / 0.07
-    const slope = Math.hypot(dx, dz),
-      light = clamp((0.72 + dx * 0.85 - dz * 0.68) / Math.hypot(1, dx, dz), 0.08, 1.14)
+    // Flat-lit geographic faces form crisp illustrated planes instead of smooth
+    // terrain-map shading. Their geometry remains the unmodified elevation mesh.
+    const det = (b.wx - a.wx) * (c.wz - a.wz) - (c.wx - a.wx) * (b.wz - a.wz)
+    const dx = ((b.height - a.height) * (c.wz - a.wz) - (c.height - a.height) * (b.wz - a.wz)) / det
+    const dz = ((c.height - a.height) * (b.wx - a.wx) - (b.height - a.height) * (c.wx - a.wx)) / det
+    const slope = Math.hypot(dx, dz)
+    const light = clamp((0.65 + dx * 0.7 - dz * 0.85) / Math.hypot(1, dx, dz), 0.01, 1)
     const patch = terrainNoise(x * 10 + 8, z * 10),
       fine = terrainNoise(x * 109, z * 113)
     const curvature =
@@ -145,19 +154,31 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
       ti = (tz * 128 + tx) * 4
     const grass = meadow ? [meadow[ti], meadow[ti + 1], meadow[ti + 2]] : [153, 169, 88]
     const granite = stone ? [stone[ti], stone[ti + 1], stone[ti + 2]] : [191, 190, 159]
-    const fog = clamp((cameraDepth(x, z) - 1) * 0.085, 0, 0.68)
+    const fog = clamp((cameraDepth(x, z) - 0.3) * 0.085, 0, 0.58)
+    const grassPalette = [
+      [20, 65, 61],
+      [43, 99, 72],
+      [102, 137, 65],
+      [142, 175, 79],
+      [191, 204, 119]
+    ]
+    const rockPalette = [
+      [24, 52, 78],
+      [52, 84, 110],
+      [111, 137, 146],
+      [151, 173, 167],
+      [202, 213, 191]
+    ]
+    const shade = clamp(Math.floor((light * 0.88 - crevice * 0.25) * 5), 0, 4)
     const rgb = [0, 1, 2].map((k) => {
-      let base = lerp(
-        lerp([185, 187, 92][k], grass[k], 0.2),
-        lerp([222, 207, 170][k], granite[k], 0.22),
-        rock
-      )
-      if (land.wood) base = lerp(base, [40, 88, 62][k], 0.83)
-      if (land.water) base = [70, 156, 174][k]
-      const lit =
-        base * (light * 0.75 + 0.3 - crevice * 0.25) + (1 - light) * [16, 40, 65][k] + (fine - 0.5) * 5
-      return Math.round(lerp(lit, [181, 213, 204][k], fog))
+      const turf = lerp(grassPalette[shade][k], grass[k], 0.06)
+      const crag = lerp(rockPalette[shade][k], granite[k], 0.075)
+      let base = lerp(turf, crag, rock)
+      if (land.wood) base = lerp([11, 54, 53][k], [78, 125, 73][k], light * 0.75 + fine * 0.25)
+      if (land.water) base = lerp([19, 103, 141][k], [97, 195, 205][k], fine * 0.4 + light * 0.4)
+      return Math.round(lerp(base, [160, 201, 208][k], fog))
     })
+    ctx.lineWidth = 0.6
     ctx.fillStyle = `rgb(${rgb.join(',')})`
     ctx.strokeStyle = ctx.fillStyle
     ctx.beginPath()
@@ -167,6 +188,26 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
     ctx.closePath()
     ctx.fill()
     ctx.stroke()
+    // Sparse ink and warm edges follow actual rocky facets. These marks change
+    // the illustration surface, never the mountain height or the route.
+    if (rock > 0.5 && slope > 0.42 && fine > 0.66 && fog < 0.42) {
+      ctx.strokeStyle = light > 0.65 ? '#f7e7b789' : '#15364b6b'
+      ctx.lineWidth = light > 0.65 ? 0.75 : 0.55
+      ctx.beginPath()
+      ctx.moveTo(a.x * 0.72 + b.x * 0.28, a.y * 0.72 + b.y * 0.28)
+      ctx.lineTo((b.x + c.x) * 0.5, (b.y + c.y) * 0.5)
+      ctx.stroke()
+    }
+    if (land.water && fine > 0.75) {
+      const cx = (a.x + b.x + c.x) / 3,
+        cy = (a.y + b.y + c.y) / 3
+      ctx.strokeStyle = '#d8fff4a0'
+      ctx.lineWidth = 0.55
+      ctx.beginPath()
+      ctx.moveTo(cx - 1.5, cy)
+      ctx.lineTo(cx + 1.5, cy)
+      ctx.stroke()
+    }
   }
   for (const { i, j } of cells) {
     const a = grid[j][i],

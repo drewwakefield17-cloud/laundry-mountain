@@ -14,8 +14,8 @@ correction pass, per the owner's request to avoid an endless design loop.
 
 Completed corrections:
 - Cream/navy typography, condensed headings, emerald highlighted controls,
-  raised centre navigation button and mint forest edging across screens.
-- Bevelled illustrated badge plates and working badge/filter/detail states.
+  flat buttons (owner preference) and mint forest edging across screens.
+- Thin hexagonal badge frames, colour families and working badge/filter/detail states.
 - Five community rows with explicit fictional demo identity and local player data.
 - Labelled camera-off workspace illustration; camera permission remains real.
 - Portrait live layout now places the three statistics below the large circular
@@ -24,6 +24,20 @@ Completed corrections:
 - Ben Nevis generic cone replaced by real elevation and mapped path/water/woodland.
   Aspect changes use uniform scale. Demo climber portraits use real route positions.
 - Six-mountain selection with five independent elevation-based locked previews.
+
+## Latest focused correction
+
+The reference is the first milestone, not the final buildathon ambition. The
+owner wants a distinctive, fun world with satisfying progress and reasons to
+return. Further experience passes follow the reference milestone; this does not
+justify an unbounded visual iteration loop.
+
+- Stronger five-tone landform shading, northwest perspective and tighter framing.
+- Sign moved away from the player start; route, demo climbers and player remain readable.
+- Flat emerald controls, thin hexagonal badge rims, no embossed control faces.
+- Live ring now reflects accepted items / chosen goal, rather than always appearing full.
+- Reviewed home, full map, badge collection and synthetic portrait live at 390 px.
+- `focused-pass.jpg` shows these four current screens.
 
 ## Evidence
 
@@ -57,8 +71,9 @@ pass should focus on the mountain renderer, not repeatedly rework every control.
   endpoint and aspect-ratio invariants.
 - TypeScript and production build passed.
 - All 15 Playwright tests passed after the coordinated pass.
-- All four game tests passed again after the final portrait live layout change;
-  the camera preview, scene and controls remain inside the tested phone bounds.
+- All 15 browser tests passed again after the perspective, flat-button and live-ring changes.
+  Badge rim alignment/colour received a final browser visual correction afterward.
+  Camera preview, scene and controls remain inside the tested phone bounds.
 - Physical Pixel 9 Pro / Edge folding acceptance is still unresolved (prior test:
   zero detections). No new physical success is claimed.
 - No Netlify deployment. Only new, normally timestamped Git commits are permitted.

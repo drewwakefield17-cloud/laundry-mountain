@@ -27,7 +27,11 @@ Canvas 2D renders actual mesh triangles using surface-normal lighting and small
 painted material samples. It does not use a flattened mountain image. Path,
 player, checkpoint markers and zoom use the same projection. A single uniform
 viewport scale prevents portrait/landscape resizing from changing proportions.
-Terrain rendering is cached while the player moves.
+Terrain rendering is cached while the player moves. The northwest perspective
+uses a 125 degree azimuth, 23 degree downward view and an 8 km camera distance.
+Five surface-lighting tones and sparse facet accents provide an illustrated
+treatment without changing terrain elevations. Portrait framing shifts the
+whole scene upward; it does not stretch the mesh.
 
 Mapped woodland polygons select forest ground cover. Tree sprites occur only in
 those polygons below 550 m; their 15–27 m world height is illustrative. Woods can

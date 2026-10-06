@@ -7,6 +7,7 @@ import {
   Flame,
   Flag,
   Home,
+  Hexagon,
   Leaf,
   Mountain,
   Pause,
@@ -423,7 +424,14 @@ export function GameApp() {
   ].sort((a, b) => b.metres - a.metres)
   function scenic(mode: 'card' | 'mini' | 'map' | 'dial' | 'welcome' = 'card') {
     return (
-      <div className={`game-scenic scenic-${mode}`}>
+      <div
+        className={`game-scenic scenic-${mode}`}
+        style={
+          {
+            '--session-progress': `${Math.min(1, (current?.items ?? 0) / (current?.goal || 20)) * 360}deg`
+          } as CSSProperties
+        }
+      >
         <MountainScene
           metres={stats.mountainMetres}
           close={mode === 'map' ? close : false}
@@ -1090,10 +1098,8 @@ export function GameApp() {
                     }
                   >
                     <span className="badge-medal">
-                      <img
-                        src={`/art/badge-${color === 'orange' || color === 'gold' ? 'amber' : color === 'navy' ? 'navy' : 'emerald'}.webp`}
-                        alt=""
-                      />
+                      <Hexagon className="badge-shape" weight="fill" />
+                      <Hexagon className="badge-rim" weight="regular" />
                       <Icon weight="fill" />
                     </span>
                     <strong>{name}</strong>

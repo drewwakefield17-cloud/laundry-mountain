@@ -26,27 +26,23 @@
   gap: 10px;
 }
 .game-shell .primary {
-  background: linear-gradient(180deg, #0bb666 0%, #008553 48%, #005d43 100%);
-  border: 1px solid #97e2a2;
+  background: #008655;
+  border: 1px solid #008655;
   border-radius: 40px;
-  box-shadow:
-    inset 0 2px 3px #f0ffe66b,
-    inset 0 -3px 6px #003f3745,
-    0 6px 13px #176b3930;
+  box-shadow: none;
   color: #fff;
   font-weight: 600;
-  text-shadow: 0 1px 1px #00402f60;
+  text-shadow: none;
 }
 .game-shell .primary:hover {
-  background: linear-gradient(180deg, #11bd70, #008a56 48%, #005d43);
-  box-shadow:
-    inset 0 2px 3px #f0ffe682,
-    0 7px 16px #176b3938;
+  background: #006e48;
+  box-shadow: none;
 }
 .game-shell .secondary {
-  background: linear-gradient(#fffef8, #edf5e6);
+  background: #f7faef;
   border: 1px solid #b8d8c3;
   border-radius: 40px;
+  box-shadow: none;
 }
 .game-main {
   padding-left: 12px;
@@ -165,20 +161,16 @@
   color: #34516a;
 }
 .screen-home .start-session-cta {
-  min-height: 64px !important;
+  min-height: 60px !important;
   font-size: 18px;
-  border: 2px solid #c9efb2;
-  box-shadow:
-    inset 0 1px 3px #c4ffe476,
-    0 7px 13px #176b3930;
+  border: 0;
+  box-shadow: none;
 }
 .play-disc {
   width: 34px;
   height: 34px;
-  background: linear-gradient(#005748, #003f35);
-  box-shadow:
-    inset 0 0 0 2px #3f9789,
-    0 2px 3px #00473155;
+  background: #006746;
+  box-shadow: none;
 }
 .next-trail {
   padding-top: 17px;
@@ -223,11 +215,9 @@
   font-weight: 500;
 }
 .game-nav .nav-add > span {
-  background: linear-gradient(#06a06a, #006344);
-  border: 3px solid #c6e6c0;
-  box-shadow:
-    inset 0 0 0 2px #76be92,
-    0 3px 8px #206e3945;
+  background: #008655;
+  border: 4px solid #fffff8;
+  box-shadow: none;
   width: 59px;
   height: 59px;
   margin-top: -23px;
@@ -335,10 +325,8 @@
   min-height: 34px;
 }
 .segmented button[aria-pressed='true'] {
-  background: linear-gradient(#139f5b, #06794e);
-  box-shadow:
-    inset 0 1px 2px #b9f4c578,
-    0 2px 4px #256a3220;
+  background: #008655;
+  box-shadow: none;
   color: white;
 }
 .badge-grid {
@@ -361,23 +349,43 @@
 .badge-medal::after {
   display: none;
 }
-.badge-medal img {
+.badge-medal > svg.badge-shape {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  inset: 2px;
+  width: 76px;
+  height: 76px;
+  color: var(--badge-colour, #128166);
+  filter: none;
+}
+.badge-medal > svg.badge-rim {
+  position: absolute;
+  inset: 7px;
+  width: 66px;
+  height: 66px;
+  color: #e6f5d3;
+  filter: none;
 }
 .badge-medal > svg:last-child {
   position: absolute;
-  width: 42px;
-  height: 42px;
-  color: #fffce6;
-  filter: drop-shadow(0 2px 1px #0a3e3f88);
+  width: 35px;
+  height: 35px;
+  color: #fffdeb;
+  filter: none;
 }
-.distant-badge .badge-medal img {
-  filter: grayscale(1);
-  opacity: 0.7;
+.badge-orange {
+  --badge-colour: #ff8b16;
+}
+.badge-gold {
+  --badge-colour: #f3a619;
+}
+.badge-navy {
+  --badge-colour: #164555;
+}
+.distant-badge {
+  --badge-colour: #9aa6a0;
+}
+.distant-badge .badge-rim {
+  color: #e7ebe1;
 }
 .badge-card > strong {
   font-family: 'Roboto Condensed', sans-serif;
@@ -823,16 +831,134 @@
 }
 /* Portrait live view: reference dial + horizontal rewards, with the required
    front-camera preview still visible. Landscape keeps the tested split view. */
-@media (orientation:portrait) and (max-width:600px) and (min-height:700px){
-  .is-live .game-camera-column{display:grid;grid-template-columns:43% minmax(0,1fr);gap:10px;align-items:center}
-  .is-live .live-instruction{margin:0;font-size:12px;line-height:1.35;padding:10px}
-  .is-live .game-camera .preview-label{font-size:6px;padding:3px;max-width:95%}
-  .is-live .game-camera .zone span{font-size:6px;padding:2px;left:1px;top:2px}
-  .is-live .game-climb-column{display:flex;flex-direction:column;align-items:stretch;gap:0}
-  .is-live .live-heading{margin:3px 0 5px}.is-live .live-heading h1{font-size:29px}.is-live .live-heading p{font-size:12px;margin-top:2px}
-  .is-live .scenic-dial{width:min(242px,64vw);height:auto;aspect-ratio:1;margin:8px auto 14px;flex-shrink:0}
-  .is-live .game-stat-row{display:flex;flex-direction:row;gap:6px;margin:0}
-  .is-live .game-stat-row>div{display:flex;flex-direction:column;flex:1;min-height:71px;gap:2px;padding:5px 3px;border-radius:11px;background:#fffffb}
-  .is-live .game-stat-row svg{width:24px;height:24px}.is-live .game-stat-row strong{font:700 19px 'Roboto Condensed',sans-serif}.is-live .game-stat-row span{font:10px 'Roboto Condensed',sans-serif}
-  .is-live .momentum-card{margin-top:9px;min-height:0;padding:8px 11px}.is-live .game-live-buttons{margin-top:10px}.is-live .game-burst{top:60px;left:38%}
+@media (orientation: portrait) and (max-width: 600px) and (min-height: 700px) {
+  .is-live .game-camera-column {
+    display: grid;
+    grid-template-columns: 43% minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+  .is-live .live-instruction {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 10px;
+  }
+  .is-live .game-camera .preview-label {
+    font-size: 6px;
+    padding: 3px;
+    max-width: 95%;
+  }
+  .is-live .game-camera .zone span {
+    font-size: 6px;
+    padding: 2px;
+    left: 1px;
+    top: 2px;
+  }
+  .is-live .game-climb-column {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .is-live .live-heading {
+    margin: 3px 0 5px;
+  }
+  .is-live .live-heading h1 {
+    font-size: 29px;
+  }
+  .is-live .live-heading p {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .is-live .scenic-dial {
+    width: min(242px, 64vw);
+    height: auto;
+    aspect-ratio: 1;
+    margin: 8px auto 14px;
+    flex-shrink: 0;
+  }
+  .is-live .game-stat-row {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    margin: 0;
+  }
+  .is-live .game-stat-row > div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 71px;
+    gap: 2px;
+    padding: 5px 3px;
+    border-radius: 11px;
+    background: #fffffb;
+  }
+  .is-live .game-stat-row svg {
+    width: 24px;
+    height: 24px;
+  }
+  .is-live .game-stat-row strong {
+    font:
+      700 19px 'Roboto Condensed',
+      sans-serif;
+  }
+  .is-live .game-stat-row span {
+    font:
+      10px 'Roboto Condensed',
+      sans-serif;
+  }
+  .is-live .momentum-card {
+    margin-top: 9px;
+    min-height: 0;
+    padding: 8px 11px;
+  }
+  .is-live .game-live-buttons {
+    margin-top: 10px;
+  }
+  .is-live .game-burst {
+    top: 60px;
+    left: 38%;
+  }
+}
+
+/* Session ring records accepted items; an empty goal is not drawn as complete. */
+.scenic-dial {
+  outline: 0;
+  border: 7px solid #fffff5;
+  overflow: visible;
+  box-shadow:
+    0 0 0 2px #d8edce,
+    0 8px 24px #16805024;
+}
+.scenic-dial::before {
+  content: '';
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  background: conic-gradient(#0baa65 var(--session-progress), #dcebd4 var(--session-progress));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 0);
+  pointer-events: none;
+}
+.scenic-dial .mountain-canvas {
+  border-radius: 50%;
+}
+.scenic-dial .dial-time {
+  bottom: 7px;
+  left: 15%;
+  right: 15%;
+  border-radius: 30px;
+  padding: 7px 0;
+}
+.game-shell .view-control button[aria-pressed='true'] {
+  background: #008655;
+  box-shadow: none;
+}
+
+.screen-mountain .map-tagline {
+  left: 3%;
+  right: auto;
+  bottom: 12%;
+  width: 102px;
 }

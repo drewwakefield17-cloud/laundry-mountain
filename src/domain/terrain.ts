@@ -33,23 +33,28 @@ export function heightAt(x: number, z: number) {
     1000
   )
 }
-// Orthographic camera from the west-southwest. Equal horizontal/vertical units.
-const AZIMUTH = (76 * Math.PI) / 180,
-  TILT = (31 * Math.PI) / 180
+// Perspective from the northwest reveals the northern crags and western path.
+// Camera distance, coordinates and elevation all use kilometres; no height stretch.
+const AZIMUTH = (125 * Math.PI) / 180,
+  TILT = (23 * Math.PI) / 180
 export function cameraDepth(x: number, z: number) {
   return x * Math.sin(AZIMUTH) + z * Math.cos(AZIMUTH)
+}
+export function viewDepth(x: number, z: number, y = heightAt(x, z)) {
+  return 8 + cameraDepth(x, z) * Math.cos(TILT) - y * Math.sin(TILT)
 }
 export function projectWorld(x: number, z: number, y = heightAt(x, z)) {
   const right = x * Math.cos(AZIMUTH) - z * Math.sin(AZIMUTH)
   const up = cameraDepth(x, z) * Math.sin(TILT) + y * Math.cos(TILT)
-  return { x: 0.5 + right / 4.5, y: 0.58 - up / 4.5 }
+  const perspective = 8 / 4.5 / Math.max(0.5, viewDepth(x, z, y))
+  return { x: 0.5 + right * perspective, y: 0.58 - up * perspective }
 }
 export function scenePoint(point: { x: number; y: number }, width: number, height: number) {
   // Centre one undistorted coordinate system; scenery extends past its edges.
   const scale = Math.min(width, height * 1.32)
   return {
     x: width * 0.5 + (point.x - 0.5) * scale,
-    y: height * 0.58 + (point.y - 0.5) * scale
+    y: height * 0.58 - Math.max(0, height - width) * 0.18 + (point.y - 0.5) * scale
   }
 }
 // Equal-distance samples retain the mapped path's bends and switchbacks.
