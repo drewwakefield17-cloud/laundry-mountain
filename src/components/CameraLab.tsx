@@ -136,9 +136,13 @@ export function CameraLab({ active, paused = false, presentation = 'field', onEv
       {guideActions}
       {!guideSession.active && !guideSession.reportKind && !guideSession.returnCheck && camera === 'on' && !ready && !calibrationCount && !framed && !editing && <button onClick={() => setFramed(true)}>My workspace fits</button>}
     </FieldTestGuide>}
-    <div className={`camera-preview ${editing ? 'editing' : ''}`} style={{ aspectRatio: ratio, '--camera-ratio': ratio } as CSSProperties} onPointerDown={e => { if (editing) { e.currentTarget.setPointerCapture(e.pointerId); drag.current = position(e) } }} onPointerMove={drawZone} onPointerUp={e => { drawZone(e); drag.current = null }} onPointerCancel={() => { drag.current = null }}>
+    <div className={`camera-preview ${editing ? 'editing' : ''}`} style={{ aspectRatio: presentation === 'game' && camera !== 'on' ? 4 / 3 : ratio, '--camera-ratio': ratio } as CSSProperties} onPointerDown={e => { if (editing) { e.currentTarget.setPointerCapture(e.pointerId); drag.current = position(e) } }} onPointerMove={drawZone} onPointerUp={e => { drawZone(e); drag.current = null }} onPointerCancel={() => { drag.current = null }}>
       <video ref={video} muted playsInline autoPlay style={{ transform: flipped ? 'scaleX(-1)' : 'none' }} aria-label={`${flipped ? 'Flipped' : 'Original'} full-frame live camera preview`} />
-      {camera !== 'on' && <div className="camera-empty"><Camera size={36} /><strong>{camera === 'requesting' ? 'Allow camera access in your browser' : 'Your chore is the controller'}</strong><span>Turn on your front camera to set up the folding test.</span></div>}
+      {camera !== 'on' && (presentation === 'game' ? <div className="camera-empty illustrated-setup">
+        <img src="/art/folding-workspace-guide.webp" alt="Setup illustration: pickup basket on the left, empty folding area in the centre, completed stack on the right." />
+        <span className="illustration-label">Setup illustration · camera is off</span>
+        <div className="camera-off-message"><Camera size={28}/><strong>{camera === 'requesting' ? 'Allow front camera access' : 'Make room for a little progress'}</strong><span>Keep your folding area and completed stack in view.</span></div>
+      </div> : <div className="camera-empty"><Camera size={36} /><strong>{camera === 'requesting' ? 'Allow camera access in your browser' : 'Your chore is the controller'}</strong><span>Turn on your front camera to set up the folding test.</span></div>)}
       {camera === 'on' && ZONE_NAMES.map((name, i) => <div key={name} className={`zone zone-${name}`} style={{ left: `${zones[name].x * 100}%`, top: `${zones[name].y * 100}%`, width: `${zones[name].w * 100}%`, height: `${zones[name].h * 100}%` }}><span>{i + 1} · {name === 'source' ? 'Source pile' : name === 'work' ? 'Fold here' : 'Completed'}</span></div>)}
       {camera === 'on' && <span className="preview-label">{flipped ? 'Flipped view' : 'Original view'} · front camera · full frame</span>}
     </div>

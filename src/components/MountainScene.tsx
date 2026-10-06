@@ -2,29 +2,57 @@ import { useEffect, useRef } from 'react'
 import { BEN_NEVIS } from '../domain/config'
 import { routePosition } from '../domain/expedition'
 import { drawHighlands } from './mountainTerrain'
+import { scenePoint } from '../domain/terrain'
 
 // Reuse decoded images across views and accepted events. Loading an asset must not
 // invalidate the terrain cache again on every player-position update.
-let assets: { pine: HTMLImageElement; rocks: HTMLImageElement; clouds: HTMLImageElement } | undefined
+let assets:
+  | {
+      pine: HTMLImageElement
+      rocks: HTMLImageElement
+      clouds: HTMLImageElement
+      meadow: HTMLImageElement
+      stone: HTMLImageElement
+    }
+  | undefined
 function sceneAssets() {
   if (!assets) {
-    assets = { pine: new Image(), rocks: new Image(), clouds: new Image() }
-    assets.pine.src = '/art/scots-pine.webp'
+    assets = {
+      pine: new Image(),
+      rocks: new Image(),
+      clouds: new Image(),
+      meadow: new Image(),
+      stone: new Image()
+    }
+    assets.pine.src = '/art/illustrated-pines.webp'
+    assets.meadow.src = '/textures/illustrated-meadow.webp'
+    assets.stone.src = '/textures/illustrated-rock.webp'
     assets.rocks.src = '/art/highland-boulders.webp'
     assets.clouds.src = '/art/highland-clouds.webp'
   }
   return assets
 }
+export interface SceneGhost {
+  id: string
+  name: string
+  metres: number
+  avatar: string
+  is_demo: true
+}
+const NO_GHOSTS: SceneGhost[] = []
+const portraits = new Map<string, HTMLImageElement>()
 export function MountainScene({
   metres,
   close,
   focusMetres,
-  showLabel = false
+  showLabel = false,
+  ghosts = NO_GHOSTS
 }: {
   metres: number
   close: boolean
   focusMetres?: number
   showLabel?: boolean
+  ghosts?: SceneGhost[]
 }) {
   const canvas = useRef<HTMLCanvasElement>(null),
     shown = useRef(metres)
@@ -49,7 +77,16 @@ export function MountainScene({
       })
     const terrain = cache.canvas,
       backdrop = terrain.getContext('2d')!
-    const { pine, rocks, clouds } = sceneAssets()
+    const { pine, rocks, clouds, meadow, stone } = sceneAssets()
+    const ghostImages = ghosts.map((ghost) => {
+      let portrait = portraits.get(ghost.avatar)
+      if (!portrait) {
+        portrait = new Image()
+        portrait.src = ghost.avatar
+        portraits.set(ghost.avatar, portrait)
+      }
+      return { ...ghost, portrait }
+    })
     let frame = 0,
       width = 0,
       height = 0,
@@ -62,8 +99,17 @@ export function MountainScene({
       const difference = metres - shown.current
       shown.current =
         motion.matches || Math.abs(difference) < 0.05 ? metres : shown.current + difference * 0.14
-      const player = routePosition(shown.current),
-        focus = routePosition(focusMetres ?? shown.current)
+      const viewportPosition = (metres: number) => {
+        const p = routePosition(metres),
+          screen = scenePoint(p, width, height)
+        return {
+          x: screen.x / width,
+          y: screen.y / height,
+          progress: p.progress
+        }
+      }
+      const player = viewportPosition(shown.current),
+        focus = viewportPosition(focusMetres ?? shown.current)
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
       ctx.clearRect(0, 0, width, height)
       ctx.save()
@@ -80,9 +126,10 @@ export function MountainScene({
         const t = progress * (BEN_NEVIS.route.length - 1),
           last = Math.floor(t)
         BEN_NEVIS.route.forEach(([x, y], i) => {
-          if (i <= last) i ? ctx.lineTo(x * width, y * height) : ctx.moveTo(x * width, y * height)
+          const p = scenePoint({ x, y }, width, height)
+          if (i <= last) i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)
         })
-        const end = routePosition(progress * BEN_NEVIS.elevation)
+        const end = viewportPosition(progress * BEN_NEVIS.elevation)
         ctx.lineTo(end.x * width, end.y * height)
       }
       ctx.lineJoin = 'round'
@@ -106,7 +153,7 @@ export function MountainScene({
       path(player.progress)
       ctx.stroke()
       for (const checkpoint of BEN_NEVIS.checkpoints) {
-        const p = routePosition(checkpoint.metres),
+        const p = viewportPosition(checkpoint.metres),
           reached = metres >= checkpoint.metres
         ctx.fillStyle = reached ? '#2dbe78' : '#faf8e8'
         ctx.strokeStyle = '#31554a'
@@ -116,7 +163,39 @@ export function MountainScene({
         ctx.fill()
         ctx.stroke()
       }
-      const summit = routePosition(BEN_NEVIS.elevation),
+      if (showLabel)
+        for (const [ghostIndex, ghost] of ghostImages.entries()) {
+          const p = viewportPosition(ghost.metres),
+            gx = p.x * width + (ghostIndex % 2 ? -20 : 20),
+            gy = p.y * height - 15
+          ctx.strokeStyle = '#fff9df'
+          ctx.lineWidth = 3
+          ctx.beginPath()
+          ctx.moveTo(gx, gy)
+          ctx.lineTo(p.x * width, p.y * height)
+          ctx.stroke()
+          ctx.save()
+          ctx.beginPath()
+          ctx.arc(gx, gy, 14, 0, Math.PI * 2)
+          ctx.clip()
+          ctx.fillStyle = '#9ab9a0'
+          ctx.fillRect(gx - 14, gy - 14, 28, 28)
+          if (ghost.portrait.complete && ghost.portrait.naturalWidth)
+            ctx.drawImage(ghost.portrait, gx - 14, gy - 14, 28, 28)
+          ctx.restore()
+          ctx.beginPath()
+          ctx.arc(gx, gy, 14, 0, Math.PI * 2)
+          ctx.stroke()
+          ctx.fillStyle = '#fffcece8'
+          ctx.beginPath()
+          ctx.roundRect(gx - 17, gy + 13, 34, 13, 5)
+          ctx.fill()
+          ctx.fillStyle = '#245347'
+          ctx.font = '600 8px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.fillText('Demo', gx, gy + 22)
+        }
+      const summit = viewportPosition(BEN_NEVIS.elevation),
         sx = summit.x * width,
         sy = summit.y * height
       ctx.fillStyle = '#d6d6bd'
@@ -199,7 +278,9 @@ export function MountainScene({
       const textured =
         Number(!!(pine.complete && pine.naturalWidth)) +
         Number(!!(rocks.complete && rocks.naturalWidth)) +
-        Number(!!(clouds.complete && clouds.naturalWidth))
+        Number(!!(clouds.complete && clouds.naturalWidth)) +
+        Number(!!(meadow.complete && meadow.naturalWidth)) +
+        Number(!!(stone.complete && stone.naturalWidth))
       if (
         cache.width !== el.width ||
         cache.height !== el.height ||
@@ -209,7 +290,13 @@ export function MountainScene({
         terrain.width = el.width
         terrain.height = el.height
         backdrop.setTransform(ratio, 0, 0, ratio, 0, 0)
-        drawHighlands(backdrop, width, height, { pine, rocks, clouds })
+        drawHighlands(backdrop, width, height, {
+          pine,
+          rocks,
+          clouds,
+          meadow,
+          stone
+        })
         cache.width = el.width
         cache.height = el.height
         cache.textured = textured
@@ -222,24 +309,26 @@ export function MountainScene({
     const loaded = () => {
       if (!disposed) resize()
     }
-    for (const asset of [pine, rocks, clouds]) asset.addEventListener('load', loaded)
+    for (const asset of [pine, rocks, clouds, meadow, stone, ...ghostImages.map((g) => g.portrait)])
+      asset.addEventListener('load', loaded)
     document.addEventListener('visibilitychange', requestDraw)
     motion.addEventListener('change', requestDraw)
     resize()
     return () => {
-      for (const asset of [pine, rocks, clouds]) asset.removeEventListener('load', loaded)
+      for (const asset of [pine, rocks, clouds, meadow, stone, ...ghostImages.map((g) => g.portrait)])
+        asset.removeEventListener('load', loaded)
       disposed = true
       cancelAnimationFrame(frame)
       observer.disconnect()
       document.removeEventListener('visibilitychange', requestDraw)
       motion.removeEventListener('change', requestDraw)
     }
-  }, [metres, close, focusMetres, showLabel])
+  }, [metres, close, focusMetres, showLabel, ghosts])
   return (
     <canvas
       ref={canvas}
       className="mountain-canvas"
-      aria-label={`Ben Nevis stylised route. Your position: ${Math.round(metres)} of 1,345 Laundry Metres.`}
+      aria-label={`Ben Nevis terrain and Mountain Path. Your position: ${Math.round(metres)} of 1,345 Laundry Metres.${ghosts.length ? ` Fictional demo climbers: ${ghosts.map((g) => g.name).join(', ')}.` : ''}`}
       role="img"
     />
   )

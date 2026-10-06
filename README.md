@@ -51,9 +51,11 @@ Only new milestone commits with real timestamps. Never amend, backdate, rebase, 
 1. Real folding test: target 18/20 correct detections, zero duplicates, zero events in a two-minute negative control.
 2. Ben Nevis: camera event → metres → visible movement → save → leave → restore.
 3. Cloud persistence, then hanging and ironing completion workflows.
-4. Additional mountain environments and secondary product screens.
+4. Remaining playable mountain environments.
 
-Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. The independent game UI includes three fictional demo profiles with these identifiers; no real community accounts or backend exist.
+Owner amendment (6 October): finish the full visual screen set and mountain previews before returning to the physical camera test. Design acceptance is separate from software checks.
+
+Any seeded community records must include `is_demo: true` and be labelled as demo profiles in the UI. The independent game UI includes four fictional demo profiles with these identifiers; no real community accounts or backend exist.
 
 During a live landscape test, the front-camera preview and Ben Nevis progress sit side by side. Front-camera access is required explicitly; unsupported access stops setup with an explanation. Physical framing and accuracy still require the Pixel 9 Pro / Edge test.
 
@@ -71,4 +73,4 @@ Visual references: [VisitScotland Ben Nevis](https://www.visitscotland.com/thing
 
 Open `/?view=home` for the mobile game interface: welcome, home, load/goal setup, front-camera calibration, live climb, results, mountain progress, achievements, a labelled demo community, a local profile and session history. The camera field-test interface remains at `/`; the latest failed test report retains its existing storage key and is not replaced by game sessions. Screens share the actual camera pipeline and event ledger. No Supabase account is required for this local milestone. Progress and session records stay in this browser; accounts, cloud sync and asynchronous competition are not implemented yet.
 
-The scene uses a code-built height field, lit rocky summit, green glen, lochan and stream, curved trail, and detailed illustrated pine/boulder/cloud assets. The flag and map label move from accepted Laundry Metres. The original ten-screen board is the visual source; see `docs/design/README.md` for provenance and `design-qa.md` for the comparison review. Physical camera accuracy and Pixel performance remain unproven. No Netlify deployment is made during this screen work.
+The scene now renders sampled Ben Nevis elevation data and the mapped Mountain Path, lochan, River Nevis and woodland. Five locked expedition previews use separate real elevation grids. See `docs/design/geography.md` for accuracy limits, sources and attribution. The flag and map label move from accepted Laundry Metres. The original ten-screen board is the visual source; see `docs/design/README.md` for provenance and `design-qa.md` for the comparison review. Physical camera accuracy and Pixel performance remain unproven. No Netlify deployment is made during this screen work.

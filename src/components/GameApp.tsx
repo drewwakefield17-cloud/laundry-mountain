@@ -27,17 +27,18 @@ import {
   Bell,
   Lock,
   Crown,
-  Hexagon,
   X
 } from './GameIcons'
 import { CameraLab } from './CameraLab'
 import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
+import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
 import { BEN_NEVIS, GAME } from '../domain/config'
 import { expeditionProgress } from '../domain/expedition'
 import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from '../domain/ledger'
 import type { LaundryEvent } from '../domain/events'
 import './game.css'
+import './reference-theme.css'
 
 type Screen =
   | 'home'
@@ -153,7 +154,12 @@ export function GameApp() {
     [profileMessage, setProfileMessage] = useState('')
   const [communityTab, setCommunityTab] = useState<'Global' | 'Friends' | 'You'>('Global')
   const [badgeTab, setBadgeTab] = useState<'All badges' | 'Earned' | 'Next up'>('All badges')
-  const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null)
+  const [mountainTab, setMountainTab] = useState<'All mountains' | 'Your progress'>('All mountains')
+  const [dialog, setDialog] = useState<{
+    title: string
+    body: string
+    mountainId?: string
+  } | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     if (!dialog) return
@@ -189,7 +195,12 @@ export function GameApp() {
   const finish = useCallback(
     (reason = 'Session finished') => {
       if (!run.current) return
-      const value = { ...run.current, endedAt: Date.now(), status: 'finished' as const, reason }
+      const value = {
+        ...run.current,
+        endedAt: Date.now(),
+        status: 'finished' as const,
+        reason
+      }
       run.current = null
       try {
         saveSession(value)
@@ -371,13 +382,44 @@ export function GameApp() {
   // Fictional profiles for the approved asynchronous competition preview.
   // This data is never registered user activity or written to the real event ledger.
   const demoProfiles = [
-    { id: 'demo-jamie', name: 'Jamie', metres: 968, avatar: '/art/demo-jamie.webp', is_demo: true },
-    { id: 'demo-taylor', name: 'Taylor', metres: 377, avatar: '/art/demo-taylor.webp', is_demo: true },
-    { id: 'demo-morgan', name: 'Morgan', metres: 323, avatar: '/art/demo-morgan.webp', is_demo: true }
+    {
+      id: 'demo-jamie',
+      name: 'Jamie',
+      metres: 968,
+      avatar: '/art/demo-jamie.webp',
+      is_demo: true as const
+    },
+    {
+      id: 'demo-taylor',
+      name: 'Taylor',
+      metres: 377,
+      avatar: '/art/demo-taylor.webp',
+      is_demo: true as const
+    },
+    {
+      id: 'demo-morgan',
+      name: 'Morgan',
+      metres: 323,
+      avatar: '/art/demo-morgan.webp',
+      is_demo: true as const
+    },
+    {
+      id: 'demo-casey',
+      name: 'Casey',
+      metres: 242,
+      avatar: '/art/demo-casey.webp',
+      is_demo: true as const
+    }
   ]
   const communityRows = [
     ...(communityTab === 'You' ? [] : communityTab === 'Friends' ? demoProfiles.slice(0, 2) : demoProfiles),
-    { id: 'you', name: profileName, metres: stats.mountainMetres, avatar: '', is_demo: false }
+    {
+      id: 'you',
+      name: profileName,
+      metres: stats.mountainMetres,
+      avatar: '',
+      is_demo: false
+    }
   ].sort((a, b) => b.metres - a.metres)
   function scenic(mode: 'card' | 'mini' | 'map' | 'dial' | 'welcome' = 'card') {
     return (
@@ -386,6 +428,7 @@ export function GameApp() {
           metres={stats.mountainMetres}
           close={mode === 'map' ? close : false}
           showLabel={mode === 'map'}
+          ghosts={mode === 'map' ? demoProfiles.slice(0, 3) : undefined}
         />
         {(mode === 'card' || mode === 'mini') && (
           <div className="scenic-title">
@@ -864,6 +907,9 @@ export function GameApp() {
                   Climb view
                 </button>
               </div>
+              <a className="terrain-credit" href="/terrain-credits.html" target="_blank" rel="noreferrer">
+                Map data © OpenStreetMap · Terrain credits
+              </a>
             </div>
             <details className="route-details">
               <summary>Your route checkpoints</summary>
@@ -887,44 +933,80 @@ export function GameApp() {
                   </li>
                 ))}
               </ol>
-              <p>Illustrative game route, not hiking guidance.</p>
+              <p>
+                Real Ben Nevis terrain and Mountain Path. Checkpoints measure Laundry Metres, not hiking
+                distance.
+              </p>
             </details>
           </>
         )}
         {screen === 'mountains' && (
           <>
-            <p className="expeditions-label">Your expeditions</p>
-            <button className="mountain-list-current" onClick={() => navigate('mountain')}>
-              {scenic('mini')}
-              <span>
-                <strong>Ben Nevis</strong>
-                <small>Scottish Highlands</small>
-                <span className="mountain-list-progress">{format(stats.percent)}% climbed</span>
-              </span>
-              <ArrowRight />
-            </button>
-            <p className="mountains-coming">Bigger habits. New horizons.</p>
-            <div className="mountain-list">
-              {['Mount Fuji', 'Matterhorn', 'Kilimanjaro', 'Denali', 'Everest'].map((name) => (
-                <button
-                  key={name}
-                  onClick={() =>
-                    setDialog({
-                      title: name,
-                      body: 'Keep climbing Ben Nevis. This expedition is coming in a future update.'
-                    })
-                  }
-                >
-                  <span className="locked-mountain">
-                    <Mountain weight="duotone" />
-                  </span>
-                  <span>
-                    <strong>{name}</strong>
-                    <small>Future expedition</small>
-                  </span>
-                  <Lock weight="fill" />
+            <div className="segmented" aria-label="Mountain filter">
+              {(['All mountains', 'Your progress'] as const).map((t) => (
+                <button key={t} aria-pressed={mountainTab === t} onClick={() => setMountainTab(t)}>
+                  {t}
                 </button>
               ))}
+            </div>
+            <div className="expedition-cards">
+              <button
+                className="expedition-card current-expedition"
+                aria-label="Explore Ben Nevis"
+                onClick={() => navigate('mountain')}
+              >
+                <span className="expedition-thumbnail">{scenic('mini')}</span>
+                <span className="expedition-name">
+                  <strong>Ben Nevis</strong>
+                  <small>
+                    <Mountain weight="fill" /> Scottish Highlands
+                  </small>
+                  <span>1,345 m · Your first expedition</span>
+                </span>
+                <span
+                  className="mini-progress-ring"
+                  style={
+                    {
+                      '--progress': `${stats.percent * 3.6}deg`
+                    } as CSSProperties
+                  }
+                >
+                  <strong>{format(stats.percent)}%</strong>
+                </span>
+              </button>
+              {mountainTab === 'All mountains' &&
+                EXPEDITIONS.map((mountain, index) => (
+                  <button
+                    className="expedition-card"
+                    key={mountain.id}
+                    aria-label={`${mountain.name} Future expedition`}
+                    onClick={() =>
+                      setDialog({
+                        title: mountain.name,
+                        mountainId: mountain.id,
+                        body: `${mountain.region} · ${format(mountain.elevation)} m. Complete ${index ? EXPEDITIONS[index - 1].name : 'Ben Nevis'} to reach this expedition. This terrain preview is ready to explore; playable progression arrives in a future update.`
+                      })
+                    }
+                  >
+                    <span className="expedition-thumbnail">
+                      <TerrainPreview id={mountain.id} name={mountain.name} />
+                    </span>
+                    <span className="expedition-name">
+                      <strong>{mountain.name}</strong>
+                      <small>
+                        <Mountain weight="fill" /> {mountain.difficulty}
+                      </small>
+                      <span>
+                        {format(mountain.elevation)} m · {mountain.region}
+                      </span>
+                    </span>
+                    <span className="expedition-lock">
+                      <Lock weight="fill" />
+                      <strong>Locked</strong>
+                      <small>Future expedition</small>
+                    </span>
+                  </button>
+                ))}
             </div>
             <p className="page-quote">“A cleaner home. A higher you.”</p>
           </>
@@ -995,9 +1077,10 @@ export function GameApp() {
             <div className="badge-grid">
               {badges
                 .filter((b) => (badgeTab === 'Earned' ? b.earned : badgeTab === 'Next up' ? !b.earned : true))
-                .map(({ name, detail, earned, Icon, color }) => (
+                .map(({ name, detail, earned, Icon, color }, index) => (
                   <button
-                    className={`badge-card ${earned ? 'earned' : 'locked'} badge-${color}`}
+                    className={`badge-card ${earned ? 'earned' : 'locked'} ${!earned && index > 5 ? 'distant-badge' : ''} badge-${color}`}
+                    title={earned ? 'Earned' : 'Locked — view requirements'}
                     key={name}
                     onClick={() =>
                       setDialog({
@@ -1007,8 +1090,11 @@ export function GameApp() {
                     }
                   >
                     <span className="badge-medal">
-                      <Hexagon weight="fill" />
-                      <Icon weight="duotone" />
+                      <img
+                        src={`/art/badge-${color === 'orange' || color === 'gold' ? 'amber' : color === 'navy' ? 'navy' : 'emerald'}.webp`}
+                        alt=""
+                      />
+                      <Icon weight="fill" />
                     </span>
                     <strong>{name}</strong>
                     <small>{detail}</small>
@@ -1208,6 +1294,12 @@ export function GameApp() {
             </button>
             <h2 id="dialog-title">{dialog.title}</h2>
             <p>{dialog.body}</p>
+            {dialog.mountainId && (
+              <div className="expedition-detail-preview">
+                <TerrainPreview id={dialog.mountainId} name={dialog.title} />
+                <small>Geographic terrain · illustrated seasonal colours</small>
+              </div>
+            )}
             <button className="primary game-cta" onClick={() => setDialog(null)}>
               Got it
             </button>

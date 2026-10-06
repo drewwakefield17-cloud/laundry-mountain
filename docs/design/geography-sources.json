@@ -1,0 +1,77 @@
+{
+  "fetchedForBuild": "2026-10-06",
+  "terrainTiles": [
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1989/1257.png",
+      "sha256": "e1f6beffc800a53baa2a05069eeaeef193d56e4b96bd8dbd397db4031043b0fa"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1989/1258.png",
+      "sha256": "120cea5aacc7b97e7255f0695685de1a12be49881215587863387da7021cdc80"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1989/1259.png",
+      "sha256": "9a1faaf16cb3bfb1a0bfa5a926c450cb8297bf61db8d8eed4fe6f49531f07d3b"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1989/1260.png",
+      "sha256": "164b23ee1d30add965d0795d55bb8a7d1714a5dafa928b25bb47352ba8f1f1e2"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1990/1257.png",
+      "sha256": "440852d1d2061953efb16d7b052a89cbf972fbca23145ee9b27caa1654128bd1"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1990/1258.png",
+      "sha256": "1d67d4ff5dce290458b2e142465f0cea318150a189cf5413ac1ac1e21d6b4ceb"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1990/1259.png",
+      "sha256": "c19ca2f52ad779660d7f580160b4292d5091d97e65011f16bd4d6ffcda579444"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1990/1260.png",
+      "sha256": "78a9f070f4db3713974859a9cc0e37b4c06bfed42b9774aed69dca9d6067c2ac"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1991/1257.png",
+      "sha256": "5ff35fb8fee33dc8f263b78169044f5102413b46834c6ede472f8a69382f40ed"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1991/1258.png",
+      "sha256": "e9576b23dc3f004ee675867cf2c67716ba4b7f0a0898ea0098fb0c2522602e6f"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1991/1259.png",
+      "sha256": "218c7afcc18bf719e9b8814dab1b9bdb3baeb883b0866c05237392ea36702b0e"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/1991/1260.png",
+      "sha256": "6529e473fe1d306cacc6e5a7b40d5349da44d5cb695614a1c55e478844e621e3"
+    }
+  ],
+  "osm": {
+    "url": "https://api.openstreetmap.org/api/0.6/map?bbox=-5.09,56.785,-4.998,56.827",
+    "sha256": "963c36525d01719bccded5014ee0f9ab6bfc62e5d327d5b35acf5fb6507820d2",
+    "routeWays": [
+      "485095340",
+      "485095338",
+      "485095339",
+      "595162006",
+      "202205806",
+      "7642595",
+      "922455372",
+      "922455373",
+      "348331475",
+      "348331476",
+      "202395474",
+      "202395465",
+      "1192139768",
+      "1192139769",
+      "301139403"
+    ]
+  },
+  "gridSpacingMetres": 50.0,
+  "verticalScale": 1,
+  "routeLengthKm": 7.892
+}

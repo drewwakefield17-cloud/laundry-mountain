@@ -1,0 +1,838 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Roboto+Condensed:wght@400;500;600;700;800&display=swap');
+/* Exact-board correction. These are product surfaces, not painted scenery. */
+.game-shell {
+  --navy: #071d43;
+  --cream: #fffff8;
+  --green: #008655;
+  --border: #e5ecdf;
+  font-family: 'Roboto', sans-serif;
+  background: #fffff8;
+}
+.game-shell h1,
+.game-shell h2,
+.game-shell h3,
+.game-header > strong,
+.game-shell legend {
+  font-family: 'Roboto Condensed', 'Roboto', sans-serif;
+  letter-spacing: -0.4px;
+  font-weight: 700;
+}
+.game-header > strong {
+  font-size: 21px;
+}
+.game-header {
+  padding-left: 14px;
+  padding-right: 14px;
+  gap: 10px;
+}
+.game-shell .primary {
+  background: linear-gradient(180deg, #0bb666 0%, #008553 48%, #005d43 100%);
+  border: 1px solid #97e2a2;
+  border-radius: 40px;
+  box-shadow:
+    inset 0 2px 3px #f0ffe66b,
+    inset 0 -3px 6px #003f3745,
+    0 6px 13px #176b3930;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 1px 1px #00402f60;
+}
+.game-shell .primary:hover {
+  background: linear-gradient(180deg, #11bd70, #008a56 48%, #005d43);
+  box-shadow:
+    inset 0 2px 3px #f0ffe682,
+    0 7px 16px #176b3938;
+}
+.game-shell .secondary {
+  background: linear-gradient(#fffef8, #edf5e6);
+  border: 1px solid #b8d8c3;
+  border-radius: 40px;
+}
+.game-main {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.game-main::after {
+  background-image: url('/art/reference-forest-border.webp');
+  height: 170px;
+  opacity: 0.75;
+  background-size: 100% auto;
+}
+.screen-home .game-main::after {
+  height: 80px;
+  opacity: 0.18;
+}
+.screen-home .game-header {
+  height: 84px;
+}
+.game-header .avatar-button {
+  background: radial-gradient(at 35% 25%, #f3fff8, #c2e8dc);
+  border: 1px solid #4d9a92;
+  box-shadow: inset 0 0 0 3px #ffffffb3;
+  color: #00634e;
+}
+.avatar-button svg {
+  filter: drop-shadow(1px 2px 0 #004d483d);
+}
+.greeting > span {
+  font-size: 14px;
+  color: var(--navy);
+  font-weight: 600;
+}
+.greeting h1 {
+  font-size: 30px;
+  line-height: 1.05;
+}
+.bell-button svg {
+  stroke-width: 1.2px;
+  filter: drop-shadow(0 1px 0 white);
+}
+.screen-home .scenic-card {
+  height: 270px;
+  border-radius: 18px;
+  box-shadow: 0 2px 4px #18534721;
+  border: 1px solid #d6e9d8;
+}
+.scenic-title {
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #fffefcf5 0%, #fffefdcc 25%, #fffefd00 63%);
+}
+.scenic-title > span {
+  font-size: 13px;
+  color: #264d6b;
+}
+.scenic-title h2 {
+  font-size: 34px;
+  line-height: 1.02;
+  margin: 0 0 4px;
+}
+.scenic-title p {
+  font-size: 12px;
+  font-weight: 500;
+}
+.game-shell .scenic-foot p {
+  font:
+    italic 17px/1.35 'Roboto',
+    sans-serif;
+  color: #ffffe8;
+  max-width: 205px;
+  text-shadow: 0 2px 2px #002f25;
+}
+.scenic-foot {
+  padding: 15px 14px;
+  background: linear-gradient(transparent, #003f31a3);
+}
+.progress-ring {
+  width: 112px;
+  height: 112px;
+  border-width: 5px;
+  padding: 8px;
+  box-shadow:
+    0 0 0 3px #effbde90,
+    0 2px 7px #063f3b5e;
+  background: conic-gradient(#0aa56a var(--progress), #b7d4b6 var(--progress));
+}
+.progress-ring strong {
+  font:
+    800 29px/1 'Roboto Condensed',
+    sans-serif;
+  background: #fffff5;
+}
+.home-stats {
+  gap: 7px;
+  margin: 16px 0 20px;
+}
+.screen-home .home-stats > button {
+  min-height: 112px;
+  padding: 12px 3px 10px;
+  border: 0;
+  background: linear-gradient(#fffffff5, #fffff8e8);
+  box-shadow: 0 2px 8px #446b3210;
+}
+.home-stats svg {
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 2px 1px #164a3030);
+}
+.home-stats strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+.home-stats span {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 12px;
+  color: #34516a;
+}
+.screen-home .start-session-cta {
+  min-height: 64px !important;
+  font-size: 18px;
+  border: 2px solid #c9efb2;
+  box-shadow:
+    inset 0 1px 3px #c4ffe476,
+    0 7px 13px #176b3930;
+}
+.play-disc {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(#005748, #003f35);
+  box-shadow:
+    inset 0 0 0 2px #3f9789,
+    0 2px 3px #00473155;
+}
+.next-trail {
+  padding-top: 17px;
+  opacity: 0.8;
+}
+.next-trail small {
+  font-family: 'Roboto', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.7px;
+}
+.next-trail strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 17px;
+}
+.validation-note {
+  opacity: 0.68;
+  font-size: 9px !important;
+}
+.game-nav {
+  height: 74px;
+  background: #fffffbf7;
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid #e4ecde;
+  box-shadow: 0 -3px 9px #42715608;
+  padding-top: 5px;
+}
+.game-nav button,
+.game-nav button:hover,
+.game-nav button[aria-current='page'] {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.game-nav svg {
+  width: 27px;
+  height: 27px;
+  filter: drop-shadow(0 1px 0 #fffffa);
+}
+.game-nav small {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+}
+.game-nav .nav-add > span {
+  background: linear-gradient(#06a06a, #006344);
+  border: 3px solid #c6e6c0;
+  box-shadow:
+    inset 0 0 0 2px #76be92,
+    0 3px 8px #206e3945;
+  width: 59px;
+  height: 59px;
+  margin-top: -23px;
+}
+.screen-setup .game-header {
+  height: 66px;
+}
+.screen-setup .game-main {
+  padding-top: 4px;
+  padding-bottom: 16px;
+}
+.game-shell legend {
+  font-size: 23px;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.screen-setup .load-picker button {
+  min-height: 106px;
+  border: 1px solid #e5eddf;
+  border-radius: 13px;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #193958;
+  background: #fffffc;
+  box-shadow: 0 1px 4px #3f64350b;
+  gap: 7px;
+}
+.load-picker button svg {
+  filter: drop-shadow(0 2px 1px #286d4333);
+  color: #4c9b7a;
+}
+.load-picker button[aria-pressed='true'] {
+  border: 2px solid #159352 !important;
+  background: #fbfff2 !important;
+  box-shadow: 0 0 0 2px #e1f5db;
+}
+.screen-setup .goal-picker button {
+  min-height: 94px;
+  border-radius: 12px;
+  font-family: 'Roboto Condensed', sans-serif;
+  gap: 3px;
+}
+.goal-picker button strong {
+  font-size: 17px;
+}
+.goal-picker button span {
+  font-size: 12px;
+}
+.goal-picker button svg {
+  filter: drop-shadow(0 2px 1px #3a634330);
+}
+.screen-setup .session-plan {
+  margin: 15px 0;
+}
+.session-plan h2 {
+  font-size: 22px;
+}
+.session-plan p {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 14px;
+}
+.privacy-card {
+  background: #eaf4e5;
+  border: 0;
+  border-radius: 15px;
+  padding: 13px;
+}
+.privacy-card p {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 15px;
+}
+.privacy-card strong {
+  font-weight: 600;
+  color: #244b62;
+}
+.screen-setup .game-cta {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 20px;
+  min-height: 56px !important;
+}
+.screen-setup .game-main::after {
+  opacity: 0.17;
+  height: 80px;
+}
+.setup-privacy {
+  font-size: 11px !important;
+}
+.screen-setup .validation-note {
+  margin-top: 7px;
+}
+.segmented {
+  border: 1px solid #e7ecdf;
+  background: #fafbf5;
+  border-radius: 40px;
+  box-shadow: inset 0 1px 3px #546f3410;
+  padding: 2px;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.segmented button {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+  color: #557086;
+  min-height: 34px;
+}
+.segmented button[aria-pressed='true'] {
+  background: linear-gradient(#139f5b, #06794e);
+  box-shadow:
+    inset 0 1px 2px #b9f4c578,
+    0 2px 4px #256a3220;
+  color: white;
+}
+.badge-grid {
+  gap: 9px;
+}
+.badge-card {
+  border: 1px solid #e1e8d6;
+  border-radius: 12px;
+  background: #fffffc;
+  box-shadow: 0 2px 5px #5077370b;
+  padding: 8px 4px 10px;
+  gap: 4px;
+}
+.badge-medal {
+  width: 80px;
+  height: 80px;
+  filter: none !important;
+  opacity: 1 !important;
+}
+.badge-medal::after {
+  display: none;
+}
+.badge-medal img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.badge-medal > svg:last-child {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  color: #fffce6;
+  filter: drop-shadow(0 2px 1px #0a3e3f88);
+}
+.distant-badge .badge-medal img {
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+.badge-card > strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #092343;
+}
+.badge-card > small {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #547588;
+  min-height: 25px;
+}
+.badge-lock {
+  top: 8px;
+  right: 7px;
+  width: 12px;
+  color: #6a7f72;
+}
+.game-shell .page-quote {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 18px !important;
+  font-style: italic;
+  color: #153657 !important;
+  line-height: 1.3 !important;
+}
+.leaderboard {
+  gap: 8px;
+}
+.leaderboard > button {
+  padding: 10px 10px;
+  min-height: 68px;
+  border: 1px solid #e7ebdc;
+  border-radius: 12px;
+  background: #fffffb;
+  box-shadow: 0 1px 4px #45623008;
+}
+.leaderboard .your-row {
+  background: #f1fcec;
+  border: 2px solid #098547;
+  padding: 9px;
+}
+.leaderboard img,
+.avatar-small {
+  height: 45px;
+  width: 45px;
+  border: 2px solid #ebefdb;
+  box-shadow: 0 1px 4px #52725130;
+}
+.person-name > strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 15px;
+}
+.person-name > span {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 12px;
+}
+.leaderboard > button > strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 18px;
+}
+.rank {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 22px;
+}
+.community-motto {
+  background: #e9f5e7 url('/art/reference-forest-border.webp') right bottom/100% auto no-repeat;
+  border: 0;
+  padding: 12px 8px;
+  margin-top: 16px;
+}
+.community-motto > svg {
+  color: #008153;
+  filter: drop-shadow(0 2px 1px #355d4433);
+}
+.community-motto strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 17px;
+}
+.community-motto span {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+}
+.screen-community .small-print {
+  font-size: 10px;
+  line-height: 1.35;
+}
+.demo-notice {
+  font-size: 10px !important;
+}
+.results-heading h1 {
+  font-size: 32px;
+}
+.results-heading > p {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 19px;
+  color: #19606b;
+}
+.result-stats {
+  gap: 8px;
+}
+.result-stats > div {
+  border: 0;
+  box-shadow: 0 2px 7px #52712a12;
+}
+.result-stats strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 24px;
+}
+.result-stats span {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 12px;
+}
+.reward-ribbon {
+  width: fit-content;
+  margin: 16px auto !important;
+  background: #fffdef;
+  border: 1px solid #ffdd7e;
+  box-shadow: 0 0 0 3px #fff6d3;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+.reward-ribbon strong {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 21px;
+  color: #ee7612;
+}
+.reward-ribbon span {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+}
+.screen-results blockquote {
+  font:
+    italic 17px/1.4 'Roboto',
+    sans-serif;
+}
+.screen-results .game-cta {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 19px;
+}
+@media (max-width: 360px) {
+  .progress-ring {
+    width: 94px;
+    height: 94px;
+  }
+  .scenic-title h2 {
+    font-size: 30px;
+  }
+  .game-shell .scenic-foot p {
+    font-size: 15px;
+  }
+  .screen-home .start-session-cta {
+    font-size: 16px;
+  }
+  .badge-medal {
+    width: 70px;
+    height: 70px;
+  }
+}
+.terrain-credit {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font:
+    9px/1.3 Roboto,
+    sans-serif;
+  color: #183c39;
+  text-decoration: none;
+  text-shadow: 0 1px 2px #fffff6;
+  background: #ffffefc7;
+  padding: 3px 5px;
+  z-index: 3;
+}
+/* Expedition selection uses each mountain's own elevation mesh. */
+.expedition-cards {
+  display: grid;
+  gap: 9px;
+}
+.expedition-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 86px;
+  padding: 7px;
+  border: 1px solid #e0e8d7;
+  border-radius: 13px;
+  background: #fffffb;
+  text-align: left;
+  box-shadow: 0 2px 5px #355a2410;
+  color: var(--navy);
+}
+.current-expedition {
+  background: #f8fdef;
+  border-color: #cddfc0;
+}
+.expedition-thumbnail {
+  display: block;
+  position: relative;
+  width: 76px;
+  height: 70px;
+  flex: 0 0 76px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #dcebe3;
+}
+.expedition-thumbnail .scenic-mini {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.expedition-thumbnail .scenic-title {
+  display: none;
+}
+.terrain-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #d9ebe5;
+}
+.expedition-name {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.expedition-name > strong {
+  font:
+    700 18px/1.1 'Roboto Condensed',
+    sans-serif;
+}
+.expedition-name > small {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font:
+    12px 'Roboto Condensed',
+    sans-serif;
+  color: #386273;
+}
+.expedition-name > small svg {
+  color: #008b59;
+  width: 14px;
+}
+.expedition-name > span {
+  font:
+    10px 'Roboto Condensed',
+    sans-serif;
+  color: #69818c;
+}
+.expedition-lock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 53px;
+  color: #547782;
+}
+.expedition-lock > svg {
+  height: 24px;
+  width: 24px;
+}
+.expedition-lock strong {
+  font:
+    600 11px 'Roboto Condensed',
+    sans-serif;
+}
+.expedition-lock small {
+  font:
+    8px 'Roboto Condensed',
+    sans-serif;
+}
+.mini-progress-ring {
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  padding: 6px;
+  border-radius: 50%;
+  background: conic-gradient(#0ca163 var(--progress), #cde6cf var(--progress));
+}
+.mini-progress-ring > strong {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fffffa;
+  font:
+    700 15px 'Roboto Condensed',
+    sans-serif;
+}
+.screen-mountains .page-quote {
+  margin: 19px 0;
+}
+.expedition-detail-preview {
+  height: 220px;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  margin: 14px 0;
+}
+.expedition-detail-preview > small {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px;
+  text-align: center;
+  background: #ffffeeda;
+  color: #35546b;
+  font-size: 10px;
+}
+@media (max-width: 360px) {
+  .expedition-card {
+    gap: 7px;
+  }
+  .expedition-thumbnail {
+    width: 62px;
+    flex-basis: 62px;
+    height: 65px;
+  }
+  .expedition-name > strong {
+    font-size: 16px;
+  }
+  .expedition-name > span {
+    font-size: 9px;
+  }
+  .expedition-lock {
+    flex-basis: 45px;
+  }
+}
+.game-camera .illustrated-setup {
+  padding: 0;
+  overflow: hidden;
+}
+.illustrated-setup > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-camera .illustration-label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #fffff0eb;
+  border-radius: 16px;
+  padding: 5px 9px;
+  font:
+    10px 'Roboto Condensed',
+    sans-serif;
+  color: #315867;
+  z-index: 1;
+}
+.camera-off-message {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: #ffffefec;
+  border: 1px solid #d6e7d0;
+  border-radius: 15px;
+  padding: 12px 8px;
+  box-shadow: 0 4px 18px #244a2c26;
+}
+.camera-off-message > svg {
+  color: #078856;
+}
+.game-camera .camera-off-message strong {
+  font:
+    700 19px/1.15 'Roboto Condensed',
+    sans-serif;
+}
+.game-camera .camera-off-message span {
+  font:
+    12px/1.3 'Roboto Condensed',
+    sans-serif;
+  color: #365d65;
+}
+.camera-intro h1 {
+  font-family: 'Roboto Condensed', sans-serif !important;
+}
+.game-camera .camera-actions {
+  justify-content: center;
+}
+.game-camera .camera-actions > .primary {
+  min-height: 50px;
+  font-size: 17px;
+}
+.game-camera .setup-note {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 14px;
+}
+.phone-position {
+  background: #eff7e8 url('/art/reference-forest-border.webp') center bottom/100% auto no-repeat;
+}
+.phone-position p {
+  font:
+    14px/1.4 'Roboto Condensed',
+    sans-serif;
+}
+.screen-camera .game-main::after {
+  opacity: 0.5;
+}
+.game-climb-column .live-heading h1 {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+.game-climb-column .live-heading p,
+.dial-time span {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+.dial-time strong {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+.game-live-buttons > button {
+  border-radius: 32px;
+}
+.screen-mountains .game-main {
+  padding-top: 5px;
+}
+.screen-mountains .expedition-cards {
+  gap: 8px;
+}
+.screen-mountains .validation-note {
+  margin: 8px 0;
+}
+.screen-mountains .page-quote {
+  font-size: 16px !important;
+  margin: 14px 0;
+}
+/* Portrait live view: reference dial + horizontal rewards, with the required
+   front-camera preview still visible. Landscape keeps the tested split view. */
+@media (orientation:portrait) and (max-width:600px) and (min-height:700px){
+  .is-live .game-camera-column{display:grid;grid-template-columns:43% minmax(0,1fr);gap:10px;align-items:center}
+  .is-live .live-instruction{margin:0;font-size:12px;line-height:1.35;padding:10px}
+  .is-live .game-camera .preview-label{font-size:6px;padding:3px;max-width:95%}
+  .is-live .game-camera .zone span{font-size:6px;padding:2px;left:1px;top:2px}
+  .is-live .game-climb-column{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .is-live .live-heading{margin:3px 0 5px}.is-live .live-heading h1{font-size:29px}.is-live .live-heading p{font-size:12px;margin-top:2px}
+  .is-live .scenic-dial{width:min(242px,64vw);height:auto;aspect-ratio:1;margin:8px auto 14px;flex-shrink:0}
+  .is-live .game-stat-row{display:flex;flex-direction:row;gap:6px;margin:0}
+  .is-live .game-stat-row>div{display:flex;flex-direction:column;flex:1;min-height:71px;gap:2px;padding:5px 3px;border-radius:11px;background:#fffffb}
+  .is-live .game-stat-row svg{width:24px;height:24px}.is-live .game-stat-row strong{font:700 19px 'Roboto Condensed',sans-serif}.is-live .game-stat-row span{font:10px 'Roboto Condensed',sans-serif}
+  .is-live .momentum-card{margin-top:9px;min-height:0;padding:8px 11px}.is-live .game-live-buttons{margin-top:10px}.is-live .game-burst{top:60px;left:38%}
+}

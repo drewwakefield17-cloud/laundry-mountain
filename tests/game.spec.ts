@@ -182,7 +182,7 @@ test('profile, demo community, badge criteria and locked expeditions are honest 
   await expect(page.locator('.badge-card')).toHaveCount(0)
   await page.getByRole('button', { name: 'Community', exact: true }).click()
   await expect(page.locator('.demo-notice')).toContainText('fictional')
-  await expect(page.locator('.leaderboard>button')).toHaveCount(4)
+  await expect(page.locator('.leaderboard>button')).toHaveCount(5)
   await page.getByRole('button', { name: 'Jamie Demo Ben Nevis 72%', exact: true }).click()
   await expect(dialog).toContainText('not a registered user')
   await dialog.getByRole('button', { name: 'Got it' }).click()
