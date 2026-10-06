@@ -17,18 +17,30 @@ describe('Ben Nevis geography', () => {
     expect(heightAt(x, z)).toBeLessThan(0.08)
     expect(geo.heights).toHaveLength(geo.grid.size ** 2)
   })
+  it('joins the refined cliffs to the wider terrain without height jumps', () => {
+    for (let i = 0; i <= 20; i++) {
+      const x = (i * 3.5) / 20,
+        z = -1.5 + (i * 3.5) / 20
+      for (const edge of [0, 3.5])
+        expect(Math.abs(heightAt(edge - 1e-6, z) - heightAt(edge + 1e-6, z))).toBeLessThan(1e-4)
+      for (const edge of [-1.5, 2])
+        expect(Math.abs(heightAt(x, edge - 1e-6) - heightAt(x, edge + 1e-6))).toBeLessThan(1e-4)
+    }
+  })
   it('ends the game route at the mapped summit and retains the named lochan', () => {
     const summit = projectWorld(geo.summit[0], geo.summit[1])
     expect(BEN_NEVIS_TRAIL.at(-1)![0]).toBeCloseTo(summit.x, 5)
     expect(BEN_NEVIS_TRAIL.at(-1)![1]).toBeCloseTo(summit.y, 5)
-    expect(geo.features.some((f) => f.kind === 'water' && f.name === 'Lochan Meall an t-Suidhe')).toBe(true)
+    expect(
+      geo.features.some((f) => f.kind === 'water' && f.name === 'Lochan Meall an t-Suidhe')
+    ).toBe(true)
   })
   it('centres the scenic camera on its look target and preserves upward elevation', () => {
-    const target = landscapeCamera.project(1.3, -0.45, 0.62)
-    expect(target.x).toBeCloseTo(0.73, 8)
-    expect(target.y).toBeCloseTo(0.47, 8)
-    expect(landscapeCamera.project(1.3, -0.45, 1.3).y).toBeLessThan(target.y)
-    expect(landscapeCamera.depth(1.3, -0.45, 0.62)).toBeGreaterThan(0)
+    const target = landscapeCamera.project(1.7, -0.65, 0.85)
+    expect(target.x).toBeCloseTo(0.6, 8)
+    expect(target.y).toBeCloseTo(0.5, 8)
+    expect(landscapeCamera.project(1.7, -0.65, 1.3).y).toBeLessThan(target.y)
+    expect(landscapeCamera.depth(1.7, -0.65, 0.85)).toBeGreaterThan(0)
   })
   it('preserves projected proportions through portrait and landscape resizing', () => {
     const a = projectWorld(-1, 0, 0.2),
@@ -44,5 +56,20 @@ describe('Ben Nevis geography', () => {
     })
     expect(ratios[1]).toBeCloseTo(ratios[0], 10)
     expect(ratios[2]).toBeCloseTo(ratios[0], 10)
+  })
+  it('keeps the full mapped route clear of the phone header and view controls', () => {
+    for (const [width, height] of [
+      [390, 711],
+      [844, 316],
+      [320, 560]
+    ]) {
+      for (const [x, y] of BEN_NEVIS_TRAIL) {
+        const p = scenePoint({ x, y }, width, height)
+        expect(p.x).toBeGreaterThanOrEqual(width * 0.08 - 0.01)
+        expect(p.x).toBeLessThanOrEqual(width * 0.92 + 0.01)
+        expect(p.y).toBeGreaterThanOrEqual(Math.min(92, height * 0.25) - 0.01)
+        expect(p.y).toBeLessThanOrEqual(height - Math.min(92, height * 0.25) + 0.01)
+      }
+    }
   })
 })

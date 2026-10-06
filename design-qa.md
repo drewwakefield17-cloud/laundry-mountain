@@ -1,6 +1,47 @@
 # Reference fidelity review — bounded correction pass
 
-final result: not passed — mountain illustration finish remains open
+final result: blocked
+
+## Latest implemented comparison
+
+`docs/design/review/illustrated-pass/reference-current.jpg` compares all ten source
+screens with actual current app captures; `focused-comparison.jpg` enlarges home,
+route, live and badges. Empty first-paint captures were rejected and replaced.
+Live/results counters in this evidence come from an isolated synthetic camera
+fixture and are labelled synthetic. The shared browser's real ledger remains zero.
+
+Five surface checks:
+
+| Surface | Improvement verified | Remaining design gap / intentional difference |
+| --- | --- | --- |
+| Welcome / home | Wider heavy navy headings, flat green controls, real Ben Nevis scenery, higher welcome framing | Source uses a fictional sharper mountain; Ben Nevis retains its broad plateau. Terrain texture/light balance still needs owner review. |
+| Mountain route | Blue/cream painted planes attached to real geometry, fixed-size climber pins, softer tan sign | Sign lettering is heavier than the source; the route environment still has a different detail distribution. No full-scene image substitutes for the geographic mesh. |
+| Live / results | Icon only, native timer/progress, pine framing, camera and controls visible in portrait/landscape | Required front-camera workspace changes the source composition. Forest surround is still simpler than the board; no fake timer, item count or bonus state is used. |
+| Achievements | Enamel hexagons, cream icon details, native labels/filter/detail and locked states | Native icon illustrations are simpler than the reference. Criteria reflect implemented local achievements rather than invented environmental savings. |
+| Mountains / community | Six separate sourced landforms, locked previews, wider typography, readable rows | Six mountains require more list height than the four in the board. Fictional profiles remain labelled Demo; cloud competition is deferred. |
+
+26 unit tests, TypeScript and production build passed; eight affected game/expedition
+browser tests passed. Targeted follow-ups passed after live framing, capture
+readiness and preview cache corrections. Browser checks verify software behaviour, not physical
+folding accuracy or real Pixel performance. No deployment occurred.
+
+**The original reference remains the acceptance target. This pass does not change
+the blocked visual result or claim buildathon-ready quality.**
+
+## Active owner feedback — 6 October, latest illustrated pass
+
+The owner says the newer terrain is better but **the design style still does not
+match**. This is a binding rejection, not an invitation to mark the current assets
+passed. The latest world-registered painting improves fine detail, but reads too
+yellow/impressionistic next to the source's blue rock planes, cooler greens and
+more defined illustrated shapes. Typography, signs and live surroundings also need
+a focused comparison. See source crops `docs/design/source-art/board-card-style-sample.png`,
+`board-mountain-style-sample.png` and `board-sign-style-sample.png`.
+
+Keep the sourced geometry, functional routes and current state. Correct the art
+family rather than adding more noise/detail or relabelling the reference's fantasy
+Snowdon silhouette as Ben Nevis. New terrain guides/paintings are material inputs;
+they cannot substitute for actual app captures in the visual acceptance review.
 
 The owner rejected a2b85c1 as a different design family. Its previous visual
 pass was incorrect and remains superseded. The exact target is the supplied

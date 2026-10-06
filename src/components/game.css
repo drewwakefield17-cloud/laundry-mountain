@@ -2539,7 +2539,7 @@
 .screen-mountain .route-details {
   position: absolute;
   top: 75px;
-  left: 14px;
+  right: 14px;
   max-width: calc(100% - 28px);
   padding: 0;
   background: #fffef2eb;
@@ -2577,5 +2577,39 @@
   .screen-mountain .scenic-map {
     height: calc(100dvh - 75px);
     min-height: 550px;
+  }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-shell.screen-mountain {
+    max-width: none;
+    min-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .screen-mountain .scenic-map {
+    height: calc(100dvh - 64px);
+    min-height: 0;
+  }
+  .screen-mountain .game-nav {
+    height: 64px;
+  }
+  .screen-mountain .game-header {
+    height: 50px;
+    padding: 4px 16px;
+  }
+  .screen-mountain .route-details {
+    top: 54px;
+  }
+  .screen-mountain .route-details summary {
+    min-height: 34px;
+    padding: 7px 12px;
+  }
+  .screen-mountain .route-details[open] {
+    max-height: calc(100% - 114px);
+  }
+  .screen-mountain .map-tagline {
+    width: 70px;
   }
 }

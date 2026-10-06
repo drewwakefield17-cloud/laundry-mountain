@@ -1,5 +1,6 @@
 import {
   BEN_NEVIS_GEOGRAPHY as geo,
+  BEN_NEVIS_CRAGS as crags,
   WORLD,
   cameraDepth as mapDepth,
   viewDepth as mapViewDepth,
@@ -15,9 +16,21 @@ export interface SceneAssets {
   clouds?: HTMLImageElement
   meadow?: HTMLImageElement
   stone?: HTMLImageElement
+  ground?: HTMLImageElement
+  paintedSlope?: HTMLImageElement
 }
 const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const quadChannel = (
+  data: Uint8ClampedArray,
+  k: number,
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+  u: number,
+  v: number
+) => lerp(lerp(data[a + k], data[b + k], u), lerp(data[c + k], data[d + k], u), v)
 // Geographic land-cover raster, built once from mapped polygons/river geometry.
 // It is a lookup table for material selection, never a background image.
 let land: Uint8ClampedArray | undefined
@@ -33,7 +46,8 @@ function landCover() {
     for (const feature of geo.features) {
       if (
         feature.kind !== kind ||
-        (kind === 'river' && !['River Nevis', 'Allt a’ Mhuilinn', "Allt a' Mhuilinn"].includes(feature.name))
+        (kind === 'river' &&
+          !['River Nevis', 'Allt a’ Mhuilinn', "Allt a' Mhuilinn"].includes(feature.name))
       )
         continue
       c.beginPath()
@@ -63,7 +77,41 @@ function coverAt(data: Uint8ClampedArray, x: number, z: number) {
   return { wood: data[i + 1] > 100, water: data[i + 2] > 80 }
 }
 const materialCache = new WeakMap<HTMLImageElement, Uint8ClampedArray>()
+const atlasCache = new WeakMap<HTMLImageElement, Uint8ClampedArray>()
+const ATLAS_SIZE = 1024
+const slopeCache = new WeakMap<HTMLImageElement, Uint8ClampedArray>()
+function slopeMaterial(image?: HTMLImageElement) {
+  if (!image?.complete || !image.naturalWidth) return undefined
+  let data = slopeCache.get(image)
+  if (!data) {
+    const canvas = document.createElement('canvas')
+    canvas.width = image.naturalWidth
+    canvas.height = image.naturalHeight
+    const context = canvas.getContext('2d')!
+    context.drawImage(image, 0, 0)
+    data = context.getImageData(0, 0, canvas.width, canvas.height).data
+    slopeCache.set(image, data)
+  }
+  return data
+}
+function groundAtlas(image?: HTMLImageElement) {
+  if (!image?.complete || !image.naturalWidth) return undefined
+  let data = atlasCache.get(image)
+  if (!data) {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = ATLAS_SIZE
+    const context = canvas.getContext('2d')!
+    context.drawImage(image, 0, 0, ATLAS_SIZE, ATLAS_SIZE)
+    data = context.getImageData(0, 0, ATLAS_SIZE, ATLAS_SIZE).data
+    atlasCache.set(image, data)
+  }
+  return data
+}
 const MATERIAL_SIZE = 256
+const mirrored = (n: number) => {
+  const i = ((Math.floor(n) % (MATERIAL_SIZE * 2)) + MATERIAL_SIZE * 2) % (MATERIAL_SIZE * 2)
+  return i < MATERIAL_SIZE ? i : MATERIAL_SIZE * 2 - i - 1
+}
 function material(image?: HTMLImageElement) {
   if (!image?.complete || !image.naturalWidth) return undefined
   let data = materialCache.get(image)
@@ -77,7 +125,17 @@ function material(image?: HTMLImageElement) {
   }
   return data
 }
-type Vertex = { x: number; y: number; wx: number; wz: number; height: number; invDepth: number }
+type Vertex = {
+  x: number
+  y: number
+  wx: number
+  wz: number
+  height: number
+  invDepth: number
+  nx: number
+  nz: number
+  sun: number
+}
 export function drawHighlands(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -87,13 +145,31 @@ export function drawHighlands(
 ) {
   const projectWorld = scenic ? landscapeCamera.project : mapProject
   const viewDepth = scenic ? landscapeCamera.depth : mapViewDepth
-  const cameraDepth = scenic ? (x: number, z: number) => landscapeCamera.depth(x, z, 0) - 5 : mapDepth
+  const cameraDepth = scenic
+    ? (x: number, z: number) => landscapeCamera.depth(x, z, 0) - 5
+    : mapDepth
   const sky = ctx.createLinearGradient(0, 0, 0, h)
   sky.addColorStop(0, '#80cbd8')
   sky.addColorStop(0.55, '#e5f3df')
   sky.addColorStop(1, '#e3e9bf')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
+  // Warm illustrated daylight is an atmospheric layer, not altered terrain.
+  const sunX = w * (scenic ? 0.78 : 0.85),
+    sunY = h * 0.12,
+    sunRadius = Math.min(w, h) * 0.1
+  const halo = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.7, sunX, sunY, sunRadius * 3.2)
+  halo.addColorStop(0, '#fff5cb99')
+  halo.addColorStop(1, '#fff5cb00')
+  ctx.fillStyle = halo
+  ctx.fillRect(0, 0, w, h)
+  const sun = ctx.createLinearGradient(0, sunY - sunRadius, 0, sunY + sunRadius)
+  sun.addColorStop(0, '#ffdc7c')
+  sun.addColorStop(1, '#ffad4b')
+  ctx.fillStyle = sun
+  ctx.beginPath()
+  ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2)
+  ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
     ctx.globalAlpha = 0.72
@@ -102,29 +178,81 @@ export function drawHighlands(
   }
   const cover = landCover(),
     meadow = material(assets.meadow),
-    stone = material(assets.stone)
-  const grid: Vertex[][] = []
-  const { size, stepKm, minKm } = geo.grid
-  for (let j = 0; j < size; j++) {
-    const line: Vertex[] = []
-    for (let i = 0; i < size; i++) {
-      const wx = minKm + i * stepKm,
-        wz = minKm + j * stepKm,
-        height = geo.heights[j * size + i] / 1000
-      const p = scenePoint(projectWorld(wx, wz, height), w, h)
-      line.push({ ...p, wx, wz, height, invDepth: 1 / viewDepth(wx, wz, height) })
+    stone = material(assets.stone),
+    ground = groundAtlas(assets.ground),
+    paintedSlope = slopeMaterial(assets.paintedSlope)
+  const grids: Vertex[][][] = []
+  const cells: Array<{ grid: number; i: number; j: number; depth: number }> = []
+  const meshes = [
+    {
+      size: geo.grid.size,
+      stepKm: geo.grid.stepKm,
+      minX: geo.grid.minKm,
+      minZ: geo.grid.minKm
+    },
+    crags.grid
+  ]
+  for (const [gridIndex, mesh] of meshes.entries()) {
+    const grid: Vertex[][] = []
+    const { size, stepKm, minX, minZ } = mesh
+    for (let j = 0; j < size; j++) {
+      const line: Vertex[] = []
+      for (let i = 0; i < size; i++) {
+        const wx = minX + i * stepKm,
+          wz = minZ + j * stepKm,
+          height = heightAt(wx, wz)
+        const p = scenePoint(projectWorld(wx, wz, height), w, h, scenic)
+        const nx = (heightAt(wx + stepKm, wz) - heightAt(wx - stepKm, wz)) / (2 * stepKm)
+        const nz = (heightAt(wx, wz + stepKm) - heightAt(wx, wz - stepKm)) / (2 * stepKm)
+        // Sample the actual ridges towards the light. Their cast shadows give
+        // glens and crags depth without adding or distorting any landform.
+        let sun = 1
+        for (const distance of [0.1, 0.2, 0.4, 0.7, 1, 1.5, 2]) {
+          if (
+            heightAt(wx - distance * 0.85, wz - distance * 0.53) >
+            height + distance * 0.65 + 0.02
+          ) {
+            sun = 0.18
+            break
+          }
+        }
+        line.push({
+          ...p,
+          wx,
+          wz,
+          height,
+          nx,
+          nz,
+          sun,
+          invDepth: 1 / viewDepth(wx, wz, height)
+        })
+      }
+      grid.push(line)
     }
-    grid.push(line)
+    for (let j = 0; j < size - 1; j++)
+      for (let i = 0; i < size - 1; i++) {
+        const x = minX + i * stepKm,
+          z = minZ + j * stepKm
+        // Replace these coarse cells with sourced detail, rather than layering
+        // two competing surfaces in the depth buffer.
+        if (
+          gridIndex === 0 &&
+          x >= crags.grid.minX - 1e-8 &&
+          z >= crags.grid.minZ - 1e-8 &&
+          x + stepKm <= crags.grid.minX + (crags.grid.size - 1) * crags.grid.stepKm + 1e-8 &&
+          z + stepKm <= crags.grid.minZ + (crags.grid.size - 1) * crags.grid.stepKm + 1e-8
+        )
+          continue
+        cells.push({
+          grid: gridIndex,
+          i,
+          j,
+          depth: cameraDepth(x + stepKm / 2, z + stepKm / 2)
+        })
+      }
+    grids.push(grid)
   }
   // Sort faces by camera depth so foreground slopes cover the distant terrain.
-  const cells: Array<{ i: number; j: number; depth: number }> = []
-  for (let j = 0; j < size - 1; j++)
-    for (let i = 0; i < size - 1; i++)
-      cells.push({
-        i,
-        j,
-        depth: cameraDepth(minKm + (i + 0.5) * stepKm, minKm + (j + 0.5) * stepKm)
-      })
   cells.sort((a, b) => b.depth - a.depth)
   // Rasterise surface materials in world space. A single colour per 50 m face
   // discarded the painted detail and made mapped woodland edges look triangular.
@@ -139,23 +267,23 @@ export function drawHighlands(
   const pixels = surfaceContext.createImageData(sw, sh)
   const depth = new Float32Array(sw * sh)
   const grassPalette = [
-    [14, 55, 52],
-    [32, 88, 64],
-    [81, 124, 58],
-    [139, 170, 76],
-    [207, 213, 132]
+    [17, 64, 60],
+    [43, 98, 68],
+    [76, 139, 83],
+    [122, 171, 100],
+    [193, 210, 139]
   ]
   const rockPalette = [
-    [16, 41, 64],
-    [35, 68, 95],
-    [82, 113, 131],
-    [158, 177, 174],
-    [240, 218, 170]
+    [15, 44, 67],
+    [43, 76, 104],
+    [102, 132, 148],
+    [178, 193, 185],
+    [247, 225, 175]
   ]
   const face = (a: Vertex, b: Vertex, c: Vertex) => {
     if (
       Math.min(a.invDepth, b.invDepth, c.invDepth) <= 0 ||
-      Math.max(a.invDepth, b.invDepth, c.invDepth) > 1 / (scenic ? 0.1 : 0.75)
+      Math.max(a.invDepth, b.invDepth, c.invDepth) > 1 / 0.12
     )
       return
     const ax = a.x * density,
@@ -175,7 +303,6 @@ export function drawHighlands(
     const dx = ((b.height - a.height) * (c.wz - a.wz) - (c.height - a.height) * (b.wz - a.wz)) / det
     const dz = ((c.height - a.height) * (b.wx - a.wx) - (b.height - a.height) * (c.wx - a.wx)) / det
     const slope = Math.hypot(dx, dz)
-    const light = clamp((0.65 + dx * 0.75 + dz * 0.35) / Math.hypot(1, dx, dz), 0.01, 1)
     const wx = (a.wx + b.wx + c.wx) / 3,
       wz = (a.wz + b.wz + c.wz) / 3
     const curvature =
@@ -203,6 +330,13 @@ export function drawHighlands(
         const x = ua * a.wx + vb * b.wx + qc * c.wx,
           z = ua * a.wz + vb * b.wz + qc * c.wz
         const elevation = ua * a.height + vb * b.height + qc * c.height
+        // Continuous real surface normals remove the visible 50 m triangle grid.
+        const nx = ua * a.nx + vb * b.nx + qc * c.nx
+        const nz = ua * a.nz + vb * b.nz + qc * c.nz
+        const sunlight = ua * a.sun + vb * b.sun + qc * c.sun
+        const light =
+          clamp((0.49 + nx * 0.9 + nz * 0.55) / Math.hypot(1, nx, nz), 0.16, 1) *
+          (0.48 + sunlight * 0.52)
         const land = coverAt(cover, x, z)
         const patch = terrainNoise(x * 14, z * 14)
         const rock = clamp((elevation - 0.5) * 3.4 + (slope - 0.38) * 0.9 + (patch - 0.5) * 0.35)
@@ -211,32 +345,101 @@ export function drawHighlands(
         const warp = terrainNoise(x * 7, z * 7) * 0.055
         // Larger painted planes retain the material's brushwork at phone scale;
         // tiny repeated contrast made the previous crags read as noisy stone.
-        const tx =
-          ((Math.floor((x + elevation * 0.7 + warp) * 200) % MATERIAL_SIZE) + MATERIAL_SIZE) % MATERIAL_SIZE
-        const tz =
-          ((Math.floor((z + elevation * 1.4 - warp) * 200) % MATERIAL_SIZE) + MATERIAL_SIZE) % MATERIAL_SIZE
+        // Rock brushwork runs up the cliff, rather than making square tiled
+        // patches across it. Mirrored edges avoid visible material seams.
+        const tx = mirrored((x * 0.8 - z * 0.6) * 180 + elevation * 55 + warp * 40)
+        const tz = mirrored((x * 0.6 + z * 0.8) * 180 - elevation * 95 - warp * 40)
         const ti = (tz * MATERIAL_SIZE + tx) * 4
         const stoneLight = stone
           ? (stone[ti] * 0.25 + stone[ti + 1] * 0.55 + stone[ti + 2] * 0.2) / 255
           : 0.55
-        const grassLight = meadow ? (meadow[ti] + meadow[ti + 1] + meadow[ti + 2]) / 765 : 0.5
-        const grain = lerp((grassLight - 0.5) * 0.45, (stoneLight - 0.47) * 1.15, rock)
+        const grassIndex = (mirrored(z * 200) * MATERIAL_SIZE + mirrored(x * 200)) * 4
+        const grassLight = meadow
+          ? (meadow[grassIndex] + meadow[grassIndex + 1] + meadow[grassIndex + 2]) / 765
+          : 0.5
+        const grain = lerp((grassLight - 0.5) * 1.15, (stoneLight - 0.47) * 2.7, rock)
         const shade = clamp(light * 3.8 - crevice * rock * 0.6 + grain, 0, 3.999)
         const low = Math.floor(shade),
           blend = shade - low
-        const fog = clamp((cameraDepth(x, z) - 0.3) * 0.07, 0, 0.53)
+        // Keep hero cliffs crisp with the new camera's actual world distance.
+        const fog = clamp((viewDepth(x, z, elevation) - 4.5) * 0.028, 0, 0.23)
         const offset = index * 4
+        // The north-up atlas is attached to the sourced world coordinates,
+        // never to the screen. Camera changes and zoom retain its placement.
+        const atlasX = clamp(((x + 6.5) / 13) * (ATLAS_SIZE - 1), 0, ATLAS_SIZE - 1)
+        const atlasZ = clamp(((6.5 - z) / 13) * (ATLAS_SIZE - 1), 0, ATLAS_SIZE - 1)
+        const atlasLeft = Math.floor(atlasX),
+          atlasTop = Math.floor(atlasZ)
+        const atlasRight = Math.min(atlasLeft + 1, ATLAS_SIZE - 1),
+          atlasBottom = Math.min(atlasTop + 1, ATLAS_SIZE - 1)
+        const groundIndex = (atlasTop * ATLAS_SIZE + atlasLeft) * 4
+        const groundRight = (atlasTop * ATLAS_SIZE + atlasRight) * 4
+        const groundBottom = (atlasBottom * ATLAS_SIZE + atlasLeft) * 4
+        const groundCorner = (atlasBottom * ATLAS_SIZE + atlasRight) * 4
+        // Generated paint is not authoritative land-cover data. Prevent its
+        // water/wood tints from creating features outside the actual OSM masks.
+        const paintedWater =
+          ground &&
+          ground[groundIndex] < 55 &&
+          ground[groundIndex + 1] > 90 &&
+          ground[groundIndex + 2] > ground[groundIndex + 1] * 1.06 &&
+          ground[groundIndex + 2] > ground[groundIndex] * 1.2
+        const paintedWood =
+          ground &&
+          ground[groundIndex] < 70 &&
+          ground[groundIndex + 1] > ground[groundIndex] * 1.6 &&
+          ground[groundIndex + 1] > ground[groundIndex + 2] * 1.18
         // Fine canopy clusters give the woods depth while staying inside mapped polygons.
         const canopy = land.wood ? terrainNoise(x * 220, z * 220) : 0
         const grove = land.wood ? terrainNoise(x * 42, z * 42) : 0
+        // Ground-only illustration is inverse-projected onto the original
+        // world coordinates. Alpha excludes hidden or unpainted slopes.
+        const slopeX = clamp(((x + 4) / 10) * 3071, 0, 3071)
+        const slopeZ = clamp(((6 - z) / 8) * 3071, 0, 3071)
+        const slopeLeft = Math.floor(slopeX),
+          slopeTop = Math.floor(slopeZ)
+        const slopeRight = Math.min(slopeLeft + 1, 3071),
+          slopeBottom = Math.min(slopeTop + 1, 3071)
+        const slopeA = (slopeTop * 3072 + slopeLeft) * 4,
+          slopeB = (slopeTop * 3072 + slopeRight) * 4,
+          slopeC = (slopeBottom * 3072 + slopeLeft) * 4,
+          slopeD = (slopeBottom * 3072 + slopeRight) * 4
+        const slopeU = slopeX - slopeLeft,
+          slopeV = slopeZ - slopeTop
+        const slopeAlpha =
+          paintedSlope && x >= -4 && x <= 6 && z >= -2 && z <= 6
+            ? quadChannel(paintedSlope, 3, slopeA, slopeB, slopeC, slopeD, slopeU, slopeV) / 255
+            : 0
         for (let k = 0; k < 3; k++) {
           const turf = lerp(grassPalette[low][k], grassPalette[low + 1][k], blend)
-          const crag = lerp(rockPalette[low][k], rockPalette[low + 1][k], blend)
+          const plane = lerp(rockPalette[low][k], rockPalette[low + 1][k], blend)
+          // Retain the illustrated material's blue slate and warm brush colour,
+          // rather than reducing the whole artwork to grey luminance noise.
+          const crag = stone ? lerp(plane, stone[ti + k] * (0.45 + light * 0.85), 0.45) : plane
           let value = lerp(turf, crag, rock)
+          if (ground && !paintedWater && !paintedWood) {
+            const paint = lerp(
+              lerp(ground[groundIndex + k], ground[groundRight + k], atlasX - atlasLeft),
+              lerp(ground[groundBottom + k], ground[groundCorner + k], atlasX - atlasLeft),
+              atlasZ - atlasTop
+            )
+            // The atlas establishes large painted groups. Preserve the finer
+            // meadow/crag material underneath instead of blurring it away.
+            value = lerp(value, paint * (0.86 + light * 0.3), lerp(0.62, 0.76, rock))
+            const brush = lerp(grassLight, stoneLight, rock)
+            value *= clamp(0.84 + brush * 0.32, 0.88, 1.12)
+          }
+          if (paintedSlope && slopeAlpha && !land.wood && !land.water)
+            value = lerp(
+              value,
+              quadChannel(paintedSlope, k, slopeA, slopeB, slopeC, slopeD, slopeU, slopeV) *
+                (0.91 + light * 0.18),
+              slopeAlpha * 0.94
+            )
           if (land.wood)
             value = lerp(
               [10, 48, 49][k],
-              [121, 160, 81][k],
+              [77, 145, 93][k],
               clamp(canopy * 0.32 + grove * 0.38 + light * 0.22 - 0.08)
             )
           if (land.water)
@@ -250,7 +453,8 @@ export function drawHighlands(
         pixels.data[offset + 3] = 255
       }
   }
-  for (const { i, j } of cells) {
+  for (const { grid: gridIndex, i, j } of cells) {
+    const grid = grids[gridIndex]
     const a = grid[j][i],
       b = grid[j][i + 1],
       c = grid[j + 1][i],
@@ -275,6 +479,44 @@ export function drawHighlands(
     }
   surfaceContext.putImageData(pixels, 0, 0)
   ctx.drawImage(surface, 0, 0, w, h)
+  // Fine painted fissures follow the measured fall line on exposed slopes.
+  // Screen-depth checks keep strokes behind nearer ridges, including the low view.
+  let cragSeed = 831
+  const cragRandom = () => {
+    cragSeed = (cragSeed * 16807) % 2147483647
+    return cragSeed / 2147483647
+  }
+  const visible = (x: number, z: number, elevation: number) => {
+    const p = scenePoint(projectWorld(x, z, elevation), w, h, scenic)
+    if (p.x < 0 || p.x >= w || p.y < 0 || p.y >= h) return undefined
+    const index = Math.floor(p.y * density) * sw + Math.floor(p.x * density)
+    return 1 / viewDepth(x, z, elevation) >= depth[index] - 0.001 ? p : undefined
+  }
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  for (let mark = 0; mark < 6500; mark++) {
+    let x = lerp(-2, 4, cragRandom()),
+      z = lerp(-3, 3, cragRandom())
+    if (heightAt(x, z) < 0.65) continue
+    const points: { x: number; y: number }[] = []
+    for (let step = 0; step < 7; step++) {
+      const elevation = heightAt(x, z)
+      const nx = (heightAt(x + 0.025, z) - heightAt(x - 0.025, z)) / 0.05
+      const nz = (heightAt(x, z + 0.025) - heightAt(x, z - 0.025)) / 0.05
+      const slope = Math.hypot(nx, nz)
+      const p = visible(x, z, elevation)
+      if (!p || slope < 0.52) break
+      points.push(p)
+      x -= (nx / slope) * 0.018
+      z -= (nz / slope) * 0.018
+    }
+    if (points.length < 3) continue
+    ctx.beginPath()
+    points.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)))
+    ctx.strokeStyle = mark % 4 === 0 ? '#f9e4ab55' : '#173c5555'
+    ctx.lineWidth = mark % 4 === 0 ? 0.65 : 0.45
+    ctx.stroke()
+  }
   // Individual small trees are constrained to mapped woodland. No alpine forest
   // is invented around the summit or lochan. Tree height is in world metres.
   const pine = assets.pine
@@ -285,31 +527,34 @@ export function drawHighlands(
       return seed / 2147483647
     }
     const trees = [
-      ...Array.from({ length: 42000 }, () => ({
+      ...Array.from({ length: 120000 }, () => ({
         x: lerp(-4, 2, random()),
         z: lerp(-2, 6, random()),
-        size: lerp(0.015, 0.027, random())
+        size: lerp(0.018, 0.032, random())
       })),
       ...Array.from({ length: scenic ? 3500 : 0 }, () => ({
         x: lerp(-2.3, 0.15, random()),
         z: lerp(3.3, 5.3, random()),
-        size: lerp(0.018, 0.03, random())
+        size: lerp(0.02, 0.032, random())
       }))
     ]
       .filter((p) => coverAt(cover, p.x, p.z).wood && heightAt(p.x, p.z) < 0.55)
       .sort((a, b) => cameraDepth(b.x, b.z) - cameraDepth(a.x, a.z))
     for (const t of trees) {
       if (viewDepth(t.x, t.z) < 0.12) continue
-      const p = scenePoint(projectWorld(t.x, t.z), w, h),
-        top = scenePoint(projectWorld(t.x, t.z, heightAt(t.x, t.z) + t.size), w, h)
+      const p = scenePoint(projectWorld(t.x, t.z), w, h, scenic),
+        top = scenePoint(projectWorld(t.x, t.z, heightAt(t.x, t.z) + t.size), w, h, scenic)
       const th = p.y - top.y,
         tw = (th * pine.naturalWidth) / pine.naturalHeight
-      if (p.x < 0 || p.x > w || p.y < 0 || p.y > h || th < 0.5) continue
+      if (p.x < -tw || p.x > w + tw || p.y < 0 || p.y > h + th || th < 0.6) continue
       // Hide sprites behind intervening terrain; ground depth is the same real mesh.
       const screenIndex =
-        Math.min(sh - 1, Math.floor(p.y * density)) * sw + Math.min(sw - 1, Math.floor(p.x * density))
+        clamp(Math.floor(p.y * density), 0, sh - 1) * sw +
+        clamp(Math.floor(p.x * density), 0, sw - 1)
       if (1 / viewDepth(t.x, t.z) < depth[screenIndex] - 0.001) continue
+      ctx.globalAlpha = clamp(1 - Math.max(0, viewDepth(t.x, t.z) - 2) * 0.026, 0.7, 1)
       ctx.drawImage(pine, p.x - tw / 2, p.y - th, tw, th)
     }
+    ctx.globalAlpha = 1
   }
 }

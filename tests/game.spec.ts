@@ -2,13 +2,47 @@ import { expect, test } from '@playwright/test'
 import os from 'node:os'
 import path from 'node:path'
 
+test('the game route keeps navigation and view controls accessible when the phone rotates', async ({
+  page
+}) => {
+  await page.goto('/?view=mountain')
+  for (const viewport of [
+    { width: 390, height: 786 },
+    { width: 844, height: 390 },
+    { width: 667, height: 375 }
+  ]) {
+    await page.setViewportSize(viewport)
+    for (const selector of ['.game-nav', '.view-control', '.route-details summary']) {
+      const bounds = await page.locator(selector).boundingBox()
+      expect(bounds, selector).not.toBeNull()
+      expect(bounds!.y, selector).toBeGreaterThanOrEqual(0)
+      expect(bounds!.y + bounds!.height, selector).toBeLessThanOrEqual(viewport.height + 1)
+    }
+    await page.getByRole('button', { name: 'Climb view', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Climb view', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    await page.getByRole('button', { name: 'Full mountain', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Full mountain', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+  }
+  expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
+})
+
 test('game screens choose a load and goal, retain zero progress, and show genuine empty history', async ({
   page
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/?view=home')
   await expect(page.getByRole('heading', { name: 'Climber!' })).toBeVisible()
-  await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-game-home.png'), fullPage: true })
+  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready', 'true')
+  await page.screenshot({
+    path: path.join(os.tmpdir(), 'laundry-mountain-game-home.png'),
+    fullPage: true
+  })
   await page.getByRole('button', { name: 'Start a Laundry Session' }).click()
   await page.getByRole('button', { name: 'Towels', exact: true }).click()
   await page.getByRole('button', { name: '30 items', exact: true }).click()
@@ -20,10 +54,15 @@ test('game screens choose a load and goal, retain zero progress, and show genuin
     'aria-pressed',
     'true'
   )
-  await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-game-setup.png'), fullPage: true })
+  await page.screenshot({
+    path: path.join(os.tmpdir(), 'laundry-mountain-game-setup.png'),
+    fullPage: true
+  })
   await page.getByRole('button', { name: 'Back to home', exact: true }).click()
   await page.getByRole('button', { name: '0 Loads', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Your journey starts with one load.' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Your journey starts with one load.' })
+  ).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
   for (const view of ['home', 'mountain', 'sessions']) {
     await page.goto(`/?view=${view}`)
@@ -81,10 +120,14 @@ for (const countItem of [false, true])
     await page.getByRole('button', { name: 'Set up my camera' }).click()
     await page.getByRole('button', { name: 'Enable camera' }).click()
     await page.getByRole('button', { name: 'Calibrate empty work area' }).click()
-    await expect(page.getByRole('button', { name: 'Start folding now' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: 'Start folding now' })).toBeVisible({
+      timeout: 10_000
+    })
     await page.setViewportSize({ width: 844, height: 390 })
     await page.getByRole('button', { name: 'Start folding now' }).click()
-    await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-game-live-layout.png') })
+    await page.screenshot({
+      path: path.join(os.tmpdir(), 'laundry-mountain-game-live-layout.png')
+    })
     for (const selector of [
       '.game-camera .camera-preview',
       '.game-climb-column .mountain-canvas',
@@ -118,7 +161,10 @@ for (const countItem of [false, true])
       })
     }
     await page.screenshot({
-      path: path.join(os.tmpdir(), `laundry-mountain-game-live-${countItem ? 'synthetic' : 'zero'}.png`)
+      path: path.join(
+        os.tmpdir(),
+        `laundry-mountain-game-live-${countItem ? 'synthetic' : 'zero'}.png`
+      )
     })
     await page.setViewportSize({ width: 390, height: 786 })
     for (const selector of [
@@ -137,13 +183,17 @@ for (const countItem of [false, true])
     })
     await page.getByRole('button', { name: 'Finish session', exact: true }).click()
     await page.setViewportSize({ width: 390, height: 844 })
-    if (!countItem) await expect(page.getByText('No items were detected.', { exact: true })).toBeVisible()
+    if (!countItem)
+      await expect(page.getByText('No items were detected.', { exact: true })).toBeVisible()
     await expect(page.locator('.result-stats')).toContainText(countItem ? '+10 m' : '+0 m')
-    expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:field-report:v1'))).toBe(
-      'field-report-must-be-preserved'
-    )
+    expect(
+      await page.evaluate(() => localStorage.getItem('laundry-mountain:field-report:v1'))
+    ).toBe('field-report-must-be-preserved')
     await page.screenshot({
-      path: path.join(os.tmpdir(), `laundry-mountain-game-results-${countItem ? 'synthetic' : 'zero'}.png`),
+      path: path.join(
+        os.tmpdir(),
+        `laundry-mountain-game-results-${countItem ? 'synthetic' : 'zero'}.png`
+      ),
       fullPage: true
     })
     await page.getByRole('button', { name: 'View session history', exact: true }).click()
@@ -166,7 +216,11 @@ test('profile, demo community, badge criteria and locked expeditions are honest 
   await expect(page.getByRole('heading', { name: 'Alex', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Achievements 0 / 9', exact: true }).click()
   await expect(page.locator('.badge-card')).toHaveCount(9)
-  await page.getByRole('button', { name: 'First Load Finish your first counted session' }).click()
+  await page
+    .getByRole('button', {
+      name: 'First Load Finish your first counted session'
+    })
+    .click()
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
   await expect(dialog).toContainText('Keep climbing to unlock')
@@ -176,7 +230,9 @@ test('profile, demo community, badge criteria and locked expeditions are honest 
   await page.keyboard.press('Escape')
   await expect(dialog).not.toBeVisible()
   await expect(
-    page.getByRole('button', { name: 'First Load Finish your first counted session' })
+    page.getByRole('button', {
+      name: 'First Load Finish your first counted session'
+    })
   ).toBeFocused()
   await page.getByRole('button', { name: 'Earned', exact: true }).click()
   await expect(page.locator('.badge-card')).toHaveCount(0)

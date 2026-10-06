@@ -1,5 +1,44 @@
 # Project handoff — 6 October 2026
 
+## Current active visual work
+
+The owner has reviewed the latest terrain paintings and says they are better but
+still outside the mockup's design family. **Visual acceptance remains blocked.**
+Do not call the screen set finished or mistake the generated material guides for
+implemented app screenshots. Continue within the existing app.
+
+The latest implementation adds a sourced 25 m Ben Nevis cliff patch,
+individual woodland sprites, world-registered painted slope materials, independent
+painted materials for all five locked previews, enamel badges, icon-only results,
+fixed-size trail markers during zoom and usable route controls in phone landscape.
+The artwork is physically attached to the geographic mesh, not a scene background.
+The source geometry, mapped route, local ledger, front camera and test report remain.
+
+Latest correction target: cooler green ground and blue rock shadows, stronger
+grouped illustrated planes/edges, less yellow impressionistic brush noise, and
+closer typography/sign/live-surroundings treatment. The supplied board controls
+the style; `docs/design/source-art/board-*-style-sample.png` are source crops for
+comparison, not new product artwork. Keep real mountain silhouettes/proportions.
+
+The world-material guide/bake scripts are `build-view-material.py` (Ben Nevis) and
+`build-preview-material.py` (locked previews). Python/Pillow/NumPy are offline art
+tooling, not new browser dependencies. Portrait and landscape must both be checked:
+a wider viewport exposed a material boundary; view-edge alpha feathering and proper
+alpha composition have now been added and visually verified in phone landscape.
+
+26 unit checks and TypeScript/build passed after the material integration; eight
+affected browser checks passed. Targeted checks also verified the adjusted live
+forest framing and waiting for a fully painted home capture. Pixel physical folding and hardware performance remain
+unverified. Do not deploy to Netlify; retain `[skip netlify]` on pushed commits.
+
+The source board crops now drive stronger grouped blue rock/cream edge materials
+on all six geographic meshes. Headings use the existing Nunito Sans family instead
+of Roboto Condensed. Welcome scenery is framed higher, the live icon-only dial has
+individual pine framing, and the sign uses a softer illustrated timber asset.
+These are improvements, not owner approval. Sign lettering, terrain colour/detail
+balance and the richness of the surrounding scene remain visual review items.
+See `docs/design/illustrated-scene-pass.md` and the current combined comparisons.
+
 ## Current task boundary
 
 The repository/capability audit is complete in commit `63cc029`. The owner has now

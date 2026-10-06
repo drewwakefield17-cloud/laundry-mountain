@@ -7,7 +7,6 @@ import {
   Flame,
   Flag,
   Home,
-  Hexagon,
   Leaf,
   Mountain,
   Pause,
@@ -825,7 +824,7 @@ export function GameApp() {
                   ))}
                 </div>
               )}
-              <img src="/brand/laundry-mountain-stacked.webp" alt="Laundry Mountain" />
+              <img src="/brand/laundry-mountain-emblem.webp" alt="Laundry Mountain emblem" />
               <h1>{current.items ? 'Session Complete!' : 'Session Finished'}</h1>
               <p>{current.items ? 'Another load higher!' : 'A fresh start is always waiting.'}</p>
             </div>
@@ -909,7 +908,7 @@ export function GameApp() {
             <div className="map-scene">
               {scenic('map')}
               <div className="map-tagline">
-                <img src="/art/trail-sign-refined.webp" alt="Cleaner clothes. Brighter days. Higher you." />
+                <img src="/art/trail-sign-illustrated.webp" alt="Cleaner clothes. Brighter days. Higher you." />
               </div>
               <div className="view-control">
                 <button aria-pressed={!close} onClick={() => setClose(false)}>
@@ -1102,8 +1101,12 @@ export function GameApp() {
                     }
                   >
                     <span className="badge-medal">
-                      <Hexagon className="badge-shape" weight="fill" />
-                      <Hexagon className="badge-rim" weight="regular" />
+                      <img
+                        className={`badge-enamel badge-enamel-${color}`}
+                        src={`/art/badge-enamel-${color === 'orange' || color === 'gold' ? 'orange' : 'green'}.webp`}
+                        alt=""
+                        aria-hidden="true"
+                      />
                       <Icon weight="fill" />
                     </span>
                     <strong>{name}</strong>

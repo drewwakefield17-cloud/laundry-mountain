@@ -1,0 +1,22 @@
+{
+  "gridSpacingMetres": 25,
+  "verticalScale": 1,
+  "sourceTiles": [
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/3981/2517.png",
+      "sha256": "4a0482892e8d7ef5e97b3e44d7f17c257c29b1dde615ed95e68b3cdff8f77ec5"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/3981/2518.png",
+      "sha256": "ec260855421a74e702af58b2f691152ba55be6f017bf4477b5fc0fab3afc1f41"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/3982/2517.png",
+      "sha256": "1f18c4a852cf45b617ea881ed52c0a963fdce07133e5497e9a01ca8db1423a5d"
+    },
+    {
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/3982/2518.png",
+      "sha256": "c70e5f8179e368e587461a9163f85c4121c3fe06c10ae4590598fa06fb3f5bfa"
+    }
+  ]
+}

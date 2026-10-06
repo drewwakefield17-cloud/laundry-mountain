@@ -13,22 +13,31 @@ let assets:
       clouds: HTMLImageElement
       meadow: HTMLImageElement
       stone: HTMLImageElement
+      marker: HTMLImageElement
+      ground: HTMLImageElement
+      paintedSlope: HTMLImageElement
     }
   | undefined
-function sceneAssets() {
+export function sceneAssets() {
   if (!assets) {
     assets = {
       pine: new Image(),
       rocks: new Image(),
       clouds: new Image(),
       meadow: new Image(),
-      stone: new Image()
+      stone: new Image(),
+      marker: new Image(),
+      ground: new Image(),
+      paintedSlope: new Image()
     }
-    assets.pine.src = '/art/illustrated-pines.webp'
+    assets.pine.src = '/art/individual-highland-pine.webp'
     assets.meadow.src = '/textures/illustrated-meadow.webp'
-    assets.stone.src = '/textures/painted-crag-detail.webp'
+    assets.stone.src = '/textures/highland-crag-material.webp'
     assets.rocks.src = '/art/highland-boulders.webp'
     assets.clouds.src = '/art/highland-clouds.webp'
+    assets.marker.src = '/brand/laundry-mountain-emblem.webp'
+    assets.ground.src = '/textures/ben-nevis-ground-atlas.webp'
+    assets.paintedSlope.src = '/textures/ben-nevis-view-material.webp'
   }
   return assets
 }
@@ -83,7 +92,7 @@ export function MountainScene({
         paint: drawHighlands
       })
     let terrain = cache.canvas
-    const { pine, rocks, clouds, meadow, stone } = sceneAssets()
+    const { pine, rocks, clouds, meadow, stone, marker, ground, paintedSlope } = sceneAssets()
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
       if (!portrait) {
@@ -127,10 +136,48 @@ export function MountainScene({
         ctx.translate(-x * width, -y * height)
       }
       ctx.drawImage(terrain, 0, 0, width, height)
+      // Evidence captures should wait for a painted frame with all scene assets,
+      // rather than accepting the empty canvas while its first paint is queued.
+      el.dataset.terrainReady = String(cache.textured === 127)
       if (scenic) {
+        // Small illustrated foreground stones frame the card/medallion. The
+        // mountain and stream behind them retain the real geographic projection.
+        if (rocks.complete && rocks.naturalWidth) {
+          const rockWidth = Math.min(width * 0.26, height * 0.42)
+          const rockHeight = (rockWidth * rocks.naturalHeight) / rocks.naturalWidth
+          ctx.drawImage(rocks, -rockWidth * 0.14, height - rockHeight + 5, rockWidth, rockHeight)
+        }
         ctx.restore()
         return
       }
+      // Illustrated Highland framing sits at the edge of the game viewport,
+      // separate from the measured mesh. Route markers stay above this frame.
+      ctx.save()
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
+      const foregroundHeight = Math.min(width * 0.55, height * 0.32)
+      if (pine.complete && pine.naturalWidth) {
+        const treeWidth = (foregroundHeight * pine.naturalWidth) / pine.naturalHeight
+        ctx.drawImage(
+          pine,
+          -treeWidth * 0.35,
+          height - foregroundHeight - 20,
+          treeWidth,
+          foregroundHeight
+        )
+        ctx.drawImage(
+          pine,
+          width - treeWidth * 0.34,
+          height - foregroundHeight * 0.7 - 20,
+          treeWidth * 0.7,
+          foregroundHeight * 0.7
+        )
+      }
+      if (rocks.complete && rocks.naturalWidth) {
+        const rockWidth = Math.min(width * 0.32, height * 0.34)
+        const rockHeight = (rockWidth * rocks.naturalHeight) / rocks.naturalWidth
+        ctx.drawImage(rocks, -rockWidth * 0.15, height - rockHeight - 11, rockWidth, rockHeight)
+      }
+      ctx.restore()
       const path = (progress: number) => {
         ctx.beginPath()
         const t = progress * (BEN_NEVIS.route.length - 1),
@@ -154,7 +201,7 @@ export function MountainScene({
       ctx.stroke()
       ctx.setLineDash([1, 7])
       ctx.strokeStyle = '#fffde8'
-      ctx.lineWidth = 2.5
+      ctx.lineWidth = 3.5
       path(1)
       ctx.stroke()
       ctx.setLineDash([])
@@ -162,8 +209,26 @@ export function MountainScene({
       ctx.lineWidth = 4
       path(player.progress)
       ctx.stroke()
+      // Camera zoom affects the world; interface pins retain their phone-size
+      // dimensions. Transform their coordinates once, then draw in screen space.
+      const worldTransform = ctx.getTransform()
+      const markerPosition = (metres: number) => {
+        const p = viewportPosition(metres)
+        return {
+          x:
+            (p.x * width * worldTransform.a + p.y * height * worldTransform.c + worldTransform.e) /
+            ratio /
+            width,
+          y:
+            (p.x * width * worldTransform.b + p.y * height * worldTransform.d + worldTransform.f) /
+            ratio /
+            height,
+          progress: p.progress
+        }
+      }
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
       for (const checkpoint of BEN_NEVIS.checkpoints) {
-        const p = viewportPosition(checkpoint.metres),
+        const p = markerPosition(checkpoint.metres),
           reached = metres >= checkpoint.metres
         ctx.fillStyle = reached ? '#2dbe78' : '#faf8e8'
         ctx.strokeStyle = '#31554a'
@@ -175,9 +240,27 @@ export function MountainScene({
       }
       if (showLabel)
         for (const [ghostIndex, ghost] of ghostImages.entries()) {
-          const p = viewportPosition(ghost.metres),
-            gx = p.x * width + (ghostIndex % 2 ? -20 : 20),
-            gy = p.y * height - 15
+          const p = markerPosition(ghost.metres),
+            gx = Math.max(28, Math.min(width - 28, p.x * width + (ghostIndex % 2 ? -24 : 24))),
+            gy = p.y * height - 24
+          // These flags and portraits are game markers, independently sized
+          // from terrain so the trail stays readable in both views.
+          ctx.strokeStyle = '#fff9df'
+          ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.moveTo(gx - 21, gy + 18)
+          ctx.lineTo(gx - 21, gy - 35)
+          ctx.stroke()
+          const pennant = ctx.createLinearGradient(gx - 21, 0, gx + 5, 0)
+          pennant.addColorStop(0, ghostIndex === 0 ? '#ffbf47' : '#18bb89')
+          pennant.addColorStop(1, ghostIndex === 0 ? '#f28b2e' : '#08785c')
+          ctx.fillStyle = pennant
+          ctx.beginPath()
+          ctx.moveTo(gx - 20, gy - 35)
+          ctx.quadraticCurveTo(gx - 7, gy - 39, gx + 5, gy - 32)
+          ctx.lineTo(gx - 20, gy - 19)
+          ctx.closePath()
+          ctx.fill()
           ctx.strokeStyle = '#fff9df'
           ctx.lineWidth = 3
           ctx.beginPath()
@@ -186,26 +269,26 @@ export function MountainScene({
           ctx.stroke()
           ctx.save()
           ctx.beginPath()
-          ctx.arc(gx, gy, 14, 0, Math.PI * 2)
+          ctx.arc(gx, gy, 20, 0, Math.PI * 2)
           ctx.clip()
           ctx.fillStyle = '#9ab9a0'
-          ctx.fillRect(gx - 14, gy - 14, 28, 28)
+          ctx.fillRect(gx - 20, gy - 20, 40, 40)
           if (ghost.portrait.complete && ghost.portrait.naturalWidth)
-            ctx.drawImage(ghost.portrait, gx - 14, gy - 14, 28, 28)
+            ctx.drawImage(ghost.portrait, gx - 20, gy - 20, 40, 40)
           ctx.restore()
           ctx.beginPath()
-          ctx.arc(gx, gy, 14, 0, Math.PI * 2)
+          ctx.arc(gx, gy, 20, 0, Math.PI * 2)
           ctx.stroke()
           ctx.fillStyle = '#fffcece8'
           ctx.beginPath()
-          ctx.roundRect(gx - 17, gy + 13, 34, 13, 5)
+          ctx.roundRect(gx - 21, gy + 18, 42, 15, 5)
           ctx.fill()
           ctx.fillStyle = '#245347'
-          ctx.font = '600 8px sans-serif'
+          ctx.font = '600 9px sans-serif'
           ctx.textAlign = 'center'
-          ctx.fillText('Demo', gx, gy + 22)
+          ctx.fillText('Demo', gx, gy + 29)
         }
-      const summit = viewportPosition(BEN_NEVIS.elevation),
+      const summit = markerPosition(BEN_NEVIS.elevation),
         sx = summit.x * width,
         sy = summit.y * height
       ctx.fillStyle = '#d6d6bd'
@@ -229,14 +312,16 @@ export function MountainScene({
       ctx.closePath()
       ctx.fill()
       if (focusMetres !== undefined) {
+        const markerFocus = markerPosition(focusMetres)
         ctx.strokeStyle = '#f5bf4f'
         ctx.lineWidth = 2
         ctx.beginPath()
-        ctx.arc(focus.x * width, focus.y * height, 9, 0, Math.PI * 2)
+        ctx.arc(markerFocus.x * width, markerFocus.y * height, 9, 0, Math.PI * 2)
         ctx.stroke()
       }
-      const px = player.x * width,
-        py = player.y * height
+      const markerPlayer = markerPosition(shown.current)
+      const px = markerPlayer.x * width,
+        py = markerPlayer.y * height
       ctx.fillStyle = '#12352d'
       ctx.beginPath()
       ctx.ellipse(px, py + 2, 7, 3, 0, 0, Math.PI * 2)
@@ -255,6 +340,19 @@ export function MountainScene({
       ctx.closePath()
       ctx.fill()
       if (showLabel) {
+        // The owner's emblem represents their trail position without inventing
+        // a photo. The badge is UI; it does not alter world dimensions.
+        ctx.save()
+        ctx.translate(px, py - 21)
+        ctx.fillStyle = '#fffff4'
+        ctx.strokeStyle = '#fffce6'
+        ctx.lineWidth = 3
+        ctx.beginPath()
+        ctx.arc(0, 0, 16, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.stroke()
+        if (marker.complete && marker.naturalWidth) ctx.drawImage(marker, -15, -15, 30, 30)
+        ctx.restore()
         const labelWidth = 58,
           labelX = Math.max(5, Math.min(width - labelWidth - 5, px + 12)),
           labelY = py - 52
@@ -285,12 +383,15 @@ export function MountainScene({
       if (!width || !height) return
       el.width = Math.round(width * ratio)
       el.height = Math.round(height * ratio)
+      el.dataset.terrainReady = 'false'
       const textured =
         Number(!!(pine.complete && pine.naturalWidth)) +
         2 * Number(!!(rocks.complete && rocks.naturalWidth)) +
         4 * Number(!!(clouds.complete && clouds.naturalWidth)) +
         8 * Number(!!(meadow.complete && meadow.naturalWidth)) +
-        16 * Number(!!(stone.complete && stone.naturalWidth))
+        16 * Number(!!(stone.complete && stone.naturalWidth)) +
+        32 * Number(!!(ground.complete && ground.naturalWidth)) +
+        64 * Number(!!(paintedSlope.complete && paintedSlope.naturalWidth))
       if (
         cache.width !== el.width ||
         cache.height !== el.height ||
@@ -312,7 +413,13 @@ export function MountainScene({
           terrain.height = el.height
           const backdrop = terrain.getContext('2d')!
           backdrop.setTransform(ratio, 0, 0, ratio, 0, 0)
-          drawHighlands(backdrop, width, height, { pine, rocks, clouds, meadow, stone }, scenic)
+          drawHighlands(
+            backdrop,
+            width,
+            height,
+            { pine, rocks, clouds, meadow, stone, ground, paintedSlope },
+            scenic
+          )
           backdrops.set(key, { canvas: terrain, paint: drawHighlands })
           while (backdrops.size > 4) backdrops.delete(backdrops.keys().next().value!)
           el.dataset.terrainCache = 'painted'
@@ -338,13 +445,33 @@ export function MountainScene({
     }
     const observer = new ResizeObserver(loaded)
     observer.observe(el)
-    for (const asset of [pine, rocks, clouds, meadow, stone, ...ghostImages.map((g) => g.portrait)])
+    for (const asset of [
+      pine,
+      rocks,
+      clouds,
+      meadow,
+      stone,
+      marker,
+      ground,
+      paintedSlope,
+      ...ghostImages.map((g) => g.portrait)
+    ])
       asset.addEventListener('load', loaded)
     document.addEventListener('visibilitychange', requestDraw)
     motion.addEventListener('change', requestDraw)
     resize()
     return () => {
-      for (const asset of [pine, rocks, clouds, meadow, stone, ...ghostImages.map((g) => g.portrait)])
+      for (const asset of [
+        pine,
+        rocks,
+        clouds,
+        meadow,
+        stone,
+        marker,
+        ground,
+        paintedSlope,
+        ...ghostImages.map((g) => g.portrait)
+      ])
         asset.removeEventListener('load', loaded)
       disposed = true
       cancelAnimationFrame(frame)

@@ -7,14 +7,14 @@ root=Path(__file__).resolve().parent.parent
 cache=root/'artifacts/geography'; cache.mkdir(exist_ok=True)
 configs=[
  dict(id='fuji',name='Mount Fuji',region='Japan',elevation=3776,lat=35.3606,lon=138.7274,span=20,zoom=11,heading=180,datum=800,snow=3150,forest=1900),
- dict(id='matterhorn',name='Matterhorn',region='Swiss & Italian Alps',elevation=4478,lat=45.9763,lon=7.6586,span=10,zoom=12,heading=225,datum=1800,snow=3100,forest=2100),
+ dict(id='matterhorn',name='Matterhorn',region='Swiss & Italian Alps',elevation=4478,lat=45.9763,lon=7.6586,span=10,zoom=13,size=257,heading=225,datum=1800,snow=3100,forest=2100),
  dict(id='kilimanjaro',name='Kilimanjaro',region='Tanzania',elevation=5895,lat=-3.0674,lon=37.3556,span=30,zoom=11,heading=0,datum=1600,snow=5700,forest=3000),
  dict(id='denali',name='Denali',region='Alaska',elevation=6190,lat=63.0695,lon=-151.0074,span=28,zoom=10,heading=0,datum=800,snow=1900,forest=700),
  dict(id='everest',name='Everest',region='Himalayas',elevation=8849,lat=27.9881,lon=86.9250,span=18,zoom=11,heading=180,datum=4700,snow=5800,forest=0),
 ]
 manifest=[]
 for conf in configs:
- n=129; span=conf['span']; z=conf['zoom']; factor=256*2**z
+ n=conf.get('size',129); span=conf['span']; z=conf['zoom']; factor=256*2**z
  positions=[]; tiles=set()
  for j in range(n):
   for i in range(n):
