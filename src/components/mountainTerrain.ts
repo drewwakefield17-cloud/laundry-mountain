@@ -71,7 +71,7 @@ function material(image?: HTMLImageElement) {
   }
   return data
 }
-type Vertex = { x: number; y: number; wx: number; wz: number; height: number }
+type Vertex = { x: number; y: number; wx: number; wz: number; height: number; invDepth: number }
 export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: number, assets: SceneAssets = {}) {
   const sky = ctx.createLinearGradient(0, 0, 0, h)
   sky.addColorStop(0, '#80cbd8')
@@ -97,7 +97,7 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
         wz = minKm + j * stepKm,
         height = geo.heights[j * size + i] / 1000
       const p = scenePoint(projectWorld(wx, wz, height), w, h)
-      line.push({ ...p, wx, wz, height })
+      line.push({ ...p, wx, wz, height, invDepth: 1 / viewDepth(wx, wz, height) })
     }
     grid.push(line)
   }
@@ -111,103 +111,121 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
         depth: cameraDepth(minKm + (i + 0.5) * stepKm, minKm + (j + 0.5) * stepKm)
       })
   cells.sort((a, b) => b.depth - a.depth)
-  ctx.lineJoin = 'round'
-  ctx.lineWidth = 0.6
+  // Rasterise surface materials in world space. A single colour per 50 m face
+  // discarded the painted detail and made mapped woodland edges look triangular.
+  // This is a cached Canvas 2D material pass, not new terrain or a scene image.
+  const density = Math.min(1.6, 1200 / Math.max(w, h))
+  const sw = Math.ceil(w * density),
+    sh = Math.ceil(h * density)
+  const surface = document.createElement('canvas')
+  surface.width = sw
+  surface.height = sh
+  const surfaceContext = surface.getContext('2d')!
+  const pixels = surfaceContext.createImageData(sw, sh)
+  const depth = new Float32Array(sw * sh)
+  const grassPalette = [
+    [14, 55, 52],
+    [32, 88, 64],
+    [81, 124, 58],
+    [139, 170, 76],
+    [207, 213, 132]
+  ]
+  const rockPalette = [
+    [16, 41, 64],
+    [35, 68, 95],
+    [82, 113, 131],
+    [158, 177, 174],
+    [240, 218, 170]
+  ]
   const face = (a: Vertex, b: Vertex, c: Vertex) => {
-    if (
-      Math.min(
-        viewDepth(a.wx, a.wz, a.height),
-        viewDepth(b.wx, b.wz, b.height),
-        viewDepth(c.wx, c.wz, c.height)
-      ) < 0.75 ||
-      Math.max(a.x, b.x, c.x) < -2 ||
-      Math.min(a.x, b.x, c.x) > w + 2 ||
-      Math.max(a.y, b.y, c.y) < -2 ||
-      Math.min(a.y, b.y, c.y) > h + 2
-    )
-      return
-    const x = (a.wx + b.wx + c.wx) / 3,
-      z = (a.wz + b.wz + c.wz) / 3,
-      elevation = (a.height + b.height + c.height) / 3
-    // Flat-lit geographic faces form crisp illustrated planes instead of smooth
-    // terrain-map shading. Their geometry remains the unmodified elevation mesh.
+    if (Math.max(a.invDepth, b.invDepth, c.invDepth) > 1 / 0.75) return
+    const ax = a.x * density,
+      ay = a.y * density,
+      bx = b.x * density,
+      by = b.y * density,
+      cx = c.x * density,
+      cy = c.y * density
+    const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))),
+      x1 = Math.min(sw - 1, Math.ceil(Math.max(ax, bx, cx)))
+    const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy))),
+      y1 = Math.min(sh - 1, Math.ceil(Math.max(ay, by, cy)))
+    if (x0 > x1 || y0 > y1) return
+    const area = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+    if (Math.abs(area) < 0.001) return
     const det = (b.wx - a.wx) * (c.wz - a.wz) - (c.wx - a.wx) * (b.wz - a.wz)
     const dx = ((b.height - a.height) * (c.wz - a.wz) - (c.height - a.height) * (b.wz - a.wz)) / det
     const dz = ((c.height - a.height) * (b.wx - a.wx) - (b.height - a.height) * (c.wx - a.wx)) / det
     const slope = Math.hypot(dx, dz)
     const light = clamp((0.65 + dx * 0.7 - dz * 0.85) / Math.hypot(1, dx, dz), 0.01, 1)
-    const patch = terrainNoise(x * 10 + 8, z * 10),
-      fine = terrainNoise(x * 109, z * 113)
+    const wx = (a.wx + b.wx + c.wx) / 3,
+      wz = (a.wz + b.wz + c.wz) / 3
     const curvature =
-      (heightAt(x + 0.05, z) +
-        heightAt(x - 0.05, z) +
-        heightAt(x, z + 0.05) +
-        heightAt(x, z - 0.05) -
-        4 * heightAt(x, z)) /
+      (heightAt(wx + 0.05, wz) +
+        heightAt(wx - 0.05, wz) +
+        heightAt(wx, wz + 0.05) +
+        heightAt(wx, wz - 0.05) -
+        4 * heightAt(wx, wz)) /
       0.01
-    const crevice = clamp(curvature, 0, 0.4) * clamp((elevation - 0.55) * 3)
-    const land = coverAt(cover, x, z)
-    // The real upper mountain is bare scree/rock; woods occur only inside OSM polygons.
-    const rock = clamp((elevation - 0.55) * 3.2 + (slope - 0.45) * 0.8 + (patch - 0.5) * 0.38)
-    const tx = ((Math.floor(x * 510) % 128) + 128) % 128,
-      tz = ((Math.floor(z * 510) % 128) + 128) % 128,
-      ti = (tz * 128 + tx) * 4
-    const grass = meadow ? [meadow[ti], meadow[ti + 1], meadow[ti + 2]] : [153, 169, 88]
-    const granite = stone ? [stone[ti], stone[ti + 1], stone[ti + 2]] : [191, 190, 159]
-    const fog = clamp((cameraDepth(x, z) - 0.3) * 0.085, 0, 0.58)
-    const grassPalette = [
-      [20, 65, 61],
-      [43, 99, 72],
-      [102, 137, 65],
-      [142, 175, 79],
-      [191, 204, 119]
-    ]
-    const rockPalette = [
-      [24, 52, 78],
-      [52, 84, 110],
-      [111, 137, 146],
-      [151, 173, 167],
-      [202, 213, 191]
-    ]
-    const shade = clamp(Math.floor((light * 0.88 - crevice * 0.25) * 5), 0, 4)
-    const rgb = [0, 1, 2].map((k) => {
-      const turf = lerp(grassPalette[shade][k], grass[k], 0.06)
-      const crag = lerp(rockPalette[shade][k], granite[k], 0.075)
-      let base = lerp(turf, crag, rock)
-      if (land.wood) base = lerp([11, 54, 53][k], [78, 125, 73][k], light * 0.75 + fine * 0.25)
-      if (land.water) base = lerp([19, 103, 141][k], [97, 195, 205][k], fine * 0.4 + light * 0.4)
-      return Math.round(lerp(base, [160, 201, 208][k], fog))
-    })
-    ctx.lineWidth = 0.6
-    ctx.fillStyle = `rgb(${rgb.join(',')})`
-    ctx.strokeStyle = ctx.fillStyle
-    ctx.beginPath()
-    ctx.moveTo(a.x, a.y)
-    ctx.lineTo(b.x, b.y)
-    ctx.lineTo(c.x, c.y)
-    ctx.closePath()
-    ctx.fill()
-    ctx.stroke()
-    // Sparse ink and warm edges follow actual rocky facets. These marks change
-    // the illustration surface, never the mountain height or the route.
-    if (rock > 0.5 && slope > 0.42 && fine > 0.66 && fog < 0.42) {
-      ctx.strokeStyle = light > 0.65 ? '#f7e7b789' : '#15364b6b'
-      ctx.lineWidth = light > 0.65 ? 0.75 : 0.55
-      ctx.beginPath()
-      ctx.moveTo(a.x * 0.72 + b.x * 0.28, a.y * 0.72 + b.y * 0.28)
-      ctx.lineTo((b.x + c.x) * 0.5, (b.y + c.y) * 0.5)
-      ctx.stroke()
-    }
-    if (land.water && fine > 0.75) {
-      const cx = (a.x + b.x + c.x) / 3,
-        cy = (a.y + b.y + c.y) / 3
-      ctx.strokeStyle = '#d8fff4a0'
-      ctx.lineWidth = 0.55
-      ctx.beginPath()
-      ctx.moveTo(cx - 1.5, cy)
-      ctx.lineTo(cx + 1.5, cy)
-      ctx.stroke()
-    }
+    const crevice = clamp(curvature, 0, 0.5)
+    for (let py = y0; py <= y1; py++)
+      for (let px = x0; px <= x1; px++) {
+        const u = ((by - cy) * (px + 0.5 - cx) + (cx - bx) * (py + 0.5 - cy)) / area
+        const v = ((cy - ay) * (px + 0.5 - cx) + (ax - cx) * (py + 0.5 - cy)) / area
+        const q = 1 - u - v
+        if (u < -0.0001 || v < -0.0001 || q < -0.0001) continue
+        const inverse = u * a.invDepth + v * b.invDepth + q * c.invDepth,
+          index = py * sw + px
+        if (inverse <= depth[index]) continue
+        depth[index] = inverse
+        // Perspective-correct coordinates keep the material attached during resize/zoom.
+        const ua = (u * a.invDepth) / inverse,
+          vb = (v * b.invDepth) / inverse,
+          qc = (q * c.invDepth) / inverse
+        const x = ua * a.wx + vb * b.wx + qc * c.wx,
+          z = ua * a.wz + vb * b.wz + qc * c.wz
+        const elevation = ua * a.height + vb * b.height + qc * c.height
+        const land = coverAt(cover, x, z)
+        const patch = terrainNoise(x * 14, z * 14)
+        const rock = clamp((elevation - 0.5) * 3.4 + (slope - 0.38) * 0.9 + (patch - 0.5) * 0.35)
+        // Repeat a small painted material across the real slopes. Use luminance
+        // for crevices, with the scene palette supplying coherent ink/sun colours.
+        const warp = terrainNoise(x * 7, z * 7) * 0.055
+        const tx = ((Math.floor((x + elevation * 0.7 + warp) * 240) % 128) + 128) % 128
+        const tz = ((Math.floor((z + elevation * 1.4 - warp) * 240) % 128) + 128) % 128
+        const ti = (tz * 128 + tx) * 4
+        const stoneLight = stone
+          ? (stone[ti] * 0.25 + stone[ti + 1] * 0.55 + stone[ti + 2] * 0.2) / 255
+          : 0.55
+        const grassLight = meadow ? (meadow[ti] + meadow[ti + 1] + meadow[ti + 2]) / 765 : 0.5
+        const grain = lerp((grassLight - 0.5) * 0.7, (stoneLight - 0.47) * 3.4, rock)
+        const shade = clamp(light * 3.8 - crevice * rock * 0.6 + grain, 0, 3.999)
+        const low = Math.floor(shade),
+          blend = shade - low
+        const fog = clamp((cameraDepth(x, z) - 0.3) * 0.07, 0, 0.53)
+        const offset = index * 4
+        // Fine canopy clusters give the woods depth while staying inside mapped polygons.
+        const canopy = land.wood ? terrainNoise(x * 220, z * 220) : 0
+        const grove = land.wood ? terrainNoise(x * 42, z * 42) : 0
+        for (let k = 0; k < 3; k++) {
+          const turf = lerp(grassPalette[low][k], grassPalette[low + 1][k], blend)
+          const crag = lerp(rockPalette[low][k], rockPalette[low + 1][k], blend)
+          let value = lerp(turf, crag, rock)
+          if (land.wood)
+            value = lerp(
+              [10, 48, 49][k],
+              [121, 160, 81][k],
+              clamp(canopy * 0.57 + grove * 0.24 + light * 0.22 - 0.12)
+            )
+          if (land.water)
+            value = lerp(
+              [12, 90, 118][k],
+              [116, 213, 211][k],
+              clamp(0.24 + light * 0.35 + terrainNoise(x * 240, z * 1200) * 0.25)
+            )
+          pixels.data[offset + k] = Math.round(lerp(value, [146, 191, 204][k], fog))
+        }
+        pixels.data[offset + 3] = 255
+      }
   }
   for (const { i, j } of cells) {
     const a = grid[j][i],
@@ -217,6 +235,23 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
     face(a, b, c)
     face(b, d, c)
   }
+  // An ink-soft contour at real occlusion boundaries gives distant ridges a
+  // readable edge. It traces the depth buffer rather than inventing peak outlines.
+  for (let y = 1; y < sh - 1; y++)
+    for (let x = 1; x < sw - 1; x++) {
+      const i = y * sw + x
+      if (!depth[i]) continue
+      const above = depth[i - sw],
+        left = depth[i - 1]
+      if (!above || depth[i] - above > 0.0035 || (left && depth[i] - left > 0.0045)) {
+        const k = i * 4
+        pixels.data[k] = lerp(pixels.data[k], 28, 0.42)
+        pixels.data[k + 1] = lerp(pixels.data[k + 1], 66, 0.42)
+        pixels.data[k + 2] = lerp(pixels.data[k + 2], 78, 0.42)
+      }
+    }
+  surfaceContext.putImageData(pixels, 0, 0)
+  ctx.drawImage(surface, 0, 0, w, h)
   // Individual small trees are constrained to mapped woodland. No alpine forest
   // is invented around the summit or lochan. Tree height is in world metres.
   const pine = assets.pine
@@ -226,9 +261,9 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
       seed = (seed * 16807) % 2147483647
       return seed / 2147483647
     }
-    const trees = Array.from({ length: 16000 }, () => ({
-      x: lerp(-4, 1, random()),
-      z: lerp(-3, 4, random()),
+    const trees = Array.from({ length: 42000 }, () => ({
+      x: lerp(-6, 1, random()),
+      z: lerp(-3, 6, random()),
       size: lerp(0.015, 0.027, random())
     }))
       .filter((p) => coverAt(cover, p.x, p.z).wood && heightAt(p.x, p.z) < 0.55)
@@ -238,7 +273,11 @@ export function drawHighlands(ctx: CanvasRenderingContext2D, w: number, h: numbe
         top = scenePoint(projectWorld(t.x, t.z, heightAt(t.x, t.z) + t.size), w, h)
       const th = p.y - top.y,
         tw = (th * pine.naturalWidth) / pine.naturalHeight
-      if (p.x < 0 || p.x > w || p.y < 0 || p.y > h) continue
+      if (p.x < 0 || p.x > w || p.y < 0 || p.y > h || th < 0.5) continue
+      // Hide sprites behind intervening terrain; ground depth is the same real mesh.
+      const screenIndex =
+        Math.min(sh - 1, Math.floor(p.y * density)) * sw + Math.min(sw - 1, Math.floor(p.x * density))
+      if (1 / viewDepth(t.x, t.z) < depth[screenIndex] - 0.001) continue
       ctx.drawImage(pine, p.x - tw / 2, p.y - th, tw, th)
     }
   }

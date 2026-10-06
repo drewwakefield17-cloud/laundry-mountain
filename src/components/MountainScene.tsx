@@ -26,7 +26,7 @@ function sceneAssets() {
     }
     assets.pine.src = '/art/illustrated-pines.webp'
     assets.meadow.src = '/textures/illustrated-meadow.webp'
-    assets.stone.src = '/textures/illustrated-rock.webp'
+    assets.stone.src = '/textures/painted-crag-detail.webp'
     assets.rocks.src = '/art/highland-boulders.webp'
     assets.clouds.src = '/art/highland-clouds.webp'
   }
@@ -39,6 +39,9 @@ export interface SceneGhost {
   avatar: string
   is_demo: true
 }
+// Four immutable backdrops cap memory while avoiding repeated surface rendering
+// when returning between home, map and a live session. Progress is drawn separately.
+const backdrops = new Map<string, { canvas: HTMLCanvasElement; paint: typeof drawHighlands }>()
 const NO_GHOSTS: SceneGhost[] = []
 const portraits = new Map<string, HTMLImageElement>()
 export function MountainScene({
@@ -46,12 +49,14 @@ export function MountainScene({
   close,
   focusMetres,
   showLabel = false,
+  scenic = false,
   ghosts = NO_GHOSTS
 }: {
   metres: number
   close: boolean
   focusMetres?: number
   showLabel?: boolean
+  scenic?: boolean
   ghosts?: SceneGhost[]
 }) {
   const canvas = useRef<HTMLCanvasElement>(null),
@@ -75,8 +80,7 @@ export function MountainScene({
         textured: 0,
         paint: drawHighlands
       })
-    const terrain = cache.canvas,
-      backdrop = terrain.getContext('2d')!
+    let terrain = cache.canvas
     const { pine, rocks, clouds, meadow, stone } = sceneAssets()
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
@@ -113,7 +117,14 @@ export function MountainScene({
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
       ctx.clearRect(0, 0, width, height)
       ctx.save()
-      if (close) {
+      if (scenic) {
+        // A closer landscape composition for cards/medallions. Uniform camera
+        // zoom preserves the measured landform; the navigable map retains its route.
+        const summit = viewportPosition(BEN_NEVIS.elevation)
+        ctx.translate(width * 0.63, height * 0.27)
+        ctx.scale(1.55, 1.55)
+        ctx.translate(-summit.x * width, -summit.y * height)
+      } else if (close) {
         const x = Math.max(0.5 / 2.05, Math.min(1 - 0.5 / 2.05, focus.x)),
           y = Math.max(0.57 / 2.05, Math.min(1 - 0.43 / 2.05, focus.y))
         ctx.translate(width * 0.5, height * 0.57)
@@ -121,6 +132,10 @@ export function MountainScene({
         ctx.translate(-x * width, -y * height)
       }
       ctx.drawImage(terrain, 0, 0, width, height)
+      if (scenic) {
+        ctx.restore()
+        return
+      }
       const path = (progress: number) => {
         ctx.beginPath()
         const t = progress * (BEN_NEVIS.route.length - 1),
@@ -277,26 +292,37 @@ export function MountainScene({
       el.height = Math.round(height * ratio)
       const textured =
         Number(!!(pine.complete && pine.naturalWidth)) +
-        Number(!!(rocks.complete && rocks.naturalWidth)) +
-        Number(!!(clouds.complete && clouds.naturalWidth)) +
-        Number(!!(meadow.complete && meadow.naturalWidth)) +
-        Number(!!(stone.complete && stone.naturalWidth))
+        2 * Number(!!(rocks.complete && rocks.naturalWidth)) +
+        4 * Number(!!(clouds.complete && clouds.naturalWidth)) +
+        8 * Number(!!(meadow.complete && meadow.naturalWidth)) +
+        16 * Number(!!(stone.complete && stone.naturalWidth))
       if (
         cache.width !== el.width ||
         cache.height !== el.height ||
         cache.textured !== textured ||
         cache.paint !== drawHighlands
       ) {
-        terrain.width = el.width
-        terrain.height = el.height
-        backdrop.setTransform(ratio, 0, 0, ratio, 0, 0)
-        drawHighlands(backdrop, width, height, {
-          pine,
-          rocks,
-          clouds,
-          meadow,
-          stone
-        })
+        const key = `${width}:${height}:${ratio}:${textured}`
+        const shared = backdrops.get(key)
+        const paintStarted = performance.now()
+        if (shared?.paint === drawHighlands) {
+          terrain = shared.canvas
+          backdrops.delete(key)
+          backdrops.set(key, shared)
+          el.dataset.terrainCache = 'hit'
+        } else {
+          terrain = document.createElement('canvas')
+          terrain.width = el.width
+          terrain.height = el.height
+          const backdrop = terrain.getContext('2d')!
+          backdrop.setTransform(ratio, 0, 0, ratio, 0, 0)
+          drawHighlands(backdrop, width, height, { pine, rocks, clouds, meadow, stone })
+          backdrops.set(key, { canvas: terrain, paint: drawHighlands })
+          while (backdrops.size > 4) backdrops.delete(backdrops.keys().next().value!)
+          el.dataset.terrainCache = 'painted'
+        }
+        cache.canvas = terrain
+        el.dataset.terrainRenderMs = (performance.now() - paintStarted).toFixed(1)
         cache.width = el.width
         cache.height = el.height
         cache.textured = textured
@@ -304,11 +330,17 @@ export function MountainScene({
       }
       requestDraw()
     }
-    const observer = new ResizeObserver(resize)
-    observer.observe(el)
+    // Asset completions and resize notifications in one frame share one expensive paint.
+    let resizeFrame = 0
     const loaded = () => {
-      if (!disposed) resize()
+      if (!disposed && !resizeFrame)
+        resizeFrame = requestAnimationFrame(() => {
+          resizeFrame = 0
+          if (!disposed) resize()
+        })
     }
+    const observer = new ResizeObserver(loaded)
+    observer.observe(el)
     for (const asset of [pine, rocks, clouds, meadow, stone, ...ghostImages.map((g) => g.portrait)])
       asset.addEventListener('load', loaded)
     document.addEventListener('visibilitychange', requestDraw)
@@ -319,16 +351,21 @@ export function MountainScene({
         asset.removeEventListener('load', loaded)
       disposed = true
       cancelAnimationFrame(frame)
+      cancelAnimationFrame(resizeFrame)
       observer.disconnect()
       document.removeEventListener('visibilitychange', requestDraw)
       motion.removeEventListener('change', requestDraw)
     }
-  }, [metres, close, focusMetres, showLabel, ghosts])
+  }, [metres, close, focusMetres, showLabel, scenic, ghosts])
   return (
     <canvas
       ref={canvas}
       className="mountain-canvas"
-      aria-label={`Ben Nevis terrain and Mountain Path. Your position: ${Math.round(metres)} of 1,345 Laundry Metres.${ghosts.length ? ` Fictional demo climbers: ${ghosts.map((g) => g.name).join(', ')}.` : ''}`}
+      aria-label={
+        scenic
+          ? 'Illustrated Ben Nevis landscape rendered from real elevation data.'
+          : `Ben Nevis terrain and Mountain Path. Your position: ${Math.round(metres)} of 1,345 Laundry Metres.${ghosts.length ? ` Fictional demo climbers: ${ghosts.map((g) => g.name).join(', ')}.` : ''}`
+      }
       role="img"
     />
   )

@@ -29,8 +29,14 @@ player, checkpoint markers and zoom use the same projection. A single uniform
 viewport scale prevents portrait/landscape resizing from changing proportions.
 Terrain rendering is cached while the player moves. The northwest perspective
 uses a 125 degree azimuth, 23 degree downward view and an 8 km camera distance.
-Five surface-lighting tones and sparse facet accents provide an illustrated
-treatment without changing terrain elevations. Portrait framing shifts the
+The material pass rasterises the unchanged mesh with perspective-correct world
+coordinates, painted rock/meadow detail and per-pixel mapped land cover. A depth
+buffer resolves visible terrain and hides tree sprites behind intervening slopes.
+A soft ink contour traces real occlusion edges. Painted fractures are artistic
+surface detail, not surveyed geology. A small four-entry backdrop cache reuses
+completed scenery between screens; route/player rendering remains independent.
+Home, onboarding and live medallions use a uniform 1.55x landscape framing, while
+the route map retains the full-climb composition. Portrait framing shifts the
 whole scene upward; it does not stretch the mesh.
 
 Mapped woodland polygons select forest ground cover. Tree sprites occur only in

@@ -436,6 +436,7 @@ export function GameApp() {
           metres={stats.mountainMetres}
           close={mode === 'map' ? close : false}
           showLabel={mode === 'map'}
+          scenic={mode !== 'map'}
           ghosts={mode === 'map' ? demoProfiles.slice(0, 3) : undefined}
         />
         {(mode === 'card' || mode === 'mini') && (

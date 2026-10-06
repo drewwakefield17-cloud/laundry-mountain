@@ -25,19 +25,26 @@ Completed corrections:
   Aspect changes use uniform scale. Demo climber portraits use real route positions.
 - Six-mountain selection with five independent elevation-based locked previews.
 
-## Latest focused correction
+## Latest detail pass
 
-The reference is the first milestone, not the final buildathon ambition. The
-owner wants a distinctive, fun world with satisfying progress and reasons to
-return. Further experience passes follow the reference milestone; this does not
-justify an unbounded visual iteration loop.
+The reference remains the first milestone, not the final buildathon ambition.
+This is one further bounded pass requested by the owner after reviewing 9e83db8.
 
-- Stronger five-tone landform shading, northwest perspective and tighter framing.
-- Sign moved away from the player start; route, demo climbers and player remain readable.
-- Flat emerald controls, thin hexagonal badge rims, no embossed control faces.
-- Live ring now reflects accepted items / chosen goal, rather than always appearing full.
-- Reviewed home, full map, badge collection and synthetic portrait live at 390 px.
-- `focused-pass.jpg` shows these four current screens.
+- Replaced one-colour terrain faces with perspective-correct material sampling.
+- New painted crag material: angular slate-blue facets and warm sunlit planes.
+- Accurate mapped shoreline/woodland boundaries replace visibly triangular patches.
+- Fine canopy detail and depth-tested trees; soft contour follows real terrain occlusion.
+- Closer landscape framing for home/welcome/live; full route and progress remain on map.
+- Asset loads are coalesced; a four-entry backdrop cache avoids repeated surface paints.
+- Phone-size home, map, climb view, onboarding, selection and synthetic live inspected.
+- Initial full-map surface paint measured about 0.6 s on this desktop; returning to
+  the map confirmed a cache hit with 0.0 ms repaint time. Physical phone performance
+  remains unverified. This is a cached surface, not a per-frame render cost.
+- 23 unit tests, TypeScript/build and seven affected game/expedition browser tests pass.
+- Flat buttons, badge styling and community layout were retained from the prior pass.
+
+`docs/design/review/detail-before-after.jpg` compares the reference, previous pass
+and current implementation. `detail-pass.jpg` shows current home/map/live screens.
 
 ## Evidence
 
@@ -51,9 +58,10 @@ not evidence of successful physical laundry detection.
 ## Remaining visual findings
 
 P1 — Mountain art direction. The geographic mesh establishes the correct landform,
-path and relative dimensions, but its surface treatment still reads as a terrain
-visualisation. It lacks the reference's crisp illustrated rock edges, expressive
-painted vegetation and layered lighting. This affects home, welcome, map and live.
+path and relative dimensions. The new surface pass adds crag detail, clean forest
+boundaries and clearer water, but still reads more as shaded terrain than the
+reference's richly composed illustrated world. Larger expressive vegetation and
+more intentional light/rock groupings remain the main difference. This affects home, welcome, map and live.
 Do not solve this by stretching the mountain or replacing it with a flat scene PNG.
 
 P2 — Locked previews use correct separate elevation data but approximate seasonal
