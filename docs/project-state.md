@@ -2,9 +2,12 @@
 
 ## Current task boundary
 
-The owner paused application changes to request a repository/capability audit and
-persistent operating instructions. Finish that audit; do not resume design or app
-implementation until the owner asks to continue. `AGENTS.md` records the enduring rules.
+The repository/capability audit is complete in commit `63cc029`. The owner has now
+asked the agent to handle Figma and lead the design process. A connected, editable
+Figma reference/specification file exists; see `docs/design/figma-workflow.md` and
+`docs/design/figma-state.json`. The first three core layouts were rendered and checked.
+Mountain illustration acceptance remains unresolved. This design step did not
+replace or redesign the running application. `AGENTS.md` records the enduring rules.
 
 ## Implemented foundation
 
@@ -69,15 +72,15 @@ audit; exposed tools are not proof that a project is provisioned or integrated.
 | Shared browser, Vitest, Playwright | Used for rendered screens, interactions, responsive checks and synthetic camera regressions | Keep these, with a binding visual gate and targeted performance evidence |
 | Product-design guidance, image generation, web research | Used for reference comparison, individual art/materials and mountain geography | Stronger art direction and truthful reference/data provenance |
 | Git/GitHub | Normal commits and pushes in use | Traceability; PR/CI tools when collaboration or automation warrants them |
-| Figma tools and design/component/token skills | Available; no project Figma design artifact found in inspected repository/docs | Resolve composition and shared components before repeated renderer/CSS edits |
+| Figma tools and design/component/token skills | Connected; project reference board, three editable working layouts and shared controls created | Resolve composition and shared components before repeated renderer/CSS edits |
 | Supabase database/auth/storage/Edge Function/advisor tools | Available; not integrated; localStorage in use | Accounts, cross-device persistence and genuine asynchronous competition when capacity is resolved |
 | Netlify tools/configuration | Host configured; older spike exists; current deployments paused | Authorized final deployment, environment/log checks and production verification |
 | Vercel deployment/environment/log tools | Available; no current project integration found | Useful if the owner explicitly selects Vercel; not a reason to migrate this app |
 | Performance/security specialist skills | Available; not a systematic gate yet | Canvas startup/mobile cost now; ownership/RLS/abuse review when a backend is added |
 
-First workflow recommendation: make reference-based acceptance binding before
-more implementation. Use a Figma comparison/composition artifact for the existing
-home and mountain screens, define concrete visual and interaction criteria, then
-implement in this repository and verify against the same target. Tests passing
-must not override a known visual failure. This is a recommendation only; no Figma
-file, backend, deployment or new application design was created during the audit.
+Current workflow: reference-based acceptance is binding before implementation.
+The Figma artifact establishes editable composition, controls and reference evidence;
+it does not resolve the remaining mountain-art gap. Next focus is illustrated terrain
+detail on Ben Nevis, checked at phone scale against the supplied reference. Adapt
+accepted details to the existing renderer and then verify real interactions. Tests
+passing must not override a known visual failure. No backend or deployment was created.

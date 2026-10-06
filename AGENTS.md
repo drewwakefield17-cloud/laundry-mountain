@@ -52,6 +52,10 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   designs to this React application. Do not replace the app with generated scaffolds.
   When visual iteration repeatedly misses the reference, resolve the design target
   in a concrete comparison/design artifact before more renderer/CSS changes.
+  The project Figma file and working node IDs are recorded in
+  `docs/design/figma-state.json`; read `docs/design/figma-workflow.md` when resuming.
+  Its working layouts are not visual approval: the supplied board remains the
+  target, and the mountain artwork is explicitly unfinished.
 - **Browser / testing:** use the shared in-app browser for live visual inspection,
   interactions, console review and responsive checks. Use the existing Playwright
   suite for reproducible regressions and Vitest for meaningful domain/vision tests.

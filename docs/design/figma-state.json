@@ -1,0 +1,23 @@
+{
+  "runId": "laundry-mountain-design-2026-10-06",
+  "scope": "three-core-screen-specification",
+  "fileKey": "TtfHJ1SkrVGpKsL8Lm9HiF",
+  "url": "https://www.figma.com/design/TtfHJ1SkrVGpKsL8Lm9HiF?node-id=5-20",
+  "pageId": "0:1",
+  "referenceEvidenceId": "5:16",
+  "reviewId": "5:20",
+  "screens": { "home": "5:24", "mountain": "5:25", "live": "5:26" },
+  "entities": {
+    "collection": "VariableCollectionId:5:2",
+    "button": "7:92",
+    "statBase": "7:93",
+    "statBasket": "7:143",
+    "statLeaf": "7:155",
+    "statFire": "7:167",
+    "statStar": "7:179",
+    "navigation": "7:98"
+  },
+  "verified": ["whole-board-render", "asset-rendering", "progress-arc-rendering", "editable-layer-inventory", "font-families", "phone-bounds"],
+  "pending": ["mountain-illustration-acceptance", "reference-fidelity-acceptance", "landscape-design", "existing-app-implementation-and-regression", "physical-camera-test"],
+  "visualAcceptance": "NOT PASSED"
+}
