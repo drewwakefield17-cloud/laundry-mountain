@@ -5,10 +5,30 @@ import {
   heightAt,
   projectWorld,
   scenePoint,
-  landscapeCamera
+  landscapeCamera,
+  overviewProjection
 } from './terrain'
 
 describe('Ben Nevis geography', () => {
+  it('recomposes the same mapped route for wide and portrait without moving checkpoints', () => {
+    for (const [w, h] of [[390, 772], [844, 326], [667, 311]]) {
+      const view = overviewProjection(w, h)
+      const first = view.point(view.project(...geo.route[0] as [number, number]))
+      const summit = view.point(view.project(...geo.summit as [number, number]))
+      expect(view.position(0)).toEqual(first)
+      expect(view.position(1).x).toBeCloseTo(summit.x, 4)
+      expect(view.position(1).y).toBeCloseTo(summit.y, 4)
+      for (let i = 0; i <= 100; i++) {
+        const p = view.position(i / 100)
+        expect(p.x).toBeGreaterThan(40)
+        expect(p.x).toBeLessThan(w - 40)
+        expect(p.y).toBeGreaterThanOrEqual(64)
+        expect(p.y).toBeLessThan(h - 100)
+      }
+      // A landscape journey must actually use the available horizontal space.
+      if (view.wide) expect(Math.abs(summit.x - first.x)).toBeGreaterThan(w * .4)
+    }
+  })
   it('retains a plausible measured summit and low Glen Nevis start', () => {
     const [sx, sz] = geo.summit
     expect(heightAt(sx, sz)).toBeGreaterThan(1.29)

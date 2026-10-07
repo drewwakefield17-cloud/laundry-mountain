@@ -10,8 +10,10 @@ export function routePosition(metres: number) {
 }
 
 export function expeditionProgress(metres: number) {
-  const position = routePosition(metres)
-  const current = BEN_NEVIS.checkpoints.filter(c => c.metres <= position.progress * BEN_NEVIS.elevation + .0001).at(-1)!
-  const next = BEN_NEVIS.checkpoints.find(c => c.metres > position.progress * BEN_NEVIS.elevation + .0001)
-  return { current, next, remaining: next ? Math.ceil(next.metres - position.progress * BEN_NEVIS.elevation) : 0, summit: !next }
+  // Keep the ledger's metre value: normalising and multiplying it back can turn
+  // 250 into 249.99999999997 and incorrectly show 251 m to the next checkpoint.
+  const distance = Math.max(0, Math.min(BEN_NEVIS.elevation, Number.isFinite(metres) ? metres : 0))
+  const current = BEN_NEVIS.checkpoints.filter(c => c.metres <= distance + .0001).at(-1)!
+  const next = BEN_NEVIS.checkpoints.find(c => c.metres > distance + .0001)
+  return { current, next, remaining: next ? Math.ceil(next.metres - distance) : 0, summit: !next }
 }

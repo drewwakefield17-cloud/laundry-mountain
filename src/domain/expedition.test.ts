@@ -11,5 +11,7 @@ it('advances checkpoints exactly at their target, without a next checkpoint afte
   expect(expeditionProgress(249).remaining).toBe(1)
   expect(expeditionProgress(250).current.name).toBe('Into the glen')
   expect(expeditionProgress(250).next?.metres).toBe(500)
+  expect(expeditionProgress(250).remaining).toBe(250)
+  expect(expeditionProgress(500).remaining).toBe(350)
   expect(expeditionProgress(1345)).toMatchObject({ summit: true, remaining: 0, next: undefined })
 })

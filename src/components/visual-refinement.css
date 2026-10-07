@@ -1,0 +1,103 @@
+/* Approved app board, 8 October. White functional surfaces; scenery in art zones. */
+:root:has(.game-shell){background:#eef3f5}
+.game-shell{--navy:#0b2d4b;--cream:#fff;--green:#00865e;--border:#e2e9eb;background:#fff;color:var(--navy)}
+.game-shell .game-main::after{display:none}
+.game-shell .game-nav{background:#fff;border-top:1px solid #e2e9eb;backdrop-filter:none}
+.game-shell .primary{background:#00865e;border-color:#00865e;box-shadow:none}
+.game-shell .primary:hover{background:#006d4d}
+.game-shell .secondary,.game-shell .segmented{background:#f5f8f8;border-color:#d5e2df}
+.game-shell .game-header .avatar-button{background:#f0f8f5;box-shadow:none}
+.game-shell .game-header .avatar-button svg{filter:none}
+.game-shell .game-stat-row>div,.game-shell .home-stats>button{background:#fff;border:1px solid #e4e9ec;border-radius:10px;box-shadow:none}
+.game-shell .game-nav button{color:#617b8c}
+.game-shell .game-nav button[aria-current='page']{color:#007752}
+.game-shell .game-nav .nav-add>span{background:#00865e;box-shadow:none;border:4px solid white}
+.game-shell .validation-note{color:#526876}
+.game-shell .phone-position{background:#f3f7f7;border-color:#d5e2df}
+.game-shell .phone-position p{color:#315063}
+.game-shell .dial-time{background:#fff}
+.game-shell .scenic-dial{border-color:#fff}
+
+.scenic-artwork{position:absolute;inset:0;overflow:hidden;background:#abd9f2}
+.scenic-artwork-landscape{width:100%;height:100%;object-fit:cover;display:block}
+.scenic-artwork-companion{position:absolute;width:35%;left:9%;bottom:14%}
+.scenic-artwork-companion .basket-avatar{width:100%;height:auto;display:block}
+.screen-home .scenic-card{height:350px;border:0;border-radius:15px;box-shadow:none}
+.artwork-home .scenic-artwork-landscape{object-position:50% 50%;height:100%}
+.artwork-home .scenic-artwork-companion{width:45%;left:5%;bottom:11%}
+.screen-home .scenic-title{left:0;right:0;top:0;padding:16px;background:none;color:#0b2d4b;text-shadow:0 1px 9px #fff}
+.screen-home .scenic-title h2{font-size:31px;line-height:1.06;margin-top:2px}
+.screen-home .scenic-title>span{font-size:12px;letter-spacing:0;color:#183f58}
+.screen-home .scenic-title p{font-size:11px;color:#183f58}
+.screen-home .scenic-foot{left:16px;right:16px;bottom:15px;align-items:flex-end}
+.screen-home .scenic-foot>p{background:#103945d9;padding:7px 9px;font-size:12px;font-style:italic;border-radius:5px;line-height:1.35}
+.screen-home .progress-ring{width:96px;height:96px;background:conic-gradient(#00865e var(--progress),#c8ddd4 0);border:4px solid white;box-shadow:none}
+.screen-home .progress-ring::before{background:white;inset:7px}
+.screen-home .progress-ring strong{font-size:23px;color:#0b2d4b}
+.screen-home .home-stats{gap:6px;margin:12px 0 16px}
+.screen-home .home-stats>button{padding:9px 1px 10px;gap:3px;min-height:100px}
+.screen-home .home-stats strong{font-size:21px;line-height:1.1}
+.screen-home .home-stats>button>span:last-child{font-size:11px}
+.trail-icon{display:block;width:50px;height:50px;background-image:url('/art/trail-icons-refined.webp');background-size:200% 200%;background-repeat:no-repeat;flex-shrink:0}
+.trail-icon-loads{background-position:0 0}.trail-icon-mountain{background-position:100% 0}.trail-icon-streak{background-position:0 100%}.trail-icon-badge{background-position:100% 100%}
+.screen-home .start-session-cta{height:52px;font-size:15px;margin-top:0}
+.screen-home .next-trail{border:1px solid #e2e9eb;border-radius:12px;padding:12px;margin-top:12px;gap:9px;background:#fff;min-height:68px}
+.screen-home .next-trail>svg{color:#df7109;flex-shrink:0}
+.screen-home .next-trail strong{font-size:15px;color:#0b2d4b}
+.screen-home .next-trail small{font-size:10px;letter-spacing:.04em;color:#456174}
+.screen-home .next-trail>span:last-child{color:#234b60;font-size:12px;white-space:nowrap}
+.screen-home .game-main{padding:0 14px 12px}
+.screen-home .validation-note{margin:18px 0 0;font-size:10px}
+.screen-home .game-header{height:78px}
+
+.screen-welcome .scenic-welcome{inset:0;height:80%;min-height:0;mask-image:none}
+.screen-welcome .welcome-content{height:max(760px,calc(100dvh - 44px))}
+.screen-welcome .welcome-content::before{display:none}
+.screen-welcome .welcome-logo{top:21px;width:185px;height:185px;filter:none}
+.screen-welcome .welcome-bottom{background:#fff;border-radius:50% 50% 0 0 / 10% 10% 0 0;padding:23px 24px 18px}
+.screen-welcome .welcome-bottom h1{font-size:29px;line-height:1.1;margin:0}
+.screen-welcome .welcome-bottom p{font-size:13px;margin:9px 0 18px;color:#31536c}
+.screen-welcome .welcome-bottom .game-cta{height:50px;margin-bottom:4px}
+.screen-welcome .artwork-welcome .scenic-artwork-companion{width:66%;left:2%;bottom:12%}
+.screen-welcome .artwork-welcome .scenic-artwork-landscape{object-position:50% 55%}
+
+.screen-mountain.overview-mode .game-header{position:absolute;inset:0 0 auto;height:65px;background:linear-gradient(#ffffffed,#ffffffba 70%,#ffffff00);backdrop-filter:none;border-bottom:0}
+.screen-mountain.overview-mode .scenic-map{height:calc(100dvh - 72px);min-height:600px}
+.screen-mountain.overview-mode .game-header>strong{text-align:left;font-size:24px}
+.screen-mountain.overview-mode .terrain-credit{bottom:3px;left:10px;right:auto;width:auto;transform:none}
+.screen-mountain .route-details{background:#fffffff5;border:1px solid #dce5e8;box-shadow:none}
+.screen-mountain.overview-mode .route-details{top:75px;right:12px}
+.screen-mountain .route-details summary{color:#214b5d;min-height:44px}
+.screen-mountain .view-control{background:#fff;border:1px solid #d7e3df;border-radius:28px;padding:4px}
+.screen-mountain .view-control button[aria-pressed='true']{background:#00865e;color:white}
+.screen-mountain .terrain-credit{background:#ffffffeb;color:#405d6b;font-size:9px}
+.overview-next{position:absolute;bottom:82px;left:14px;right:14px;z-index:7;display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:12px 14px;color:#0b2d4b;pointer-events:none}
+.overview-next>svg{color:#df7109;flex-shrink:0}
+.overview-next>span{display:flex;flex:1;flex-direction:column;gap:3px}
+.overview-next small{font-size:11px;color:#486072}
+.overview-next strong{font-size:15px}
+.overview-next>b{font-size:13px}
+@media(max-width:500px){
+  .game-shell{border-radius:0;border:0;box-shadow:none;margin:0}
+  .screen-welcome .welcome-content{height:100dvh;min-height:680px}
+  .screen-home .scenic-card{height:clamp(310px,45dvh,380px)}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .screen-mountain.overview-mode .scenic-map{height:calc(100dvh - 64px);min-height:0}
+  .screen-mountain.overview-mode .game-header{height:48px;width:270px;border:0;border-radius:0 0 16px 0;padding:4px 10px;background:#fffffff0}
+  .screen-mountain.overview-mode .game-header>strong{font-size:20px}
+  .screen-mountain.overview-mode .summit-chip{font-size:10px;padding:3px 6px}
+  .screen-mountain.overview-mode .route-details{top:8px;left:calc(50% - 52px);right:auto}
+  .screen-mountain.overview-mode .route-details[open]{left:14px;right:14px}
+  .screen-mountain.overview-mode .route-details[open]{top:54px;max-height:calc(100% - 135px)}
+  .screen-mountain.overview-mode .overview-next{bottom:27px;left:14px;right:auto;width:270px;padding:9px 12px}
+  .screen-mountain.overview-mode .view-control{left:auto;right:14px;bottom:27px;transform:none}
+  .screen-mountain.overview-mode .terrain-credit{bottom:5px}
+  .game-shell.screen-welcome{max-width:none;min-height:100dvh;margin:0;border:0;border-radius:0;box-shadow:none}
+  .screen-welcome .welcome-content{height:100dvh;min-height:350px}
+  .screen-welcome .scenic-welcome{width:55%;height:100%}
+  .screen-welcome .welcome-logo{left:26%;width:145px;height:145px;top:8px}
+  .screen-welcome .welcome-bottom{left:55%;top:0;border-radius:0;display:flex;flex-direction:column;justify-content:center;padding:20px}
+  .screen-welcome .welcome-bottom h1{font-size:26px}
+  .screen-welcome .artwork-welcome .scenic-artwork-companion{width:36%;bottom:3%}
+}

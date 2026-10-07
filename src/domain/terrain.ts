@@ -153,3 +153,40 @@ export const BEN_NEVIS_TRAIL = Array.from({ length: 401 }, (_, i) => {
   const p = projectWorld(x, z)
   return [p.x, p.y]
 })
+
+// The wide overview looks across the southern slopes so the real eastbound path
+// reads left-to-right. Both cameras use identical kilometre coordinates/heights.
+const wideRouteCamera = perspectiveCamera(
+  { x: -2.5, z: -6.7, y: 2.5 },
+  { x: 0.3, z: -0.2, y: 0.7 },
+  { x: 0.5, y: 0.5 }
+)
+export function overviewProjection(width: number, height: number) {
+  const wide = width > height * 1.35
+  const camera = wide ? wideRouteCamera : routeCamera
+  const projected = route.map(([x, z]) => camera.project(x, z))
+  const left = Math.min(...projected.map(p => p.x)), right = Math.max(...projected.map(p => p.x))
+  const top = Math.min(...projected.map(p => p.y)), bottom = Math.max(...projected.map(p => p.y))
+  const topInset = wide ? 65 : 125
+  const bottomInset = wide ? 110 : 180
+  const scale = Math.min(width * (wide ? 0.7 : 0.76) / (right - left),
+    Math.max(80, height - topInset - bottomInset) / (bottom - top))
+  const centreY = (topInset + height - bottomInset) / 2
+  const point = (p: { x: number; y: number }) => ({
+    x: width * 0.5 + (p.x - (left + right) / 2) * scale,
+    y: centreY + (p.y - (top + bottom) / 2) * scale
+  })
+  return {
+    ...camera, point, wide,
+    route: projected.map(point),
+    position(progress: number) {
+      const distance = Math.max(0, Math.min(1, progress)) * lengths.at(-1)!
+      let j = 1
+      while (j < lengths.length - 1 && lengths[j] < distance) j++
+      const t = (distance - lengths[j - 1]) / (lengths[j] - lengths[j - 1] || 1)
+      const x = route[j - 1][0] + (route[j][0] - route[j - 1][0]) * t
+      const z = route[j - 1][1] + (route[j][1] - route[j - 1][1]) * t
+      return point(camera.project(x, z))
+    }
+  }
+}

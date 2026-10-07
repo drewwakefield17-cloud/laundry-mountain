@@ -34,6 +34,7 @@ import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
 import { ClimbScene } from './ClimbScene'
 import { ScenicOverview } from './ScenicOverview'
+import { ScenicArtwork, TrailIcon } from './ScenicArtwork'
 import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
 import { BEN_NEVIS, GAME } from '../domain/config'
@@ -43,6 +44,7 @@ import type { LaundryEvent } from '../domain/events'
 import './game.css'
 import './reference-theme.css'
 import './adventure-theme.css'
+import './visual-refinement.css'
 
 type Screen =
   | 'home'
@@ -435,15 +437,15 @@ export function GameApp() {
           } as CSSProperties
         }
       >
-        {mode === 'card' || mode === 'mini' ? <ScenicOverview metres={stats.mountainMetres} companion={mode === 'card'} /> : mode === 'map' && !close ? <MountainScene
+        {mode === 'card' ? <ScenicArtwork /> : mode === 'welcome' ? <ScenicArtwork welcome /> : mode === 'mini' ? <ScenicOverview metres={stats.mountainMetres} companion={false} /> : mode === 'map' && !close ? <MountainScene
           metres={stats.mountainMetres}
           close={false}
           finish="natural"
           showLabel
-          ghosts={demoProfiles.slice(0, 3)}
+          ghosts={demoProfiles.slice(0, 2)}
         /> : <ClimbScene metres={stats.mountainMetres}
           variant={mode === 'map' ? 'climb' : mode}
-          sceneryFinish={mode === 'welcome' ? 'natural' : 'illustrated'}
+          sceneryFinish="illustrated"
           showProgress={mode === 'map'} />}
         {(mode === 'card' || mode === 'mini') && (
           <div className="scenic-title">
@@ -462,7 +464,7 @@ export function GameApp() {
             <p>
               Steady progress,
               <br />
-              cleans brighter days.
+              brighter days.
             </p>
             <div
               className="progress-ring"
@@ -607,22 +609,22 @@ export function GameApp() {
             </button>
             <div className="game-stat-row home-stats">
               <button onClick={() => navigate('sessions')}>
-                <Basket weight="duotone" />
+                <TrailIcon kind="loads" />
                 <strong>{completedLoads}</strong>
                 <span>Loads</span>
               </button>
               <button onClick={() => navigate('mountain')}>
-                <Mountain weight="fill" />
+                <TrailIcon kind="mountain" />
                 <strong>{format(stats.lifetimeMetres)} m</strong>
                 <span>Climbed</span>
               </button>
               <button onClick={() => navigate('sessions')}>
-                <Flame weight="fill" />
+                <TrailIcon kind="streak" />
                 <strong>{stats.best}</strong>
                 <span>Best streak</span>
               </button>
               <button onClick={() => navigate('badges')}>
-                <Star weight="fill" />
+                <TrailIcon kind="badge" />
                 <strong>{earnedBadges}</strong>
                 <span>Badges</span>
               </button>
@@ -911,6 +913,7 @@ export function GameApp() {
           <>
             <div className="map-scene">
               {scenic('map')}
+              {!close && <div className="overview-next"><Sock weight="duotone" size={28} /><span><small>{progress.summit ? 'Expedition complete' : 'Next checkpoint'}</small><strong>{progress.next?.name ?? 'Summit reached'}</strong></span><b>{progress.summit ? '1,345 m' : `${format(progress.remaining)} m`}</b></div>}
               <div className="view-control">
                 <button aria-pressed={!close} onClick={() => setClose(false)}>
                   Full mountain
@@ -924,7 +927,7 @@ export function GameApp() {
               </a>
             </div>
             <details className="route-details">
-              <summary>Your route checkpoints</summary>
+              <summary aria-label="Your route checkpoints">Checkpoints</summary>
               <div className="mountain-progress">
                 <div>
                   <strong>{format(stats.mountainMetres)} m climbed</strong>

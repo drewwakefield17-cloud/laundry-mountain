@@ -31,8 +31,11 @@ def height(x, z):
     return base + (detail-base) * blend
 
 scenic = sys.argv[-1] == 'scenic'
+wide = sys.argv[-1] == 'wide'
 eye = np.array([-.926, float(height(np.array(-.926), np.array(5.503))) + .002, 5.503]) if scenic else np.array([-5.35, float(height(np.array(-5.35), np.array(1.74))) + .9, 1.74])
 target = np.array([1.7, .85, -.65]) if scenic else np.array([geo['summit'][0], .8, geo['summit'][1]])
+if wide:
+    eye = np.array([-2.5, 2.5, -6.7]); target = np.array([.3, .7, -.2])
 forward = target - eye; forward /= np.linalg.norm(forward)
 right = np.array([forward[2], 0, -forward[0]]); right /= np.linalg.norm(right)
 up = np.cross(forward, right)
@@ -46,17 +49,22 @@ route = np.array(geo['route']); rx, rz = route[:, 0], route[:, 1]
 px, py, _ = project(rx, rz, height(rx, rz))
 left, right_edge, top, bottom = px.min(), px.max(), py.min(), py.max()
 w, h = (1024,768) if scenic else (768,1428)
+if wide: w, h = 1688, 652
 scale = min(w*.84/(right_edge-left), (h-2*92*w/390)/(bottom-top))
+if wide: scale = min(w*.7/(right_edge-left), (h-130-220)/(bottom-top))
 
 def screen(x, z, y):
     px, py, depth = project(x, z, y)
     if scenic:
         return w*.5+(px-.5)*min(w,h*1.32), h*.58+(py-.5)*min(w,h*1.32), depth
+    if wide:
+        return w*.5+(px-(left+right_edge)/2)*scale, (130+h-220)/2+(py-(top+bottom)/2)*scale, depth
     return w*.5+(px-(left+right_edge)/2)*scale, h*.5+(py-(top+bottom)/2)*scale, depth
 
-view_name = 'scenic' if scenic else 'route'
+view_name = 'wide' if wide else 'scenic' if scenic else 'route'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'bake':
+    if wide: raise SystemExit('Wide overview samples its registered guide directly; no atlas bake required.')
     buffers = np.load(cache / f'material-view-{view_name}.npz')
     painted = np.array(Image.open(sys.argv[2]).convert('RGB').resize((w,h), Image.Resampling.LANCZOS))
     # Concentrate texels on this view's visible slopes. A full 13 km square

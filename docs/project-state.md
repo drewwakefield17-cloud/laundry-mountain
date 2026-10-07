@@ -1,4 +1,39 @@
-# Project handoff — 7 October 2026
+# Project handoff — 8 October 2026
+
+## Current: approved-board refinement on `visual-refinement`
+
+- Branch created from `main` at `bd064c0`; main is the unchanged fallback. No
+  history rewriting or deployment. Landing is parked, approved active climb and
+  achievements retained. The owner requests a bounded but substantial pass aiming
+  at least 90% toward the approved board. The LEFT reference remains the standard;
+  current implementation has not received visual acceptance.
+- Target: `docs/design/source-art/approved-app-visual-direction.png`, supported by
+  the original ten-screen board. White functional surfaces, navy type, flat emerald
+  controls. Welcome/home use purpose-composed Ben Nevis art and the graphic basket.
+  Home now has a stronger mountain/mascot/progress hierarchy. Icons use a restrained
+  dimensional family, with the mountain simplified after two rejected directions.
+- Full overview retains DEM terrain, geographic land-cover masks and mapped path.
+  Portrait and landscape use appropriate camera compositions with uniform scale;
+  route, actual player and checkpoints share world coordinates. Illustrated surface
+  materials and separate transparent rock/heather framing supply the finish.
+  Two labelled demo portraits in portrait, one in landscape. No progress is invented.
+- Evidence: `docs/design/review/visual-refinement/`; capture script uses an isolated
+  browser and explicitly labelled 250 m/summit fixtures. Shared browser ledger is
+  untouched. Review the reference comparison rather than assuming assets alone
+  reproduce the approved design. Overview material/composition remains the most
+  sensitive visual gap; no numerical similarity score is claimed.
+- Inspection caught and fixed a real checkpoint-distance rounding bug: normalising
+  250 metres to a fraction and back could show 251 remaining. Remaining distance
+  now uses the original clamped metre value, covered by regression assertions.
+- Verification: 30 unit checks and TypeScript/build passed. All 18 existing browser
+  tests passed earlier in this pass; the new landscape-welcome regression and final
+  rotation/saved-progress checks passed (3/3). Captures cover 390x844, 844x390 and
+  667x375. Physical Pixel/Edge folding remains UNVERIFIED (last test counted zero).
+- Runtime art uses compressed WebP; source PNGs/provenance are under docs. Existing
+  JS bundle warning remains (~438 kB gzip). Actual phone performance is not proven.
+
+The following sections retain previous milestone context; current decisions above
+take precedence.
 
 ## Current follow-up: coherent baseline
 

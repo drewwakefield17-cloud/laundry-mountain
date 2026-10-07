@@ -1,4 +1,33 @@
-# Reference fidelity review — basket integration, 7 October 2026
+# Reference fidelity review — 8 October 2026
+
+## Current gate: visual refinement
+
+**Not yet owner-approved.** The owner says all three LEFT reference screens remain
+stronger than implementation. This is the acceptance target, not a reason to lower
+the standard. Aim for at least 90% fidelity in a bounded pass; no measured percentage
+or automatic visual pass is claimed.
+
+Reference: `docs/design/source-art/approved-app-visual-direction.png`.
+Evidence: `docs/design/review/visual-refinement/` (actual app captures, comparison,
+browser error record and isolated saved-progress/summit fixtures).
+
+- Welcome: larger approved companion, detailed Ben Nevis art, clean white curved
+  entry panel, legible flat actions. Small landscape has a separate usable layout.
+- Home: taller mountain artwork, stronger mascot and 96 px progress ring, coherent
+  four-stat tiles, flat primary action and white next-checkpoint card.
+- Overview: stronger foreground framing, clearer dotted mapped trail and sock
+  milestone; dedicated wide camera prevents a squeezed portrait composition.
+  The terrain illustration is still the hardest reference-fidelity gap. Keep
+  geographic geometry and mapped route even where the concept invents a shortcut.
+- Preserved: approved active climb, achievements, camera flow, local ledger and
+  explicitly labelled demo profiles. Landing and wordmark are deferred.
+- Software: 30 unit tests/build passed; all 18 existing browser checks passed earlier
+  in this pass; final rotation, saved-position and new landscape-welcome checks
+  passed (3/3). Captures at 390x844, 844x390 and 667x375.
+- Physical detection and real-phone performance remain unverified. The last real
+  folding attempt counted zero; synthetic fixtures do not change that result.
+
+Previous QA records follow for traceability and do not supersede this gate.
 
 ## Latest app-only correction
 

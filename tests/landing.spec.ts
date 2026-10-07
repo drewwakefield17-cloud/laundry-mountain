@@ -2,6 +2,23 @@ import { expect, test } from '@playwright/test'
 import os from 'node:os'
 import path from 'node:path'
 
+test('welcome keeps its entry controls usable on a small landscape phone', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 375 })
+  await page.goto('/?view=welcome')
+  for (const name of ['Get Started', 'Return to my saved progress']) {
+    const button = page.getByRole('button', { name, exact: true })
+    const bounds = await button.boundingBox()
+    expect(bounds).not.toBeNull()
+    expect(bounds!.y).toBeGreaterThanOrEqual(0)
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(375)
+    expect(bounds!.height).toBeGreaterThanOrEqual(44)
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(667)
+  await page.getByRole('button', { name: 'Get Started', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Climber!' })).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
+})
+
 test('landing connects to onboarding and diagnostics without awarding progress', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', e => errors.push(e.message))
@@ -38,8 +55,7 @@ test('saved progress restores the companion without replaying a celebration', as
   })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/?view=home')
-  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-scenery-finish', 'natural')
-  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready', 'true')
+  await expect(page.locator('.scenic-artwork-landscape')).toBeVisible()
   await expect(page.getByRole('button', { name: '250 m Climbed', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Explore Ben Nevis', exact: true }).click()
   await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-scenery-finish', 'illustrated')

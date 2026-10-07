@@ -41,7 +41,8 @@ test('game screens choose a load and goal, retain zero progress, and show genuin
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/?view=home')
   await expect(page.getByRole('heading', { name: 'Climber!' })).toBeVisible()
-  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready', 'true')
+  await expect(page.locator('.scenic-artwork-landscape')).toBeVisible()
+  await expect.poll(() => page.locator('.scenic-artwork-landscape').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
   await page.screenshot({
     path: path.join(os.tmpdir(), 'laundry-mountain-game-home.png'),
     fullPage: true

@@ -81,6 +81,22 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Product and design requirements
 
+- **8 October visual refinement:** the owner approved the coordinated board at
+  `docs/design/source-art/approved-app-visual-direction.png`, with the correction
+  that routes must follow land/the mapped path, never the concept's invented lake.
+  Work is now on `visual-refinement`; `main` at `bd064c0` is the fallback. No merge
+  or deployment until requested. Prefer clean white functional surfaces, navy text,
+  flat emerald controls and purpose-composed welcome/home artwork. This supersedes
+  the earlier beige/cream wallpaper and dimensional-home-basket exception: use the
+  board's approved basket consistently. Preserve active climb and earned badges.
+  Icons should share restrained dimensional shading; neither thick cartoon outlines
+  nor a photoreal mountain miniature among graphic icons. The current revised icon
+  set and integrated screens await review; approval of a concept is not app approval.
+  The owner explicitly says the reference on the LEFT of the comparison remains
+  stronger in all three screens. It is the acceptance standard, not the current
+  implementation. This bounded pass targets at least 90% visual fidelity; do not
+  invent a measured percentage or declare parity from passing software tests.
+
 - The supplied ten-screen Laundry Mountain board controls the wider UI family.
   The latest approved climb-view direction is
   `docs/design/source-art/approved-basket-graphic-direction.png`: the exact walking
@@ -92,7 +108,7 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   Refine how the washing sits and moves inside the rim. Read
   `docs/design/approved-direction.md` for the decision and scope.
   Sock markers replace pennant flags. Signage is currently deprioritized.
-- Home/overview amendment: use more realistic mountain scenery and the earlier
+- Historical home/overview amendment (superseded by the 8 October board): use more realistic mountain scenery and the earlier
   dimensional basket on the home card. Keep the approved outlined, moving basket
   in active climb. Home should prioritise the mountain and progress, not enlarge
   the mascot or add toy-like scenery. Shared palette and controls remain coherent.

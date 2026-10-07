@@ -1,5 +1,27 @@
 # Approved climb-view direction — 7 October 2026
 
+## Current app direction — 8 October 2026
+
+The owner approved `source-art/approved-app-visual-direction.png` and authorized
+implementation on the new `visual-refinement` branch. `main` at `bd064c0` remains
+the baseline fallback. The original ten-screen board still anchors the UI family.
+
+Use white surfaces, navy typography, flat emerald controls, richer purpose-composed
+welcome/home scenery and the selected basket. No beige/green page wallpaper.
+The full overview remains a code-rendered geographic world with route and player
+bound to real coordinates. Wide orientation gets its own camera/composition.
+Do not reproduce the generated concept's invented lake or trail crossing water.
+The home/welcome art is an illustration, not survey evidence. Preserve the approved
+active climb, badges and actual local progress. Landing remains parked.
+
+Icon feedback: the first thick-outlined atlas was too cartoonish. The second went
+too photographic on the mountain icon. The third uses a simplified sculpted mountain
+with the same restrained material shading as the basket/medal; integrated review
+is pending. Do not infer visual sign-off from software test results.
+
+Current comparison: `review/visual-refinement/index.html`.
+The older home amendment below is historical, superseded by this coordinated board.
+
 **Later home-screen amendment:** the owner explicitly wants the earlier dimensional
 basket and more realistic mountain scenery on home. This exception does not change
 the approved outlined character or movement in active climb. The original board

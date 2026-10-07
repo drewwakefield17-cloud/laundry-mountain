@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { BEN_NEVIS } from '../domain/config'
 import { routePosition } from '../domain/expedition'
 import { drawHighlands } from './mountainTerrain'
-import { scenePoint } from '../domain/terrain'
+import { scenePoint, overviewProjection } from '../domain/terrain'
 
 // Reuse decoded images across views and accepted events. Loading an asset must not
 // invalidate the terrain cache again on every player-position update.
@@ -59,10 +59,26 @@ const backdrops = new Map<string, { canvas: HTMLCanvasElement; paint: typeof dra
 const NO_GHOSTS: SceneGhost[] = []
 const portraits = new Map<string, HTMLImageElement>()
 let overviewMaterial: HTMLImageElement | undefined
+let wideMaterial: HTMLImageElement | undefined
+let foregroundArtwork: HTMLImageElement | undefined
+function overviewForeground() {
+  if (!foregroundArtwork) {
+    foregroundArtwork = new Image()
+    foregroundArtwork.src = '/art/overview-foreground-refined.webp'
+  }
+  return foregroundArtwork
+}
+function wideOverviewMaterial() {
+  if (!wideMaterial) {
+    wideMaterial = new Image()
+    wideMaterial.src = '/textures/ben-nevis-wide-refined.webp'
+  }
+  return wideMaterial
+}
 function detailedOverviewMaterial() {
   if (!overviewMaterial) {
     overviewMaterial = new Image()
-    overviewMaterial.src = '/textures/ben-nevis-overview-detail.png'
+    overviewMaterial.src = '/textures/ben-nevis-overview-refined.webp'
   }
   return overviewMaterial
 }
@@ -100,6 +116,7 @@ export function MountainScene({
     height: number
     textured: number
     scenic: boolean
+    showLabel: boolean
     finish: SceneryFinish
     paint: typeof drawHighlands
   } | null>(null)
@@ -114,14 +131,17 @@ export function MountainScene({
         height: 0,
         textured: 0,
         scenic: !scenic,
+        showLabel,
         finish,
         paint: drawHighlands
       })
     let terrain = cache.canvas
     const { pine, rocks, clouds, meadow, stone, marker, sock, ground, paintedSlope } = sceneAssets(finish)
     const routePaint = !scenic && finish === 'natural' ? detailedOverviewMaterial() : undefined
-    const completeMask = routePaint ? 255 : 127
+    const routeWide = routePaint ? wideOverviewMaterial() : undefined
+    const completeMask = routePaint ? 511 : 127
     const basketArt = showLabel && finish === 'natural' ? overviewBasketArtwork() : undefined
+    const foreground = basketArt ? overviewForeground() : undefined
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
       if (!portrait) {
@@ -143,9 +163,10 @@ export function MountainScene({
       const difference = metres - shown.current
       shown.current =
         motion.matches || Math.abs(difference) < 0.05 ? metres : shown.current + difference * 0.14
+      const composition = showLabel && finish === 'natural' ? overviewProjection(width, height) : undefined
       const viewportPosition = (metres: number) => {
         const p = routePosition(metres),
-          screen = scenePoint(p, width, height)
+          screen = composition ? composition.position(p.progress) : scenePoint(p, width, height)
         return {
           x: screen.x / width,
           y: screen.y / height,
@@ -173,7 +194,7 @@ export function MountainScene({
       ctx.drawImage(terrain, 0, 0, width, height)
       // Evidence captures should wait for a painted frame with all scene assets,
       // rather than accepting the empty canvas while its first paint is queued.
-      el.dataset.terrainReady = String(cache.textured === completeMask)
+      el.dataset.terrainReady = String(cache.textured === completeMask && (!foreground || (foreground.complete && foreground.naturalWidth > 0)))
       if (scenic) {
         // Small illustrated foreground stones frame the card/medallion. The
         // mountain and stream behind them retain the real geographic projection.
@@ -213,8 +234,36 @@ export function MountainScene({
         ctx.drawImage(rocks, -rockWidth * 0.15, height - rockHeight - 11, rockWidth, rockHeight)
       }
       ctx.restore()
+      // A separate near-field rock/heather frame adds depth around the measured
+      // world. Its clear centre keeps the mapped path and all markers readable.
+      if (foreground?.complete && foreground.naturalWidth) {
+        if (composition?.wide) {
+          const fh = height * .68, fw = fh * foreground.naturalWidth / foreground.naturalHeight / 2
+          ctx.drawImage(foreground, 0, 0, foreground.naturalWidth / 2, foreground.naturalHeight,
+            -fw * .16, height - fh, fw, fh)
+          ctx.drawImage(foreground, foreground.naturalWidth / 2, 0, foreground.naturalWidth / 2, foreground.naturalHeight,
+            width - fw * .84, height - fh, fw, fh)
+        } else {
+          const fh = height * .58, fw = fh * foreground.naturalWidth / foreground.naturalHeight / 2
+          ctx.drawImage(foreground, 0, 0, foreground.naturalWidth / 2, foreground.naturalHeight,
+            -fw * .20, height - fh, fw, fh)
+          ctx.drawImage(foreground, foreground.naturalWidth / 2, 0, foreground.naturalWidth / 2, foreground.naturalHeight,
+            width - fw * .80, height - fh, fw, fh)
+        }
+      }
       const path = (progress: number) => {
         ctx.beginPath()
+        if (composition) {
+          // Route samples share the exact projection used by the terrain mesh.
+          // Never draw a decorative shortcut across lochans or between bends.
+          const samples = Math.max(1, Math.ceil(600 * progress))
+          for (let i = 0; i <= samples; i++) {
+            const p = composition.position(progress * i / samples)
+            if (i) ctx.lineTo(p.x, p.y)
+            else ctx.moveTo(p.x, p.y)
+          }
+          return
+        }
         const t = progress * (BEN_NEVIS.route.length - 1),
           last = Math.floor(t)
         BEN_NEVIS.route.forEach(([x, y], i) => {
@@ -226,17 +275,17 @@ export function MountainScene({
       }
       ctx.lineJoin = 'round'
       ctx.lineCap = 'round'
-      ctx.strokeStyle = '#18392b70'
-      ctx.lineWidth = 4
+      ctx.strokeStyle = '#284a4a80'
+      ctx.lineWidth = composition ? 3 : 4
       path(1)
       ctx.stroke()
-      ctx.strokeStyle = '#e2d5b5'
-      ctx.lineWidth = 2.5
+      ctx.strokeStyle = '#e8d9b9a8'
+      ctx.lineWidth = composition ? 1.2 : 2.5
       path(1)
       ctx.stroke()
-      ctx.setLineDash([1, 10])
-      ctx.strokeStyle = '#fffde8'
-      ctx.lineWidth = 2
+      ctx.setLineDash(composition ? [0.1, 10] : [1, 10])
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = composition ? 4 : 2
       path(1)
       ctx.stroke()
       ctx.setLineDash([])
@@ -276,10 +325,11 @@ export function MountainScene({
       const nextCheckpoint = BEN_NEVIS.checkpoints.find((checkpoint) => checkpoint.metres > metres)
       if (nextCheckpoint && nextCheckpoint.metres < BEN_NEVIS.elevation) {
         const next = markerPosition(nextCheckpoint.metres)
-        drawSock(next.x * width, next.y * height, 48)
+        drawSock(next.x * width, next.y * height, composition?.wide ? 48 : 70)
       }
       if (showLabel)
         for (const [ghostIndex, ghost] of ghostImages.entries()) {
+          if (composition?.wide && ghostIndex > 0) continue
           const compact = height < 400,
             portraitRadius = compact ? 11 : 15,
             portraitOffset = compact ? 54 : 24
@@ -306,7 +356,7 @@ export function MountainScene({
           ctx.beginPath()
           ctx.arc(gx, gy, portraitRadius, 0, Math.PI * 2)
           ctx.stroke()
-          ctx.fillStyle = '#fffcece8'
+          ctx.fillStyle = '#fffffff5'
           ctx.beginPath()
           ctx.roundRect(gx - 19, gy + portraitRadius - 1, 38, 15, 4)
           ctx.fill()
@@ -335,8 +385,9 @@ export function MountainScene({
         ctx.save()
         if (basketArt?.body.complete && basketArt.body.naturalWidth && basketArt.limbs.complete && basketArt.limbs.naturalWidth) {
           // Same rigged artwork as active climb, static at the exact route position.
-          ctx.translate(px - 26, py - 52)
-          ctx.scale(52 / 320, 52 / 320)
+          const size = composition?.wide ? 42 + 46 * (1 - player.progress) : 52 + 98 * (1 - player.progress)
+          ctx.translate(px - size / 2, py - size * .94)
+          ctx.scale(size / 320, size / 320)
           const limb = (sx: number, sy: number, sw: number, sh: number, x: number, y: number, w: number, h: number) =>
             ctx.drawImage(basketArt.limbs, sx, sy, sw, sh, x, y, w, h)
           limb(793, 710, 347, 405, 190, 227, 65, 76)
@@ -357,9 +408,9 @@ export function MountainScene({
         }
         ctx.restore()
         const labelWidth = 58,
-          labelX = Math.max(5, Math.min(width - labelWidth - 5, basketArt ? (px < width / 2 ? px + 31 : px - labelWidth - 31) : px + 12)),
-          labelY = py - 52
-        ctx.fillStyle = '#fffde9'
+          labelX = Math.max(5, Math.min(width - labelWidth - 5, basketArt ? (px < width / 2 ? px + 32 + 38 * (1 - player.progress) : px - labelWidth - 32 - 38 * (1 - player.progress)) : px + 12)),
+          labelY = py - (composition?.wide ? 70 : 108 - 56 * player.progress)
+        ctx.fillStyle = '#ffffff'
         ctx.strokeStyle = '#087c5a'
         ctx.lineWidth = 2
         ctx.beginPath()
@@ -395,16 +446,18 @@ export function MountainScene({
         16 * Number(!!(stone.complete && stone.naturalWidth)) +
         32 * Number(!!(ground.complete && ground.naturalWidth)) +
         64 * Number(!!(paintedSlope.complete && paintedSlope.naturalWidth)) +
-        128 * Number(!!(routePaint?.complete && routePaint.naturalWidth))
+        128 * Number(!!(routePaint?.complete && routePaint.naturalWidth)) +
+        256 * Number(!!(routeWide?.complete && routeWide.naturalWidth))
       if (
         cache.width !== el.width ||
         cache.height !== el.height ||
         cache.textured !== textured ||
         cache.scenic !== scenic ||
+        cache.showLabel !== showLabel ||
         cache.finish !== finish ||
         cache.paint !== drawHighlands
       ) {
-        const key = `${width}:${height}:${ratio}:${textured}:${scenic}:${finish}`
+        const key = `${width}:${height}:${ratio}:${textured}:${scenic}:${finish}:${showLabel}`
         const shared = backdrops.get(key)
         const paintStarted = performance.now()
         if (shared?.paint === drawHighlands) {
@@ -422,9 +475,10 @@ export function MountainScene({
             backdrop,
             width,
             height,
-            { pine, rocks, clouds, meadow, stone, ground, paintedSlope, routePaint },
+            { pine, rocks, clouds, meadow, stone, ground, paintedSlope, routePaint, routeWide },
             scenic,
-            finish
+            finish,
+            showLabel && finish === 'natural'
           )
           backdrops.set(key, { canvas: terrain, paint: drawHighlands })
           while (backdrops.size > 4) backdrops.delete(backdrops.keys().next().value!)
@@ -436,6 +490,7 @@ export function MountainScene({
         cache.height = el.height
         cache.textured = textured
         cache.scenic = scenic
+        cache.showLabel = showLabel
         cache.finish = finish
         cache.paint = drawHighlands
       }
@@ -463,6 +518,8 @@ export function MountainScene({
       ground,
       paintedSlope,
       ...(routePaint ? [routePaint] : []),
+      ...(routeWide ? [routeWide] : []),
+      ...(foreground ? [foreground] : []),
       ...(basketArt ? [basketArt.body, basketArt.limbs] : []),
       ...ghostImages.map((g) => g.portrait)
     ])
@@ -482,6 +539,8 @@ export function MountainScene({
         ground,
         paintedSlope,
         ...(routePaint ? [routePaint] : []),
+        ...(routeWide ? [routeWide] : []),
+        ...(foreground ? [foreground] : []),
         ...(basketArt ? [basketArt.body, basketArt.limbs] : []),
         ...ghostImages.map((g) => g.portrait)
       ])

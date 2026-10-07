@@ -13,12 +13,13 @@ Current local entries: `/` is the landing page; `/?view=welcome` is onboarding;
 geographic-route toggle; `/?view=test` opens the original camera field test.
 Existing browser storage keys and failed reports are preserved.
 
-Current priority: finish the actual app's visual baseline against the original
-ten-screen mockup. Landing redesign is explicitly parked. Home uses more natural
-scenery and the earlier dimensional basket; active climb retains the approved
-outlined character. The revised full overview keeps the measured terrain and
-route, with clearer material detail and compact labelled markers. Review evidence:
-`docs/design/review/coherent-baseline/index.html`. Visual acceptance is pending.
+Current priority: refine the app against the approved coordinated board on
+`visual-refinement`; `main` at `bd064c0` remains the fallback. Landing redesign is
+parked. White surfaces, purpose-composed welcome/home art and the approved graphic
+basket carry the new direction. The interactive overview retains measured terrain,
+mapped route and saved progress, with separate portrait/landscape compositions.
+Review evidence: `docs/design/review/visual-refinement/index.html`. The reference
+remains the standard; integrated visual acceptance is pending.
 
 Use Node 22.12+ or 24, then `npm ci`, `npm run dev`. `npm run check` runs deterministic tests and a production build. Camera use on a phone requires HTTPS; a plain LAN HTTP URL is insufficient.
 
