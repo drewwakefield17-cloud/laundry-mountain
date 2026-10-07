@@ -81,11 +81,35 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Product and design requirements
 
-- The supplied ten-screen Laundry Mountain board is the visual target. Earlier
-  generated concepts and existing screenshots are not substitutes for that target.
+- The supplied ten-screen Laundry Mountain board controls the wider UI family.
+  The latest approved climb-view direction is
+  `docs/design/source-art/approved-basket-graphic-direction.png`: the exact walking
+  laundry basket with navy/teal contours, simpler matte colour planes and retained
+  rounded volume, little hiking boots, washing piled inside and an orange sock,
+  travelling through detailed, smooth painted mountain scenery. This selected
+  graphic finish supersedes the earlier glossy mascot rendering. Preserve the
+  approved walk and checkpoint hop in `docs/design/source-art/approved-basket-motion.mp4`.
+  Refine how the washing sits and moves inside the rim. Read
+  `docs/design/approved-direction.md` for the decision and scope.
+  Sock markers replace pennant flags. Signage is currently deprioritized.
+- Application implementation resumed explicitly on 7 October 2026: the owner asked
+  to get the whole app, landing page and testing done using the selected direction.
+  Integrate into the existing app, preserve unfinished work and verify the result.
+  Netlify deployment remains paused; physical camera validation is still outstanding.
 - Style: inviting illustrated realism, detailed scenery, cream/navy/forest palette,
   and rewarding, legible game progress. The owner's latest button preference is
   flat controls without embossing. Aim for a distinctive buildathon-quality product.
+- Audience: adults. The approved mascot can be cute and playful, while the wider
+  product should feel like a mature illustrated outdoor adventure. Use restrained
+  colour, clear typography and capable, encouraging copy. Avoid babyish language,
+  toy-like controls, excessive bouncing/confetti or making every element a character.
+- Branding follow-up: retain the Laundry Mountain icon. The owner wants a more
+  adult wordmark/font treatment, explicitly deferred until later. Do not turn a
+  current implementation/test pass into another logo redesign.
+- Latest visual feedback: the owner likes the implemented basket climb view.
+  Preserve it. The landing page and full-mountain view still need substantial
+  improvement and are not approved; other screens are also subject to review
+  after the first pass. Re-anchor that review to the original ten-screen board.
 - Mountains: Ben Nevis first, then Fuji, Matterhorn, Kilimanjaro, Denali and Everest.
   Preserve geographic identity, relative proportions and characteristic surroundings.
   Do not rename generic mountains or replace interactive scenery with a full-scene PNG.
@@ -128,6 +152,8 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 - `npm run dev` serves the app; game home is `http://localhost:5173/?view=home`.
 - `npm run check` runs Vitest, TypeScript and production build.
 - `npm run test:e2e` runs Playwright; use affected test files when appropriate.
+- Keep source stable while camera browser fixtures run: hot reload can interrupt
+  a camera cycle. A fixture rerun is software evidence, never physical validation.
 - Preserve `scripts/tool.mjs`: its Windows junction handles the `#` in this workspace
   path without copying the repository. Use existing scripts instead of bypassing it.
 - Document-only changes require inspection/diff checks, not an unnecessary app redesign

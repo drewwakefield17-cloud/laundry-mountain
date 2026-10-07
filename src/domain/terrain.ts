@@ -122,10 +122,10 @@ export function scenePoint(
     }
   }
   // Centre one undistorted coordinate system; scenery extends past its edges.
-  const scale = Math.min(width, height * 1.32)
+  const scale = Math.max(width, height * 0.95)
   return {
     x: width * 0.5 + (point.x - 0.5) * scale,
-    y: height * 0.58 - Math.max(0, height - width) * 0.18 + (point.y - 0.5) * scale
+    y: height * 0.38 - Math.max(0, height - width) * 0.08 + (point.y - 0.5) * scale
   }
 }
 // Torlundy viewpoint grounded in Geograph photo 5029113's recorded location.

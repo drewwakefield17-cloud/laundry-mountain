@@ -1,3 +1,57 @@
+# Reference fidelity review — basket integration, 7 October 2026
+
+Current result: implemented and browser-verified; integrated visual acceptance and
+physical camera acceptance remain separate. Do not treat earlier blocked passes
+or a passing test suite as owner approval of the new art integration.
+
+**Owner review during this pass:** the basket climb view is good. Preserve that
+direction. The landing page and full-mountain view need substantial improvement;
+the wider screens are drifting from the original mockups. Those visual surfaces
+remain **not passed**, with a further review expected after the first pass.
+
+## Current evidence
+
+Selected target: `docs/design/source-art/approved-basket-graphic-direction.png`.
+This refines the mascot/scenery direction; the original ten-screen board controls
+the wider UI. `docs/design/review/basket-integration/comparison.html` places that
+reference beside actual 390 × 844 phone captures. The reference is artwork without
+UI; comparison keeps its aspect ratio and explicitly shows the game controls.
+Desktop landing was inspected at 1440 × 900, phone at 390 × 844, and session/view
+controls in landscape at 844 × 390 and 667 × 375. Tests also check 320 px overflow.
+
+| Surface | Verified | Remaining difference / boundary |
+| --- | --- | --- |
+| Typography | Clear navy headings, restrained hierarchy, readable labels; flat CTAs | Owner requested a more adult wordmark later. Icon stays. |
+| Layout | Landing → onboarding → home → setup works; scene, front camera and controls fit live portrait/landscape | Camera preview intentionally changes the mock board's live layout. |
+| Colour | Cream, deep green, navy and restrained sock-orange throughout | Real terrain materials vary from the reference painting. |
+| Artwork | Selected basket identity rigged with coherent washing; photographic-style gloss avoided; circular session crop corrected | Foreground has a faint tan edge halo. Real Ben Nevis geometry and mapped woodland differ from the free illustration; final visual sign-off is pending. |
+| Content | Adult audience recorded; local storage/privacy limitations, zero counters, demo community and future expeditions are explicit | No fabricated environmental savings, accuracy or real community users. |
+
+Actual live/results screenshots use one isolated **synthetic** camera event (10 m),
+not physical laundry evidence. The shared browser remains at zero. Inspection found
+and fixed a checkpoint HUD covering the basket, too much sky, a square layer leaking
+out of the live circle, a visible accessibility-only label and low-contrast camera
+placement instructions. Mascot source assets were inspected in detail for outline,
+washing containment and limb attachment; live/results captures were inspected at
+their actual phone size. The scope is one integrated direction, not another style
+exploration loop.
+
+29 unit tests, TypeScript/build and 18 browser checks passed. Seven affected checks
+passed again after final circular-crop/contrast corrections. A hot reload interrupted
+one camera fixture during the first full run; a stable-source full rerun passed.
+Physical 18/20 folding accuracy, zero duplicates, two-minute negative control and
+real-device performance are still unverified. No Netlify deployment occurred.
+
+Final follow-up: the generated matte sock marker replaced the temporary marker.
+It retains a faint low-alpha halo and a larger stone foot than the master; inspect
+it at its actual small in-game size, not as an exact standalone reproduction.
+Near-to-far depth-buffer drawing cut one desktop first paint from 3,762 to 2,044 ms
+without changing source geography. The 29 unit/build checks and seven affected
+browser checks passed again after these changes. A local production-bundle smoke
+test on port 4173 verified landing → home → climb and no new console errors.
+
+## Earlier review (historical, superseded by the selected basket direction)
+
 # Reference fidelity review — bounded correction pass
 
 final result: blocked

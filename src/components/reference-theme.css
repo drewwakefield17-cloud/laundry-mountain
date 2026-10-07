@@ -49,7 +49,7 @@
   padding-right: 12px;
 }
 .game-main::after {
-  background-image: url('/art/reference-forest-border.webp');
+  background-image: url('/art/approved-forest-border.webp');
   height: 170px;
   opacity: 0.75;
   background-size: 100% auto;
@@ -455,7 +455,7 @@
   font-size: 22px;
 }
 .community-motto {
-  background: #e9f5e7 url('/art/reference-forest-border.webp') right bottom/100% auto no-repeat;
+  background: #e9f5e7 url('/art/approved-forest-border.webp') right bottom/100% auto no-repeat;
   border: 0;
   padding: 12px 8px;
   margin-top: 16px;
@@ -795,7 +795,7 @@
   font-size: 14px;
 }
 .phone-position {
-  background: #eff7e8 url('/art/reference-forest-border.webp') center bottom/100% auto no-repeat;
+  background: #eff7e8 url('/art/approved-forest-border.webp') center bottom/100% auto no-repeat;
 }
 .phone-position p {
   font:
@@ -818,8 +818,8 @@
   inset: 0 -12px;
   z-index: -1;
   background:
-    url('/art/individual-highland-pine.webp') left 35% / 110px auto no-repeat,
-    url('/art/individual-highland-pine.webp') right 40% / 125px auto no-repeat;
+    url('/art/approved-highland-pine.webp') left 35% / 110px auto no-repeat,
+    url('/art/approved-highland-pine.webp') right 40% / 125px auto no-repeat;
   opacity: 0.72;
   pointer-events: none;
 }

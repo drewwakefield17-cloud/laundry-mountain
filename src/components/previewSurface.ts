@@ -68,8 +68,8 @@ export function paintPreview(
   }
 ) {
   const sky = ctx.createLinearGradient(0, 0, 0, h)
-  sky.addColorStop(0, '#80cbd8')
-  sky.addColorStop(1, '#edf6df')
+  sky.addColorStop(0, '#8ccdf3')
+  sky.addColorStop(1, '#e5f1df')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
   const sun = ctx.createLinearGradient(0, 0, 0, h * 0.3)
@@ -81,8 +81,9 @@ export function paintPreview(
   ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
-    ctx.globalAlpha = 0.48
-    ctx.drawImage(assets.clouds, -w * 0.1, -h * 0.18, w * 1.2, h * 0.65)
+    ctx.globalAlpha = 0.85
+    const cloudHeight = w * 1.2 * assets.clouds.naturalHeight / assets.clouds.naturalWidth
+    ctx.drawImage(assets.clouds, -w * 0.1, -cloudHeight * 0.35, w * 1.2, cloudHeight)
     ctx.restore()
   }
   const stone = texture(assets.stone),

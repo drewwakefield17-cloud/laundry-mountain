@@ -149,9 +149,9 @@ export function drawHighlands(
     ? (x: number, z: number) => landscapeCamera.depth(x, z, 0) - 5
     : mapDepth
   const sky = ctx.createLinearGradient(0, 0, 0, h)
-  sky.addColorStop(0, '#80cbd8')
-  sky.addColorStop(0.55, '#e5f3df')
-  sky.addColorStop(1, '#e3e9bf')
+  sky.addColorStop(0, '#8ccdf3')
+  sky.addColorStop(0.55, '#d8ebef')
+  sky.addColorStop(1, '#edf0cf')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
   // Warm illustrated daylight is an atmospheric layer, not altered terrain.
@@ -172,8 +172,9 @@ export function drawHighlands(
   ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
-    ctx.globalAlpha = 0.72
-    ctx.drawImage(assets.clouds, -w * 0.15, -w * 0.12, w * 1.1, w * 0.6)
+    ctx.globalAlpha = 0.9
+    const cloudHeight = w * 1.1 * assets.clouds.naturalHeight / assets.clouds.naturalWidth
+    ctx.drawImage(assets.clouds, -w * 0.15, -cloudHeight * 0.25, w * 1.1, cloudHeight)
     ctx.restore()
   }
   const cover = landCover(),
@@ -252,8 +253,9 @@ export function drawHighlands(
       }
     grids.push(grid)
   }
-  // Sort faces by camera depth so foreground slopes cover the distant terrain.
-  cells.sort((a, b) => b.depth - a.depth)
+  // The depth buffer resolves visibility. Draw near faces first so occluded
+  // pixels skip the expensive material shader instead of being repainted.
+  cells.sort((a, b) => a.depth - b.depth)
   // Rasterise surface materials in world space. A single colour per 50 m face
   // discarded the painted detail and made mapped woodland edges look triangular.
   // This is a cached Canvas 2D material pass, not new terrain or a scene image.
@@ -494,7 +496,7 @@ export function drawHighlands(
   }
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  for (let mark = 0; mark < 6500; mark++) {
+  for (let mark = 0; mark < 2200; mark++) {
     let x = lerp(-2, 4, cragRandom()),
       z = lerp(-3, 3, cragRandom())
     if (heightAt(x, z) < 0.65) continue

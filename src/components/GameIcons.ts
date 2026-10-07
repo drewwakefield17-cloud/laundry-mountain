@@ -3,6 +3,7 @@ import { ArrowRightIcon as ArrowRight } from '@phosphor-icons/react/dist/csr/Arr
 import { CheckIcon as Check } from '@phosphor-icons/react/dist/csr/Check'
 import { FireIcon as Flame } from '@phosphor-icons/react/dist/csr/Fire'
 import { FlagPennantIcon as Flag } from '@phosphor-icons/react/dist/csr/FlagPennant'
+import { SockIcon as Sock } from '@phosphor-icons/react/dist/csr/Sock'
 import { HouseIcon as Home } from '@phosphor-icons/react/dist/csr/House'
 import { LeafIcon as Leaf } from '@phosphor-icons/react/dist/csr/Leaf'
 import { MountainsIcon as Mountain } from '@phosphor-icons/react/dist/csr/Mountains'
@@ -32,6 +33,7 @@ export {
   Check,
   Flame,
   Flag,
+  Sock,
   Home,
   Leaf,
   Mountain,

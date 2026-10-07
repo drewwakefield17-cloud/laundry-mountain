@@ -14,6 +14,7 @@ let assets:
       meadow: HTMLImageElement
       stone: HTMLImageElement
       marker: HTMLImageElement
+      sock: HTMLImageElement
       ground: HTMLImageElement
       paintedSlope: HTMLImageElement
     }
@@ -27,15 +28,17 @@ export function sceneAssets() {
       meadow: new Image(),
       stone: new Image(),
       marker: new Image(),
+      sock: new Image(),
       ground: new Image(),
       paintedSlope: new Image()
     }
-    assets.pine.src = '/art/individual-highland-pine.webp'
+    assets.pine.src = '/art/approved-highland-pine.webp'
     assets.meadow.src = '/textures/illustrated-meadow.webp'
     assets.stone.src = '/textures/highland-crag-material.webp'
-    assets.rocks.src = '/art/highland-boulders.webp'
-    assets.clouds.src = '/art/highland-clouds.webp'
+    assets.rocks.src = '/art/approved-boulders.webp'
+    assets.clouds.src = '/art/approved-clouds.webp'
     assets.marker.src = '/brand/laundry-mountain-emblem.webp'
+    assets.sock.src = '/art/sock-marker-teal.webp'
     assets.ground.src = '/textures/ben-nevis-ground-atlas.webp'
     assets.paintedSlope.src = '/textures/ben-nevis-view-material.webp'
   }
@@ -92,7 +95,7 @@ export function MountainScene({
         paint: drawHighlands
       })
     let terrain = cache.canvas
-    const { pine, rocks, clouds, meadow, stone, marker, ground, paintedSlope } = sceneAssets()
+    const { pine, rocks, clouds, meadow, stone, marker, sock, ground, paintedSlope } = sceneAssets()
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
       if (!portrait) {
@@ -126,6 +129,12 @@ export function MountainScene({
       const player = viewportPosition(shown.current),
         focus = viewportPosition(focusMetres ?? shown.current)
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
+      const drawSock = (x: number, y: number, size = 72) => {
+        if (!sock.complete || !sock.naturalWidth) return
+        // The illustrated sprite is independent of the geographic mesh and
+        // anchored by its platform, so zoom never inflates progress markers.
+        ctx.drawImage(sock, x - size / 3, y - size + 3, size * 2 / 3, size)
+      }
       ctx.clearRect(0, 0, width, height)
       ctx.save()
       if (close && !scenic) {
@@ -243,24 +252,9 @@ export function MountainScene({
           const p = markerPosition(ghost.metres),
             gx = Math.max(28, Math.min(width - 28, p.x * width + (ghostIndex % 2 ? -24 : 24))),
             gy = p.y * height - 24
-          // These flags and portraits are game markers, independently sized
+          // These socks and portraits are game markers, independently sized
           // from terrain so the trail stays readable in both views.
-          ctx.strokeStyle = '#fff9df'
-          ctx.lineWidth = 2
-          ctx.beginPath()
-          ctx.moveTo(gx - 21, gy + 18)
-          ctx.lineTo(gx - 21, gy - 35)
-          ctx.stroke()
-          const pennant = ctx.createLinearGradient(gx - 21, 0, gx + 5, 0)
-          pennant.addColorStop(0, ghostIndex === 0 ? '#ffbf47' : '#18bb89')
-          pennant.addColorStop(1, ghostIndex === 0 ? '#f28b2e' : '#08785c')
-          ctx.fillStyle = pennant
-          ctx.beginPath()
-          ctx.moveTo(gx - 20, gy - 35)
-          ctx.quadraticCurveTo(gx - 7, gy - 39, gx + 5, gy - 32)
-          ctx.lineTo(gx - 20, gy - 19)
-          ctx.closePath()
-          ctx.fill()
+          drawSock(gx - 26, gy + 18, 78)
           ctx.strokeStyle = '#fff9df'
           ctx.lineWidth = 3
           ctx.beginPath()
@@ -291,26 +285,7 @@ export function MountainScene({
       const summit = markerPosition(BEN_NEVIS.elevation),
         sx = summit.x * width,
         sy = summit.y * height
-      ctx.fillStyle = '#d6d6bd'
-      ctx.beginPath()
-      ctx.moveTo(sx - 5, sy + 2)
-      ctx.lineTo(sx, sy - 7)
-      ctx.lineTo(sx + 5, sy + 2)
-      ctx.closePath()
-      ctx.fill()
-      ctx.strokeStyle = '#435b50'
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      ctx.moveTo(sx, sy - 5)
-      ctx.lineTo(sx, sy - 24)
-      ctx.stroke()
-      ctx.fillStyle = '#f5bf4f'
-      ctx.beginPath()
-      ctx.moveTo(sx, sy - 24)
-      ctx.lineTo(sx + 13, sy - 20)
-      ctx.lineTo(sx, sy - 16)
-      ctx.closePath()
-      ctx.fill()
+      drawSock(sx, sy, 56)
       if (focusMetres !== undefined) {
         const markerFocus = markerPosition(focusMetres)
         ctx.strokeStyle = '#f5bf4f'
@@ -322,23 +297,7 @@ export function MountainScene({
       const markerPlayer = markerPosition(shown.current)
       const px = markerPlayer.x * width,
         py = markerPlayer.y * height
-      ctx.fillStyle = '#12352d'
-      ctx.beginPath()
-      ctx.ellipse(px, py + 2, 7, 3, 0, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.strokeStyle = '#fff8e2'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(px, py)
-      ctx.lineTo(px, py - 26)
-      ctx.stroke()
-      ctx.fillStyle = '#f48a32'
-      ctx.beginPath()
-      ctx.moveTo(px + 1, py - 26)
-      ctx.quadraticCurveTo(px + 11, py - 28, px + 19, py - 21)
-      ctx.lineTo(px + 1, py - 15)
-      ctx.closePath()
-      ctx.fill()
+      drawSock(px, py)
       if (showLabel) {
         // The owner's emblem represents their trail position without inventing
         // a photo. The badge is UI; it does not alter world dimensions.
@@ -452,6 +411,7 @@ export function MountainScene({
       meadow,
       stone,
       marker,
+      sock,
       ground,
       paintedSlope,
       ...ghostImages.map((g) => g.portrait)
@@ -468,6 +428,7 @@ export function MountainScene({
         meadow,
         stone,
         marker,
+        sock,
         ground,
         paintedSlope,
         ...ghostImages.map((g) => g.portrait)

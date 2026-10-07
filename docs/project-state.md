@@ -1,11 +1,82 @@
-# Project handoff — 6 October 2026
+# Project handoff — 7 October 2026
 
-## Current active visual work
+## Latest implemented milestone: basket game and landing page
 
-The owner has reviewed the latest terrain paintings and says they are better but
-still outside the mockup's design family. **Visual acceptance remains blocked.**
-Do not call the screen set finished or mistake the generated material guides for
-implemented app screenshots. Continue within the existing app.
+**Latest owner feedback:** the implemented climb view is good and should be
+preserved. The landing page and full-mountain view need substantial improvement;
+the wider UI is drifting from the original mockups. Finish this integration/testing
+pass, then expect a focused review of those surfaces against the original board.
+Do not call the landing or full-mountain visual design finished or approved.
+
+- `/` now serves the responsive landing page. Onboarding and the game remain at
+  `/?view=welcome` and `/?view=home`; the original field test is `/?view=test`.
+- `BasketAvatar` rigs the selected matte outlined character from separate body,
+  arms and boots. The washing stays attached to the torso. `ClimbScene` layers a
+  transparent foreground trail, progress-driven companion and sock checkpoint over
+  the actual Ben Nevis elevation renderer. Full mountain retains geographic route
+  exploration. The presentation trail is illustrative, not surveyed.
+- Accepted ledger metres drive movement and new-checkpoint hops. Reload restores
+  position without replaying celebrations. Reduced motion is respected. No demo
+  events were written to the shared browser; it remains at zero.
+- Onboarding, home, live session, results and profile use the same companion/style.
+  Setup, mountains, badges and demo community preserve their working controls.
+  Buttons stay flat, the front camera stays visible during sessions, and old reports
+  and persistence keys are retained.
+- Audience is explicitly adults. Keep the mascot playful while typography, copy,
+  landscape and rewards feel restrained and mature. A more adult logo wordmark is
+  requested **later**; preserve the approved icon and defer that typography task.
+- Verification: 29 unit tests + TypeScript/production build; all 18 browser tests
+  on stable sources; seven affected game/landing checks repeated after final live
+  circular crop and instruction contrast fixes. The first full run had one camera
+  interruption during hot reload; the stable full rerun passed. Screenshots and
+  reference comparison are in `docs/design/review/basket-integration/`.
+- Still outstanding: actual Pixel 9 Pro/Edge folding acceptance (last physical test
+  counted zero), device performance and a secure phone testing URL. Cloud accounts,
+  syncing and live competition are not connected; five future mountains stay previews.
+  Netlify remains paused. Git history must only gain new commits.
+- Known limits: generated trail has a faint edge halo; terrain detail differs from
+  the selected painting because the backdrop retains real geometry. Initial JS is
+  about 436 kB gzip, and source art still has a mobile payload cost. Real hardware
+  performance and final integrated visual approval are not claimed.
+- A near-to-far depth-buffer pass now skips hidden material work. One desktop
+  844 × 326 first-paint measurement improved from 3,762 ms to 2,044 ms; this is a
+  local observation, not a phone benchmark. All seven affected browser tests and
+  the 29 unit tests/build passed after this final change. The production bundle
+  was also opened locally on port 4173: landing → home → climb rendered correctly
+  with no new console errors. No remote deploy was used.
+
+The records below describe the preceding art exploration and retained architecture.
+
+## Current decision and implementation
+
+The owner selected the graphic outlined mascot treatment by attaching the exact
+preferred image and saying "lets go with this one". The latest master reference is
+`docs/design/source-art/approved-basket-graphic-direction.png`. It supersedes the
+glossier finish in the earlier `approved-basket-climb-concept.png`. See
+`docs/design/approved-direction.md`. The character has small hiking boots, washing
+piled inside and an orange sock. Climb view should follow its journey to sock
+checkpoints through smooth illustrated scenery based on our actual mountains.
+Keep its rounded depth, clean navy/teal contours and simpler matte shading.
+
+The owner also approved the standalone eight-second Remotion movement study on
+7 October, with the washing in the basket still needing refinement. The preserved
+reference is `docs/design/source-art/approved-basket-motion.mp4`. Keep the walk,
+body sway and checkpoint hop; improve how the washing sits and moves inside the
+rim. This concept was produced outside the app; integration is now authorized.
+
+**Implementation resumed on 7 October 2026.** After selecting the graphic mascot,
+the owner asked to get the whole app, landing page and testing done. Preserve the
+existing repository and unfinished source/material changes while integrating.
+Netlify deployment remains paused. Physical camera validation remains outstanding.
+
+The three recent style studies and the final basket concept were image studies,
+not game screenshots. Snailwalk inspired physical activity moving a visible avatar;
+its pixel-art style and survival/chase mechanics were not selected.
+
+## Previous implementation evidence
+
+The following describes earlier passes. Their test results do not establish that
+the unfinished working tree or new mascot design is verified.
 
 The latest implementation adds a sourced 25 m Ben Nevis cliff patch,
 individual woodland sprites, world-registered painted slope materials, independent
@@ -39,7 +110,7 @@ These are improvements, not owner approval. Sign lettering, terrain colour/detai
 balance and the richness of the surrounding scene remain visual review items.
 See `docs/design/illustrated-scene-pass.md` and the current combined comparisons.
 
-## Current task boundary
+## Earlier design-workflow milestone
 
 The repository/capability audit is complete in commit `63cc029`. The owner has now
 asked the agent to handle Figma and lead the design process. A connected, editable

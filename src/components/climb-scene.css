@@ -1,0 +1,22 @@
+.climb-scene{position:relative;width:100%;height:100%;min-height:0;overflow:hidden;background:#80bfe3;isolation:isolate}
+.climb-scene .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.climb-scene>.mountain-canvas{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0}
+.climb-trail{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:1}
+.climb-companion{position:absolute;left:var(--trail-x);top:var(--trail-y);width:36%;z-index:3;transform:translate(-50%,-100%) scale(var(--trail-scale));transform-origin:50% 100%;transition:left 1.8s ease,top 1.8s ease,transform 1.8s ease;pointer-events:none}
+.climb-sock{position:absolute;left:73%;top:36%;width:20%;height:22%;z-index:2;pointer-events:none}
+.climb-sock img{display:block;width:100%;height:100%;object-fit:contain}
+.climb-waypoint{position:absolute;left:18px;top:125px;z-index:4;max-width:75%;padding:10px 14px;background:#fffcf0f0;border:1px solid #d6dfc9;border-radius:15px;color:#102e3c;box-shadow:none;pointer-events:none}
+.climb-waypoint>span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#517064}
+.climb-waypoint>strong{display:block;font-size:21px;line-height:1.25;margin:3px 0}
+.climb-waypoint>p{font-size:12px;margin:0;color:#3f645e}
+.climb-scene--card .climb-companion{width:34%;left:53%;top:93%}
+.climb-scene--card .climb-sock{height:32%;width:19%;top:40%;left:74%}
+.climb-scene--card .climb-trail{top:8%;height:120%}
+.climb-scene--dial .climb-companion{width:52%;left:48%;top:89%}
+.climb-scene--dial .climb-sock{left:69%;top:32%;height:33%;width:23%}
+.climb-scene--dial .climb-trail{top:5%;height:125%}
+.climb-scene--welcome .climb-companion{width:40%;top:78%;left:40%}
+.climb-scene--landing .climb-companion{width:43%;left:37%;top:87%}
+.climb-scene--landing .climb-sock{top:37%;height:24%}
+@media(orientation:landscape) and (max-height:600px){.climb-waypoint{top:70px;padding:8px 12px}.climb-waypoint>strong{font-size:17px}.climb-scene--climb .climb-companion{width:19%;top:89%}.climb-scene--climb .climb-sock{width:10%;height:25%}}
+@media(prefers-reduced-motion:reduce){.climb-companion{transition:none}}

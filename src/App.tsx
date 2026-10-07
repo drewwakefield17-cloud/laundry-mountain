@@ -15,7 +15,7 @@ export default function App() {
   const [view, setView] = useState(() => new URLSearchParams(location.search).get('view') === 'expedition' ? 'expedition' : 'field')
   useEffect(() => { const navigate = () => setView(new URLSearchParams(location.search).get('view') === 'expedition' ? 'expedition' : 'field'); window.addEventListener('popstate', navigate); return () => window.removeEventListener('popstate', navigate) }, [])
   useEffect(() => { document.title = view === 'expedition' ? 'Laundry Mountain · Your expedition' : 'Laundry Mountain · Folding field test' }, [view])
-  function navigate(next: 'expedition' | 'field') { history.pushState(null, '', next === 'expedition' ? '/?view=expedition' : '/'); setView(next); scrollTo(0, 0) }
+  function navigate(next: 'expedition' | 'field') { history.pushState(null, '', next === 'expedition' ? '/?view=expedition' : '/?view=test'); setView(next); scrollTo(0, 0) }
   const [storageError, setStorageError] = useState('')
   const [ledger, setLedger] = useState(() => { try { return parseLedger(localStorage.getItem(STORAGE_KEY)) } catch { return emptyLedger() } })
   const ledgerRef = useRef(ledger), storageBlocked = useRef(false)

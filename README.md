@@ -8,6 +8,11 @@ Folding camera/calibration spike first. Ben Nevis (1,345 m) is the first gamepla
 
 ## Development
 
+Current local entries: `/` is the landing page; `/?view=welcome` is onboarding;
+`/?view=home` opens the game; `/?view=mountain` opens the basket climb with a full
+geographic-route toggle; `/?view=test` opens the original camera field test.
+Existing browser storage keys and failed reports are preserved.
+
 Use Node 22.12+ or 24, then `npm ci`, `npm run dev`. `npm run check` runs deterministic tests and a production build. Camera use on a phone requires HTTPS; a plain LAN HTTP URL is insufficient.
 
 `npm run test:e2e` exercises responsive layouts, denied camera permissions and a test-only synthetic pixel stream through the actual camera pipeline. Synthetic tests are software checks, not evidence of physical accuracy. Install the Playwright Chromium browser with `npx playwright install chromium` if needed.
@@ -19,6 +24,20 @@ The Windows launcher uses a temporary junction to this exact checkout when its p
 Existing field-test URL (older deployed spike, not the current local game screens): https://laundry-mountain-folding.netlify.app
 
 Current screen work is local at http://localhost:5173/?view=home. Do not deploy updates until the owner requests it.
+
+The approved basket is integrated as separately rigged illustrated assets. Accepted
+Laundry Metres drive its finite walk and checkpoint hop. Reduced-motion preferences
+disable those animations; revisiting a saved position does not replay rewards.
+The climb foreground is an illustrative trail layered over the real-elevation Ben
+Nevis renderer. Full mountain retains the mapped route. The landing page shares this
+scene and links into onboarding, mountain previews and the original diagnostic flow.
+
+Latest software verification: 29 Vitest checks and the production build passed;
+18 Playwright checks passed with stable sources, followed by seven affected checks
+after final crop/readability corrections. These include a synthetic camera event
+moving the basket, session persistence, refresh, permissions, responsive layouts,
+honest empty results, local profiles and labelled demo community. They do **not**
+establish physical folding accuracy. The earlier real-phone test counted zero.
 
 The temporary on-screen field-test guide walks through camera permission, framing, calibration, per-cycle folding instructions, report saving, a timed two-minute negative control, and a saved-position reload check. Instructions stay beside the camera and can be hidden/restored. Interrupted controls are marked incomplete; neither guides nor manual guide buttons award metres.
 

@@ -5,7 +5,7 @@ import {
   ArrowRight,
   Check,
   Flame,
-  Flag,
+  Sock,
   Home,
   Leaf,
   Mountain,
@@ -32,6 +32,8 @@ import {
 import { CameraLab } from './CameraLab'
 import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
+import { ClimbScene } from './ClimbScene'
+import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
 import { BEN_NEVIS, GAME } from '../domain/config'
 import { expeditionProgress } from '../domain/expedition'
@@ -39,6 +41,7 @@ import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from '../
 import type { LaundryEvent } from '../domain/events'
 import './game.css'
 import './reference-theme.css'
+import './adventure-theme.css'
 
 type Screen =
   | 'home'
@@ -141,7 +144,7 @@ export function GameApp() {
     [paused, setPaused] = useState(false)
   const [observation, setObservation] = useState<Observation | null>(null),
     [clock, setClock] = useState(Date.now()),
-    [close, setClose] = useState(false)
+    [close, setClose] = useState(true)
   const [burst, setBurst] = useState('')
   const [profileName, setProfileName] = useState(() => {
     try {
@@ -346,7 +349,7 @@ export function GameApp() {
       name: 'Glen Explorer',
       detail: 'Reach the 250 m checkpoint',
       earned: stats.lifetimeMetres >= 250,
-      Icon: Flag,
+      Icon: Sock,
       color: 'green'
     },
     {
@@ -431,13 +434,14 @@ export function GameApp() {
           } as CSSProperties
         }
       >
-        <MountainScene
+        {mode === 'map' && !close ? <MountainScene
           metres={stats.mountainMetres}
-          close={mode === 'map' ? close : false}
-          showLabel={mode === 'map'}
-          scenic={mode !== 'map'}
-          ghosts={mode === 'map' ? demoProfiles.slice(0, 3) : undefined}
-        />
+          close={false}
+          showLabel
+          ghosts={demoProfiles.slice(0, 3)}
+        /> : <ClimbScene metres={stats.mountainMetres}
+          variant={mode === 'map' ? 'climb' : mode === 'mini' ? 'card' : mode}
+          showProgress={mode === 'map'} />}
         {(mode === 'card' || mode === 'mini') && (
           <div className="scenic-title">
             <span>Current Mountain</span>
@@ -464,9 +468,6 @@ export function GameApp() {
               <strong>{format(stats.percent)}%</strong>
             </div>
           </div>
-        )}
-        {mode === 'dial' && (
-          <img className="dial-emblem" src="/brand/laundry-mountain-emblem.webp" alt="" aria-hidden="true" />
         )}
         {mode === 'dial' && (
           <div className="dial-time">
@@ -630,7 +631,7 @@ export function GameApp() {
               Start a Laundry Session
             </button>
             <button className="next-trail" onClick={() => navigate('mountain')}>
-              <Flag weight="duotone" />
+              <Sock weight="duotone" />
               <span>
                 <small>NEXT ON YOUR TRAIL</small>
                 <strong>{progress.next?.name ?? 'Summit reached'}</strong>
@@ -824,7 +825,7 @@ export function GameApp() {
                   ))}
                 </div>
               )}
-              <img src="/brand/laundry-mountain-emblem.webp" alt="Laundry Mountain emblem" />
+              <BasketAvatar />
               <h1>{current.items ? 'Session Complete!' : 'Session Finished'}</h1>
               <p>{current.items ? 'Another load higher!' : 'A fresh start is always waiting.'}</p>
             </div>
@@ -898,7 +899,7 @@ export function GameApp() {
                 <p>Saved on this phone.</p>
               </div>
             </details>
-            <a className="diagnostics-link" href="/">
+            <a className="diagnostics-link" href="/?view=test">
               Open test diagnostics
             </a>
           </>
@@ -907,9 +908,6 @@ export function GameApp() {
           <>
             <div className="map-scene">
               {scenic('map')}
-              <div className="map-tagline">
-                <img src="/art/trail-sign-illustrated.webp" alt="Cleaner clothes. Brighter days. Higher you." />
-              </div>
               <div className="view-control">
                 <button aria-pressed={!close} onClick={() => setClose(false)}>
                   Full mountain
@@ -935,7 +933,7 @@ export function GameApp() {
               <ol className="game-checkpoints">
                 {BEN_NEVIS.checkpoints.map((c) => (
                   <li key={c.metres} className={stats.mountainMetres >= c.metres ? 'reached' : ''}>
-                    <span>{stats.mountainMetres >= c.metres ? <Check /> : <Flag />}</span>
+                    <span>{stats.mountainMetres >= c.metres ? <Check /> : <Sock />}</span>
                     <div>
                       <strong>{c.name}</strong>
                       <p>{c.description}</p>
@@ -1191,7 +1189,7 @@ export function GameApp() {
           <>
             <div className="profile-hero">
               <span className="profile-avatar">
-                <User weight="duotone" />
+                <BasketAvatar />
               </span>
               <h1>{profileName}</h1>
               <p>Your little habits. Your higher ground.</p>
@@ -1248,7 +1246,7 @@ export function GameApp() {
         {!['live', 'welcome', 'mountain'].includes(screen) && (
           <p className="validation-note">
             <span />
-            Camera validation pending · <a href="/">Folding test</a>
+            Camera validation pending · <a href="/?view=test">Folding test</a>
           </p>
         )}
       </main>

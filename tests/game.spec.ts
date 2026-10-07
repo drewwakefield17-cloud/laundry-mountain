@@ -5,7 +5,10 @@ import path from 'node:path'
 test('the game route keeps navigation and view controls accessible when the phone rotates', async ({
   page
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/?view=mountain')
+  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready', 'true')
+  await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-basket-climb.png'), fullPage: true })
   for (const viewport of [
     { width: 390, height: 786 },
     { width: 844, height: 390 },
@@ -159,6 +162,8 @@ for (const countItem of [false, true])
       await expect(page.locator('.game-climb-column .game-stat-row')).toContainText('+10 m', {
         timeout: 10_000
       })
+      await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres', '10')
+      await expect(page.locator('.climb-scene')).toHaveAttribute('data-motion', 'walking')
     }
     await page.screenshot({
       path: path.join(
@@ -201,6 +206,11 @@ for (const countItem of [false, true])
     await expect(page.locator('.session-history')).toContainText(countItem ? '+10 m' : '+0 m')
     await page.getByRole('button', { name: 'Home', exact: true }).click()
     await expect(page.locator('.game-stat-row')).toContainText(countItem ? '10 m' : '0 m')
+    await page.getByRole('button', { name: 'Explore Ben Nevis', exact: true }).click()
+    await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres', countItem ? '10' : '0')
+    await page.reload()
+    await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres', countItem ? '10' : '0')
+    await expect(page.locator('.climb-scene')).toHaveAttribute('data-motion', 'idle')
   })
 
 test('profile, demo community, badge criteria and locked expeditions are honest and keyboard usable', async ({

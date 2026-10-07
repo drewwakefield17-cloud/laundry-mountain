@@ -52,7 +52,7 @@ test('leaving camera setup stops the lens and requires fresh calibration on retu
       const stream=canvas.captureStream(30);Object.defineProperty(window,'testLens',{value:stream.getVideoTracks()[0],configurable:true});return stream
     }})
   })
-  await page.goto('/');await page.getByRole('button',{name:'Enable camera'}).click()
+  await page.goto('/?view=test');await page.getByRole('button',{name:'Enable camera'}).click()
   await page.getByRole('button',{name:'Calibrate empty work area'}).click()
   await expect(page.getByRole('button',{name:'Start folding test'})).toBeEnabled()
   await page.getByRole('button',{name:'Your expedition'}).click()
