@@ -1,5 +1,11 @@
 # Approved climb-view direction — 7 October 2026
 
+**Later home-screen amendment:** the owner explicitly wants the earlier dimensional
+basket and more realistic mountain scenery on home. This exception does not change
+the approved outlined character or movement in active climb. The original board
+at `source-art/original-ui-board.png` continues to govern the surrounding UI.
+The current split landing hero was explicitly rejected; its composition needs rework.
+
 The owner selected the attached outlined mascot study with: "lets go with this one".
 This is the latest visual target. The earlier basket identity and movement approvals
 still apply; the new image refines the rendering treatment, not the character design.

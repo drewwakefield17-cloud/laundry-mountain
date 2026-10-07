@@ -33,6 +33,7 @@ import { CameraLab } from './CameraLab'
 import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
 import { ClimbScene } from './ClimbScene'
+import { ScenicOverview } from './ScenicOverview'
 import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
 import { BEN_NEVIS, GAME } from '../domain/config'
@@ -434,13 +435,15 @@ export function GameApp() {
           } as CSSProperties
         }
       >
-        {mode === 'map' && !close ? <MountainScene
+        {mode === 'card' || mode === 'mini' ? <ScenicOverview metres={stats.mountainMetres} companion={mode === 'card'} /> : mode === 'map' && !close ? <MountainScene
           metres={stats.mountainMetres}
           close={false}
+          finish="natural"
           showLabel
           ghosts={demoProfiles.slice(0, 3)}
         /> : <ClimbScene metres={stats.mountainMetres}
-          variant={mode === 'map' ? 'climb' : mode === 'mini' ? 'card' : mode}
+          variant={mode === 'map' ? 'climb' : mode}
+          sceneryFinish={mode === 'welcome' ? 'natural' : 'illustrated'}
           showProgress={mode === 'map'} />}
         {(mode === 'card' || mode === 'mini') && (
           <div className="scenic-title">

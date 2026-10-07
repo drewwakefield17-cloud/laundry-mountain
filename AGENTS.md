@@ -92,6 +92,19 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   Refine how the washing sits and moves inside the rim. Read
   `docs/design/approved-direction.md` for the decision and scope.
   Sock markers replace pennant flags. Signage is currently deprioritized.
+- Home/overview amendment: use more realistic mountain scenery and the earlier
+  dimensional basket on the home card. Keep the approved outlined, moving basket
+  in active climb. Home should prioritise the mountain and progress, not enlarge
+  the mascot or add toy-like scenery. Shared palette and controls remain coherent.
+- Complete and verify the coherent first-pass baseline on the current branch.
+  Subsequent visual experiments belong on a separate refinement branch, retaining
+  the baseline as a fallback. Do not infer that software checks are visual approval.
+  Mohawk is now applied to this task and its follow-ups; use its design/verification
+  guidance proportionately without adding permission gates or dependencies.
+- The original ten-screen board is saved at
+  `docs/design/source-art/original-ui-board.png`. Refer to it during visual reviews.
+  The owner explicitly rejected the split landing layout with a large rounded
+  illustration panel. Rework that composition; do not treat it as an approved baseline.
 - Application implementation resumed explicitly on 7 October 2026: the owner asked
   to get the whole app, landing page and testing done using the selected direction.
   Integrate into the existing app, preserve unfinished work and verify the result.

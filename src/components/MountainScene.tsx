@@ -6,8 +6,7 @@ import { scenePoint } from '../domain/terrain'
 
 // Reuse decoded images across views and accepted events. Loading an asset must not
 // invalidate the terrain cache again on every player-position update.
-let assets:
-  | {
+type AssetSet = {
       pine: HTMLImageElement
       rocks: HTMLImageElement
       clouds: HTMLImageElement
@@ -18,8 +17,10 @@ let assets:
       ground: HTMLImageElement
       paintedSlope: HTMLImageElement
     }
-  | undefined
-export function sceneAssets() {
+export type SceneryFinish = 'illustrated' | 'natural'
+const assetSets: Partial<Record<SceneryFinish, AssetSet>> = {}
+export function sceneAssets(finish: SceneryFinish = 'illustrated') {
+  let assets = assetSets[finish]
   if (!assets) {
     assets = {
       pine: new Image(),
@@ -32,15 +33,16 @@ export function sceneAssets() {
       ground: new Image(),
       paintedSlope: new Image()
     }
-    assets.pine.src = '/art/approved-highland-pine.webp'
+    assets.pine.src = finish === 'natural' ? '/art/individual-highland-pine.webp' : '/art/approved-highland-pine.webp'
     assets.meadow.src = '/textures/illustrated-meadow.webp'
     assets.stone.src = '/textures/highland-crag-material.webp'
-    assets.rocks.src = '/art/approved-boulders.webp'
-    assets.clouds.src = '/art/approved-clouds.webp'
+    assets.rocks.src = finish === 'natural' ? '/art/highland-boulders.webp' : '/art/approved-boulders.webp'
+    assets.clouds.src = finish === 'natural' ? '/art/highland-clouds.webp' : '/art/approved-clouds.webp'
     assets.marker.src = '/brand/laundry-mountain-emblem.webp'
     assets.sock.src = '/art/sock-marker-teal.webp'
     assets.ground.src = '/textures/ben-nevis-ground-atlas.webp'
-    assets.paintedSlope.src = '/textures/ben-nevis-view-material.webp'
+    assets.paintedSlope.src = finish === 'natural' ? '/textures/ben-nevis-natural-material.webp' : '/textures/ben-nevis-view-material.webp'
+    assetSets[finish] = assets
   }
   return assets
 }
@@ -62,6 +64,7 @@ export function MountainScene({
   focusMetres,
   showLabel = false,
   scenic = false,
+  finish = 'illustrated',
   ghosts = NO_GHOSTS
 }: {
   metres: number
@@ -69,6 +72,7 @@ export function MountainScene({
   focusMetres?: number
   showLabel?: boolean
   scenic?: boolean
+  finish?: SceneryFinish
   ghosts?: SceneGhost[]
 }) {
   const canvas = useRef<HTMLCanvasElement>(null),
@@ -79,6 +83,7 @@ export function MountainScene({
     height: number
     textured: number
     scenic: boolean
+    finish: SceneryFinish
     paint: typeof drawHighlands
   } | null>(null)
   useEffect(() => {
@@ -92,10 +97,11 @@ export function MountainScene({
         height: 0,
         textured: 0,
         scenic: !scenic,
+        finish,
         paint: drawHighlands
       })
     let terrain = cache.canvas
-    const { pine, rocks, clouds, meadow, stone, marker, sock, ground, paintedSlope } = sceneAssets()
+    const { pine, rocks, clouds, meadow, stone, marker, sock, ground, paintedSlope } = sceneAssets(finish)
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
       if (!portrait) {
@@ -356,9 +362,10 @@ export function MountainScene({
         cache.height !== el.height ||
         cache.textured !== textured ||
         cache.scenic !== scenic ||
+        cache.finish !== finish ||
         cache.paint !== drawHighlands
       ) {
-        const key = `${width}:${height}:${ratio}:${textured}:${scenic}`
+        const key = `${width}:${height}:${ratio}:${textured}:${scenic}:${finish}`
         const shared = backdrops.get(key)
         const paintStarted = performance.now()
         if (shared?.paint === drawHighlands) {
@@ -377,7 +384,8 @@ export function MountainScene({
             width,
             height,
             { pine, rocks, clouds, meadow, stone, ground, paintedSlope },
-            scenic
+            scenic,
+            finish
           )
           backdrops.set(key, { canvas: terrain, paint: drawHighlands })
           while (backdrops.size > 4) backdrops.delete(backdrops.keys().next().value!)
@@ -389,6 +397,7 @@ export function MountainScene({
         cache.height = el.height
         cache.textured = textured
         cache.scenic = scenic
+        cache.finish = finish
         cache.paint = drawHighlands
       }
       requestDraw()
@@ -441,11 +450,12 @@ export function MountainScene({
       document.removeEventListener('visibilitychange', requestDraw)
       motion.removeEventListener('change', requestDraw)
     }
-  }, [metres, close, focusMetres, showLabel, scenic, ghosts])
+  }, [metres, close, focusMetres, showLabel, scenic, finish, ghosts])
   return (
     <canvas
       ref={canvas}
       className="mountain-canvas"
+      data-scenery-finish={finish}
       aria-label={
         scenic
           ? 'Illustrated Ben Nevis landscape rendered from real elevation data.'

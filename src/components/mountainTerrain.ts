@@ -141,17 +141,19 @@ export function drawHighlands(
   w: number,
   h: number,
   assets: SceneAssets = {},
-  scenic = false
+  scenic = false,
+  finish: 'illustrated' | 'natural' = 'illustrated'
 ) {
+  const natural = finish === 'natural'
   const projectWorld = scenic ? landscapeCamera.project : mapProject
   const viewDepth = scenic ? landscapeCamera.depth : mapViewDepth
   const cameraDepth = scenic
     ? (x: number, z: number) => landscapeCamera.depth(x, z, 0) - 5
     : mapDepth
   const sky = ctx.createLinearGradient(0, 0, 0, h)
-  sky.addColorStop(0, '#8ccdf3')
-  sky.addColorStop(0.55, '#d8ebef')
-  sky.addColorStop(1, '#edf0cf')
+  sky.addColorStop(0, natural ? '#a5c4d5' : '#8ccdf3')
+  sky.addColorStop(0.55, natural ? '#e1e9e5' : '#d8ebef')
+  sky.addColorStop(1, natural ? '#e7e8d7' : '#edf0cf')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
   // Warm illustrated daylight is an atmospheric layer, not altered terrain.
@@ -169,10 +171,10 @@ export function drawHighlands(
   ctx.fillStyle = sun
   ctx.beginPath()
   ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2)
-  ctx.fill()
+  if (!natural) ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
-    ctx.globalAlpha = 0.9
+    ctx.globalAlpha = natural ? 0.65 : 0.9
     const cloudHeight = w * 1.1 * assets.clouds.naturalHeight / assets.clouds.naturalWidth
     ctx.drawImage(assets.clouds, -w * 0.15, -cloudHeight * 0.25, w * 1.1, cloudHeight)
     ctx.restore()
@@ -450,6 +452,10 @@ export function drawHighlands(
               [116, 213, 211][k],
               clamp(0.24 + light * 0.35 + terrainNoise(x * 240, z * 1200) * 0.25)
             )
+          if (natural) {
+            // Restrained daylight and mineral colours on the same measured relief.
+            value = value * [0.96, 0.94, 0.91][k] + [10, 8, 9][k]
+          }
           pixels.data[offset + k] = Math.round(lerp(value, [146, 191, 204][k], fog))
         }
         pixels.data[offset + 3] = 255
@@ -466,7 +472,7 @@ export function drawHighlands(
   }
   // An ink-soft contour at real occlusion boundaries gives distant ridges a
   // readable edge. It traces the depth buffer rather than inventing peak outlines.
-  for (let y = 1; y < sh - 1; y++)
+  for (let y = 1; !natural && y < sh - 1; y++)
     for (let x = 1; x < sw - 1; x++) {
       const i = y * sw + x
       if (!depth[i]) continue
@@ -496,7 +502,7 @@ export function drawHighlands(
   }
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  for (let mark = 0; mark < 2200; mark++) {
+  for (let mark = 0; mark < (natural ? 0 : 2200); mark++) {
     let x = lerp(-2, 4, cragRandom()),
       z = lerp(-3, 3, cragRandom())
     if (heightAt(x, z) < 0.65) continue

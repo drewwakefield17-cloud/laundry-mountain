@@ -1,5 +1,24 @@
 # Project handoff — 7 October 2026
 
+## Current follow-up: coherent baseline
+
+- Home now uses the earlier dimensional basket atlas and natural scenery finish.
+  Overview, Ben Nevis thumbnail, onboarding and landing share its softer daylight
+  and earlier detailed woodland/rock assets. The active illustrated climb is retained.
+  Real geographic geometry, counters and storage are unchanged; scenery caches
+  include the finish so navigating between styles cannot reuse the wrong backdrop.
+- Mohawk is now in use. Applied consistency, visual hierarchy and truthful progress:
+  keep existing controls, reduce competing home decoration, verify stored metres
+  while navigating home → climb → overview and reload.
+- 29 unit tests, TypeScript/build and all 18 browser tests passed on stable sources.
+  The saved-progress browser check now crosses both scenery treatments at 250 m.
+  Existing synthetic camera events remain isolated; no physical success is claimed.
+- Original board saved locally. Current screen gallery is being assembled in
+  `docs/design/review/coherent-baseline/`. The owner just explicitly rejected the
+  split landing hero; rework its composition before calling this baseline complete.
+- Finish the coherent baseline first, then use a separate branch for later visual
+  experiments. Keep the approved climb; no Netlify deploy. Wordmark remains deferred.
+
 ## Latest implemented milestone: basket game and landing page
 
 **Latest owner feedback:** the implemented climb view is good and should be

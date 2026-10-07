@@ -34,7 +34,7 @@ export function LandingPage() {
           <div className="landing-trail-note"><Sock weight="duotone" size={33}/><p><strong>One sock stop at a time.</strong><span>A cleaner home. A higher you.</span></p></div>
         </div>
         <div className="landing-hero-art">
-          <ClimbScene metres={0} variant="landing" />
+          <ClimbScene metres={0} variant="landing" sceneryFinish="natural" />
           <div className="landing-location"><Mountain weight="fill" size={23}/><span><small>YOUR FIRST EXPEDITION</small><strong>Ben Nevis, Scotland</strong></span><b>1,345 m</b></div>
           <div className="landing-caption">Real laundry. Higher ground.</div>
         </div>

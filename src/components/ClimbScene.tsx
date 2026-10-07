@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { MountainScene } from './MountainScene'
+import type { SceneryFinish } from './MountainScene'
 import { BasketAvatar } from './BasketAvatar'
 import { expeditionProgress } from '../domain/expedition'
 import { climbPresentation, crossedCheckpoint } from '../domain/climbPresentation'
 import './climb-scene.css'
 
-export function ClimbScene({ metres, variant = 'climb', showProgress = false }: {
-  metres: number; variant?: 'climb' | 'card' | 'dial' | 'welcome' | 'landing'; showProgress?: boolean
+export function ClimbScene({ metres, variant = 'climb', showProgress = false, sceneryFinish = 'illustrated' }: {
+  metres: number; variant?: 'climb' | 'card' | 'dial' | 'welcome' | 'landing'; showProgress?: boolean; sceneryFinish?: SceneryFinish
 }) {
   const position = climbPresentation(metres)
   const progress = expeditionProgress(position.metres)
@@ -23,7 +24,7 @@ export function ClimbScene({ metres, variant = 'climb', showProgress = false }: 
     return () => window.clearTimeout(timer)
   }, [position.metres])
   return <div className={`climb-scene climb-scene--${variant}`} data-metres={position.metres} data-motion={motion}>
-    <MountainScene metres={position.metres} close={false} scenic />
+    <MountainScene metres={position.metres} close={false} scenic finish={sceneryFinish} />
     <img className="climb-trail" src="/art/climb-trail.png" alt="" aria-hidden="true" draggable="false" />
     <div className="climb-sock" style={variant === 'climb' ? {
       left: `${nextPosition.x + 1}%`, top: `${nextPosition.y - 22}%`
