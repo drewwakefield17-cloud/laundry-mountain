@@ -39,7 +39,7 @@ export function sceneAssets(finish: SceneryFinish = 'illustrated') {
     assets.rocks.src = finish === 'natural' ? '/art/highland-boulders.webp' : '/art/approved-boulders.webp'
     assets.clouds.src = finish === 'natural' ? '/art/highland-clouds.webp' : '/art/approved-clouds.webp'
     assets.marker.src = '/brand/laundry-mountain-emblem.webp'
-    assets.sock.src = '/art/sock-marker-teal.webp'
+    assets.sock.src = finish === 'natural' ? '/art/sock-checkpoint.png' : '/art/sock-marker-teal.webp'
     assets.ground.src = '/textures/ben-nevis-ground-atlas.webp'
     assets.paintedSlope.src = finish === 'natural' ? '/textures/ben-nevis-natural-material.webp' : '/textures/ben-nevis-view-material.webp'
     assetSets[finish] = assets
@@ -58,6 +58,23 @@ export interface SceneGhost {
 const backdrops = new Map<string, { canvas: HTMLCanvasElement; paint: typeof drawHighlands }>()
 const NO_GHOSTS: SceneGhost[] = []
 const portraits = new Map<string, HTMLImageElement>()
+let overviewMaterial: HTMLImageElement | undefined
+function detailedOverviewMaterial() {
+  if (!overviewMaterial) {
+    overviewMaterial = new Image()
+    overviewMaterial.src = '/textures/ben-nevis-overview-detail.png'
+  }
+  return overviewMaterial
+}
+let overviewBasket: { body: HTMLImageElement; limbs: HTMLImageElement } | undefined
+function overviewBasketArtwork() {
+  if (!overviewBasket) {
+    overviewBasket = { body: new Image(), limbs: new Image() }
+    overviewBasket.body.src = '/art/basket-body.png'
+    overviewBasket.limbs.src = '/art/basket-limbs.png'
+  }
+  return overviewBasket
+}
 export function MountainScene({
   metres,
   close,
@@ -102,6 +119,9 @@ export function MountainScene({
       })
     let terrain = cache.canvas
     const { pine, rocks, clouds, meadow, stone, marker, sock, ground, paintedSlope } = sceneAssets(finish)
+    const routePaint = !scenic && finish === 'natural' ? detailedOverviewMaterial() : undefined
+    const completeMask = routePaint ? 255 : 127
+    const basketArt = showLabel && finish === 'natural' ? overviewBasketArtwork() : undefined
     const ghostImages = ghosts.map((ghost) => {
       let portrait = portraits.get(ghost.avatar)
       if (!portrait) {
@@ -153,7 +173,7 @@ export function MountainScene({
       ctx.drawImage(terrain, 0, 0, width, height)
       // Evidence captures should wait for a painted frame with all scene assets,
       // rather than accepting the empty canvas while its first paint is queued.
-      el.dataset.terrainReady = String(cache.textured === 127)
+      el.dataset.terrainReady = String(cache.textured === completeMask)
       if (scenic) {
         // Small illustrated foreground stones frame the card/medallion. The
         // mountain and stream behind them retain the real geographic projection.
@@ -207,21 +227,21 @@ export function MountainScene({
       ctx.lineJoin = 'round'
       ctx.lineCap = 'round'
       ctx.strokeStyle = '#18392b70'
-      ctx.lineWidth = 6
+      ctx.lineWidth = 4
       path(1)
       ctx.stroke()
-      ctx.strokeStyle = '#ddd0a4'
-      ctx.lineWidth = 3.5
+      ctx.strokeStyle = '#e2d5b5'
+      ctx.lineWidth = 2.5
       path(1)
       ctx.stroke()
-      ctx.setLineDash([1, 7])
+      ctx.setLineDash([1, 10])
       ctx.strokeStyle = '#fffde8'
-      ctx.lineWidth = 3.5
+      ctx.lineWidth = 2
       path(1)
       ctx.stroke()
       ctx.setLineDash([])
-      ctx.strokeStyle = '#42e59c'
-      ctx.lineWidth = 4
+      ctx.strokeStyle = '#14aa72'
+      ctx.lineWidth = 3
       path(player.progress)
       ctx.stroke()
       // Camera zoom affects the world; interface pins retain their phone-size
@@ -253,40 +273,47 @@ export function MountainScene({
         ctx.fill()
         ctx.stroke()
       }
+      const nextCheckpoint = BEN_NEVIS.checkpoints.find((checkpoint) => checkpoint.metres > metres)
+      if (nextCheckpoint && nextCheckpoint.metres < BEN_NEVIS.elevation) {
+        const next = markerPosition(nextCheckpoint.metres)
+        drawSock(next.x * width, next.y * height, 48)
+      }
       if (showLabel)
         for (const [ghostIndex, ghost] of ghostImages.entries()) {
+          const compact = height < 400,
+            portraitRadius = compact ? 11 : 15,
+            portraitOffset = compact ? 54 : 24
           const p = markerPosition(ghost.metres),
-            gx = Math.max(28, Math.min(width - 28, p.x * width + (ghostIndex % 2 ? -24 : 24))),
-            gy = p.y * height - 24
-          // These socks and portraits are game markers, independently sized
-          // from terrain so the trail stays readable in both views.
-          drawSock(gx - 26, gy + 18, 78)
+            gx = Math.max(28, Math.min(width - 28, p.x * width + (ghostIndex % 2 ? -portraitOffset : portraitOffset))),
+            gy = p.y * height - (compact ? 8 : 24)
+          // Portrait size stays independent of terrain zoom. Socks are reserved
+          // for milestones, while demo climbers retain explicit labels.
           ctx.strokeStyle = '#fff9df'
-          ctx.lineWidth = 3
+          ctx.lineWidth = 2
           ctx.beginPath()
           ctx.moveTo(gx, gy)
           ctx.lineTo(p.x * width, p.y * height)
           ctx.stroke()
           ctx.save()
           ctx.beginPath()
-          ctx.arc(gx, gy, 20, 0, Math.PI * 2)
+          ctx.arc(gx, gy, portraitRadius, 0, Math.PI * 2)
           ctx.clip()
           ctx.fillStyle = '#9ab9a0'
-          ctx.fillRect(gx - 20, gy - 20, 40, 40)
+          ctx.fillRect(gx - portraitRadius, gy - portraitRadius, portraitRadius * 2, portraitRadius * 2)
           if (ghost.portrait.complete && ghost.portrait.naturalWidth)
-            ctx.drawImage(ghost.portrait, gx - 20, gy - 20, 40, 40)
+            ctx.drawImage(ghost.portrait, gx - portraitRadius, gy - portraitRadius, portraitRadius * 2, portraitRadius * 2)
           ctx.restore()
           ctx.beginPath()
-          ctx.arc(gx, gy, 20, 0, Math.PI * 2)
+          ctx.arc(gx, gy, portraitRadius, 0, Math.PI * 2)
           ctx.stroke()
           ctx.fillStyle = '#fffcece8'
           ctx.beginPath()
-          ctx.roundRect(gx - 21, gy + 18, 42, 15, 5)
+          ctx.roundRect(gx - 19, gy + portraitRadius - 1, 38, 15, 4)
           ctx.fill()
           ctx.fillStyle = '#245347'
           ctx.font = '600 9px sans-serif'
           ctx.textAlign = 'center'
-          ctx.fillText('Demo', gx, gy + 29)
+          ctx.fillText('Demo', gx, gy + portraitRadius + 10)
         }
       const summit = markerPosition(BEN_NEVIS.elevation),
         sx = summit.x * width,
@@ -303,23 +330,34 @@ export function MountainScene({
       const markerPlayer = markerPosition(shown.current)
       const px = markerPlayer.x * width,
         py = markerPlayer.y * height
-      drawSock(px, py)
+      if (!basketArt) drawSock(px, py)
       if (showLabel) {
-        // The owner's emblem represents their trail position without inventing
-        // a photo. The badge is UI; it does not alter world dimensions.
         ctx.save()
-        ctx.translate(px, py - 21)
-        ctx.fillStyle = '#fffff4'
-        ctx.strokeStyle = '#fffce6'
-        ctx.lineWidth = 3
-        ctx.beginPath()
-        ctx.arc(0, 0, 16, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.stroke()
-        if (marker.complete && marker.naturalWidth) ctx.drawImage(marker, -15, -15, 30, 30)
+        if (basketArt?.body.complete && basketArt.body.naturalWidth && basketArt.limbs.complete && basketArt.limbs.naturalWidth) {
+          // Same rigged artwork as active climb, static at the exact route position.
+          ctx.translate(px - 26, py - 52)
+          ctx.scale(52 / 320, 52 / 320)
+          const limb = (sx: number, sy: number, sw: number, sh: number, x: number, y: number, w: number, h: number) =>
+            ctx.drawImage(basketArt.limbs, sx, sy, sw, sh, x, y, w, h)
+          limb(793, 710, 347, 405, 190, 227, 65, 76)
+          limb(813, 132, 267, 407, 257, 137, 43, 83)
+          limb(130, 699, 406, 441, 80, 225, 78, 85)
+          limb(192, 127, 242, 425, 18, 139, 47, 89)
+          ctx.drawImage(basketArt.body, 73, 134, 1114, 1018, 38, 19, 245, 224)
+        } else {
+          ctx.translate(px, py - 21)
+          ctx.fillStyle = '#fffff4'
+          ctx.strokeStyle = '#fffce6'
+          ctx.lineWidth = 3
+          ctx.beginPath()
+          ctx.arc(0, 0, 16, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.stroke()
+          if (marker.complete && marker.naturalWidth) ctx.drawImage(marker, -15, -15, 30, 30)
+        }
         ctx.restore()
         const labelWidth = 58,
-          labelX = Math.max(5, Math.min(width - labelWidth - 5, px + 12)),
+          labelX = Math.max(5, Math.min(width - labelWidth - 5, basketArt ? (px < width / 2 ? px + 31 : px - labelWidth - 31) : px + 12)),
           labelY = py - 52
         ctx.fillStyle = '#fffde9'
         ctx.strokeStyle = '#087c5a'
@@ -356,7 +394,8 @@ export function MountainScene({
         8 * Number(!!(meadow.complete && meadow.naturalWidth)) +
         16 * Number(!!(stone.complete && stone.naturalWidth)) +
         32 * Number(!!(ground.complete && ground.naturalWidth)) +
-        64 * Number(!!(paintedSlope.complete && paintedSlope.naturalWidth))
+        64 * Number(!!(paintedSlope.complete && paintedSlope.naturalWidth)) +
+        128 * Number(!!(routePaint?.complete && routePaint.naturalWidth))
       if (
         cache.width !== el.width ||
         cache.height !== el.height ||
@@ -383,7 +422,7 @@ export function MountainScene({
             backdrop,
             width,
             height,
-            { pine, rocks, clouds, meadow, stone, ground, paintedSlope },
+            { pine, rocks, clouds, meadow, stone, ground, paintedSlope, routePaint },
             scenic,
             finish
           )
@@ -423,6 +462,8 @@ export function MountainScene({
       sock,
       ground,
       paintedSlope,
+      ...(routePaint ? [routePaint] : []),
+      ...(basketArt ? [basketArt.body, basketArt.limbs] : []),
       ...ghostImages.map((g) => g.portrait)
     ])
       asset.addEventListener('load', loaded)
@@ -440,6 +481,8 @@ export function MountainScene({
         sock,
         ground,
         paintedSlope,
+        ...(routePaint ? [routePaint] : []),
+        ...(basketArt ? [basketArt.body, basketArt.limbs] : []),
         ...ghostImages.map((g) => g.portrait)
       ])
         asset.removeEventListener('load', loaded)

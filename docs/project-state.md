@@ -15,7 +15,18 @@
   Existing synthetic camera events remain isolated; no physical success is claimed.
 - Original board saved locally. Current screen gallery is being assembled in
   `docs/design/review/coherent-baseline/`. The owner just explicitly rejected the
-  split landing hero; rework its composition before calling this baseline complete.
+  split landing hero, then explicitly parked landing work to focus on the app.
+- The full-mountain overview was also rejected. The current correction samples a
+  new detailed ground material directly using measured world coordinates, avoiding
+  the extra north-up texture bake. Ground geometry, water/wood masks and route are
+  retained. Thinner trail, smaller labelled demo portraits, orange socks and the
+  existing graphic basket replace oversized markers/emblem. Header framing now
+  leaves the summit marker visible. This is a revision for review, not visual approval.
+- After the overview correction: 29 unit tests/build and ten affected browser
+  checks passed; final rotation/restoration checks passed again (2/2). Refreshed
+  browser inspection showed no new errors. Portrait and landscape screenshots
+  are in the gallery. The new overview-only PNG is 2.95 MB; initial JS is about
+  437 kB gzip, so real-phone performance and asset optimisation remain release work.
 - Finish the coherent baseline first, then use a separate branch for later visual
   experiments. Keep the approved climb; no Netlify deploy. Wordmark remains deferred.
 

@@ -1,5 +1,39 @@
 # Reference fidelity review — basket integration, 7 October 2026
 
+## Latest app-only correction
+
+Landing is explicitly parked following the owner's rejection. The actual app
+determines its future direction. Original reference is now preserved at
+`docs/design/source-art/original-ui-board.png`; the current app gallery is
+`docs/design/review/coherent-baseline/index.html`.
+
+- Home: restored earlier dimensional basket with natural trees, rocks and softer
+  daylight. The mountain card, four stats, primary action and bottom navigation
+  retain screen 2's hierarchy. Active climb remains the approved outlined basket.
+- Full overview: new detailed ground material sampled from real world coordinates,
+  replacing the extra texture bake that softened the painting. Geometry and mapped
+  features are retained. Lighter route, smaller labelled demo portraits, orange
+  sock milestones and the basket's actual saved position reduce visual competition.
+  Separate header framing keeps the summit marker visible. Landscape portraits
+  are smaller and offset so the short route remains legible.
+- Applied Mohawk's consistency, hierarchy and truthful-progress guidance. Existing
+  action conventions and progress data remain intact. Mobile portrait/landscape
+  and a refreshed browser were inspected; no new console errors after refresh.
+- Verification: 29 unit checks and production build passed; all 18 browser checks
+  passed after the home change. Ten affected checks passed after overview changes,
+  followed by the final rotation and saved-position checks (2/2). Final build passed.
+- Generated detail uses built-in image_gen; source and prompt are recorded in
+  `docs/design/overview-detail-prompt.txt`. It is a material, not geographic evidence.
+
+**Visual status:** home and revised overview await owner review. The original
+mockup's finish has not been declared matched. Landing remains rejected/parked;
+wordmark refinement is deferred. Initial JS remains about 437 kB gzip, and the
+new material adds a 2.95 MB PNG fetched only for the natural full overview.
+Phone performance and physical folding remain unverified. These payloads are
+performance follow-ups before release, not evidence of real-device readiness.
+
+The following records describe the preceding integration pass.
+
 Current result: implemented and browser-verified; integrated visual acceptance and
 physical camera acceptance remain separate. Do not treat earlier blocked passes
 or a passing test suite as owner approval of the new art integration.

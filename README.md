@@ -13,6 +13,13 @@ Current local entries: `/` is the landing page; `/?view=welcome` is onboarding;
 geographic-route toggle; `/?view=test` opens the original camera field test.
 Existing browser storage keys and failed reports are preserved.
 
+Current priority: finish the actual app's visual baseline against the original
+ten-screen mockup. Landing redesign is explicitly parked. Home uses more natural
+scenery and the earlier dimensional basket; active climb retains the approved
+outlined character. The revised full overview keeps the measured terrain and
+route, with clearer material detail and compact labelled markers. Review evidence:
+`docs/design/review/coherent-baseline/index.html`. Visual acceptance is pending.
+
 Use Node 22.12+ or 24, then `npm ci`, `npm run dev`. `npm run check` runs deterministic tests and a production build. Camera use on a phone requires HTTPS; a plain LAN HTTP URL is insufficient.
 
 `npm run test:e2e` exercises responsive layouts, denied camera permissions and a test-only synthetic pixel stream through the actual camera pipeline. Synthetic tests are software checks, not evidence of physical accuracy. Install the Playwright Chromium browser with `npx playwright install chromium` if needed.

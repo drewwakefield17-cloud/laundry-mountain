@@ -104,7 +104,8 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 - The original ten-screen board is saved at
   `docs/design/source-art/original-ui-board.png`. Refer to it during visual reviews.
   The owner explicitly rejected the split landing layout with a large rounded
-  illustration panel. Rework that composition; do not treat it as an approved baseline.
+  illustration panel. Landing work is now explicitly parked: settle the actual app
+  first, then carry its direction into the landing page. It remains unapproved.
 - Application implementation resumed explicitly on 7 October 2026: the owner asked
   to get the whole app, landing page and testing done using the selected direction.
   Integrate into the existing app, preserve unfinished work and verify the result.

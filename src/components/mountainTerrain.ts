@@ -18,6 +18,7 @@ export interface SceneAssets {
   stone?: HTMLImageElement
   ground?: HTMLImageElement
   paintedSlope?: HTMLImageElement
+  routePaint?: HTMLImageElement
 }
 const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
@@ -183,7 +184,10 @@ export function drawHighlands(
     meadow = material(assets.meadow),
     stone = material(assets.stone),
     ground = groundAtlas(assets.ground),
-    paintedSlope = slopeMaterial(assets.paintedSlope)
+    paintedSlope = slopeMaterial(assets.paintedSlope),
+    routePaint = slopeMaterial(assets.routePaint)
+  const routePaintWidth = assets.routePaint?.naturalWidth ?? 0
+  const routePaintHeight = assets.routePaint?.naturalHeight ?? 0
   const grids: Vertex[][][] = []
   const cells: Array<{ grid: number; i: number; j: number; depth: number }> = []
   const meshes = [
@@ -414,6 +418,20 @@ export function drawHighlands(
           paintedSlope && x >= -4 && x <= 6 && z >= -2 && z <= 6
             ? quadChannel(paintedSlope, 3, slopeA, slopeB, slopeC, slopeD, slopeU, slopeV) / 255
             : 0
+        // Sample the overview painting from measured world coordinates directly.
+        // This avoids a second low-resolution north-up bake stretching the crags.
+        // Geometry, occlusion, route and mapped land cover remain authoritative.
+        const routeSample = routePaint
+          ? scenePoint(mapProject(x, z, elevation), 390, 1428 * 390 / 768)
+          : undefined
+        const routeX = routeSample ? routeSample.x / 390 * (routePaintWidth - 1) : -1
+        const routeY = routeSample ? routeSample.y / (1428 * 390 / 768) * (routePaintHeight - 1) : -1
+        const routeLeft = Math.floor(routeX), routeTop = Math.floor(routeY)
+        const routeIndex = (routeTop * routePaintWidth + routeLeft) * 4
+        const routeCoverage = routePaint && routeX >= 0 && routeY >= 0 && routeX < routePaintWidth - 1 && routeY < routePaintHeight - 1
+          && Math.abs(routePaint[routeIndex] - routePaint[0]) + Math.abs(routePaint[routeIndex + 1] - routePaint[1]) + Math.abs(routePaint[routeIndex + 2] - routePaint[2]) > 45
+          && !(routePaint[routeIndex + 2] > routePaint[routeIndex] * 1.25 && routePaint[routeIndex + 1] > routePaint[routeIndex] * 1.1)
+        const routeOpacity = clamp(Math.min(routeX, routeY, routePaintWidth - 1 - routeX, routePaintHeight - 1 - routeY) / 64)
         for (let k = 0; k < 3; k++) {
           const turf = lerp(grassPalette[low][k], grassPalette[low + 1][k], blend)
           const plane = lerp(rockPalette[low][k], rockPalette[low + 1][k], blend)
@@ -440,6 +458,10 @@ export function drawHighlands(
                 (0.91 + light * 0.18),
               slopeAlpha * 0.94
             )
+          if (routePaint && routeCoverage && !land.wood && !land.water)
+            value = lerp(value, quadChannel(routePaint, k, routeIndex, routeIndex + 4,
+              routeIndex + routePaintWidth * 4, routeIndex + routePaintWidth * 4 + 4,
+              routeX - routeLeft, routeY - routeTop), 0.96 * routeOpacity)
           if (land.wood)
             value = lerp(
               [10, 48, 49][k],

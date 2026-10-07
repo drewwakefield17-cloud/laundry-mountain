@@ -1,0 +1,12 @@
+Tool: built-in image_gen (not Creative Claw).
+Edit target: docs/design/source-art/ben-nevis-route-approved-style.png
+Style reference: docs/design/source-art/original-ui-board.png, screen 7.
+Generated source: exec-c9fb4678-0471-416c-afdc-7eee152513f1.png
+Runtime asset: public/textures/ben-nevis-overview-detail.png (copied unchanged).
+
+Edit the FIRST image, a geographically registered terrain-material view of Ben Nevis. The SECOND image is the approved Laundry Mountain UI art reference; use ONLY the detailed painted landscape style inside screen 7 (bottom row second phone), NOT its mountain shape. Produce ONLY the refined first image at its same tall aspect ratio, no UI. This is a game terrain material, not a concept composition. CRITICAL: retain EXACT existing mountain silhouette, position, perspective, hill outlines, the broad rounded real Ben Nevis summit, all valley forms and the river at precisely the same image coordinates. Keep the blank pale mint background flat and unchanged. Do not introduce any new skyline peaks. Improve the ground artwork from coarse daubs and green blobs into high-quality, crisp, finely painted adult adventure-game scenery. Natural slate-grey and blue-grey rocky crags, subtle warm light on ridges, muted olive upland grasses, fine heather clusters, individual small fractured rock slabs following the existing slopes. Rich finely resolved surface detail grouped into coherent geological forms, attractive layered depth, clean readable medium-scale details, painterly realism rather than photograph or children's cartoon. Remove the repeated rounded yellow brush daubs and muddy smears. Keep the exact location of river and vegetation masses, no standalone trees or foreground framing because trees are separately rendered in the game. No snow added, no paths, no signs, no flags, no markers, no characters, no text, no logo, no UI, no frame. Do not crop or recompose the base terrain image. The specific deliverable is a sharper, more natural but still beautifully illustrated surface for the same mountain.
+
+Integration: material sampled from world coordinates on the retained terrain mesh,
+with edge fading, existing geometry/depth, and authoritative mapped water/wood masks.
+The prompt asks for invariants; the generated illustration is not a surveyed source.
+Geometry continues to come exclusively from the existing elevation datasets.

@@ -513,7 +513,7 @@ export function GameApp() {
         : 'Good evening,'
   return (
     <div
-      className={`game-shell screen-${screen} ${screen === 'live' || screen === 'camera' ? 'session-shell' : ''}`}
+      className={`game-shell screen-${screen} ${screen === 'live' || screen === 'camera' ? 'session-shell' : ''} ${screen === 'mountain' && !close ? 'overview-mode' : ''}`}
     >
       {screen !== 'welcome' && (
         <header className="game-header">

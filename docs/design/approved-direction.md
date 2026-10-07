@@ -5,6 +5,8 @@ basket and more realistic mountain scenery on home. This exception does not chan
 the approved outlined character or movement in active climb. The original board
 at `source-art/original-ui-board.png` continues to govern the surrounding UI.
 The current split landing hero was explicitly rejected; its composition needs rework.
+The owner then parked landing work: finish the actual app's direction first, as it
+will determine the landing design. Full-mountain overview remains under review.
 
 The owner selected the attached outlined mascot study with: "lets go with this one".
 This is the latest visual target. The earlier basket identity and movement approvals

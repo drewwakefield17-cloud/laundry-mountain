@@ -42,3 +42,6 @@
 .game-shell .phone-position p{color:#31574c}
 @media(max-width:500px){.screen-home .scenic-card{height:300px}}
 @media(orientation:landscape) and (max-height:600px){.game-shell .dial-time{padding:3px 0 8px}.game-shell .dial-time strong{font-size:22px}}
+.screen-mountain.overview-mode .game-header{position:relative}
+.screen-mountain.overview-mode .scenic-map{height:calc(100dvh - 142px);min-height:0}
+@media(orientation:landscape) and (max-height:600px){.screen-mountain.overview-mode .scenic-map{height:calc(100dvh - 114px)}}
