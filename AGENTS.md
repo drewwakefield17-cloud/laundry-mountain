@@ -81,6 +81,17 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Product and design requirements
 
+- **Latest 8 October scope/order reset:** finish the coherent app design before
+  advancing AI, backend or owner gameplay/camera testing. Release scope is now a
+  personal game with exactly Ben Nevis, Mount Fuji and Everest. Remove Community,
+  demo competitors on routes and the other three mountains from the active product.
+  Preserve existing source/assets/history instead of destructive cleanup. The
+  manual laundry loop is accepted as a useful foundation; integrate its styling
+  with the rest. Follow `docs/completion-plan.md` as the single current order.
+  Visually inspect during implementation, then present one integrated screen review;
+  do not reopen disconnected style options or mistake preview mountains for playable
+  expeditions. Landing follows app design. AI comes at the end of functional work.
+
 - **Latest 8 October correction:** the owner says the recent white/flat pass feels
   clinical and has drifted from the already-reviewed board. Restore restrained
   dimensional/embossed primary controls (highlight, rich emerald shading, shallow

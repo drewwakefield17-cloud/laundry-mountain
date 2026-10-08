@@ -1,5 +1,15 @@
 # Project handoff — 8 October 2026
 
+## Latest priority: complete the personal-game design first
+
+Owner explicitly redirects the next work away from AI/physical testing and back to
+coherent design. Exactly three mountains: Ben Nevis, Mount Fuji and Everest.
+Community and route demo competitors are out of the release scope. These removals
+are PLANNED, not yet applied. Existing manual loop remains; Fuji/Everest are still
+previews, not playable expeditions. `docs/completion-plan.md` is the current ordered
+plan and supersedes the immediate AI/owner-testing next step below. This planning
+turn changes documentation only, leaving the owner's live session untouched.
+
 ## Current: playable manual batch fallback on `visual-refinement`
 
 - Owner approved a simpler working loop before automatic counting. Home/Add now
