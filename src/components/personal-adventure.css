@@ -1,0 +1,81 @@
+/* Personal three-peak edition. Build on the approved art and tactile controls. */
+.game-shell{--ink:#0b3048;--trail-green:#087b58;--quiet:#466775}
+.game-shell .eyebrow{display:block;color:#4c736b;font-size:9px;letter-spacing:1.25px;font-weight:800}
+.game-shell .game-nav small{font-size:10px;font-weight:700;letter-spacing:.1px}
+.game-shell .game-nav button>span{height:29px}
+.game-shell .game-nav .nav-add>span{height:51px;width:51px}
+.game-shell .game-nav{box-shadow:0 -6px 22px #0a334908}
+.game-shell .game-nav button[aria-current='page'] small{color:#006a4a}
+.game-shell .game-header>strong{letter-spacing:-.35px}
+.game-shell .journey-intro{text-align:left;padding:5px 4px 17px}
+.game-shell .journey-intro h1{font-size:30px;line-height:1.04;letter-spacing:-.9px;margin:8px 0}
+.game-shell .journey-intro p{font-size:12px;line-height:1.45;color:var(--quiet);margin:8px 0 0}
+.screen-mountains .segmented{margin-bottom:14px}
+.screen-mountains .expedition-cards{gap:14px}
+.screen-mountains .expedition-card{position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:172px;overflow:hidden;padding:14px 16px;border:1px solid #cadcd9;border-radius:18px;box-shadow:0 4px 12px #16384c10;text-align:left;background:#e5f1f4}
+.screen-mountains .expedition-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#e9f7ff9e 0%,transparent 32%,#fffefa18 46%,#fffffff5 79%,#fff 100%);z-index:-1;pointer-events:none}
+.screen-mountains .expedition-thumbnail{position:absolute;inset:0;width:100%;height:100%;border-radius:0;z-index:-2;overflow:hidden}
+.screen-mountains .expedition-thumbnail>.scenic-artwork{height:100%;position:absolute;inset:0}
+.screen-mountains .expedition-thumbnail .scenic-artwork-landscape{object-position:50% 35%}
+.screen-mountains .expedition-thumbnail .terrain-preview{width:100%;height:100%;border-radius:0}
+.screen-mountains .expedition-number{position:absolute;top:13px;left:16px;display:flex;align-items:center;gap:8px;color:#123b51;font-size:17px;font-weight:800;text-shadow:0 1px 3px #fff}
+.screen-mountains .expedition-number>span{font-size:8px;letter-spacing:1px}
+.screen-mountains .expedition-name{flex:1;gap:3px;align-self:flex-end}
+.screen-mountains .expedition-name>strong{font-size:23px;line-height:1.1;letter-spacing:-.5px;color:#0b3048}
+.screen-mountains .expedition-name small{color:#265a57;font-size:10px}
+.screen-mountains .expedition-name>span{font-size:10px;color:#426574}
+.screen-mountains .expedition-lock{background:#fffffff5;border:1px solid #d4e2df;border-radius:12px;padding:8px 10px;width:91px;min-width:91px;box-shadow:0 2px 6px #173c4510;gap:2px}
+.screen-mountains .expedition-lock>svg{width:17px;height:17px;color:#396959}
+.screen-mountains .expedition-lock>strong{font-size:11px;color:#214e51}
+.screen-mountains .expedition-lock>small{font-size:8px;line-height:1.3;color:#4c6b73}
+.screen-mountains .mini-progress-ring{width:54px;height:54px;background-color:#fff;border:3px solid white;box-shadow:0 3px 10px #16352f19}
+.screen-mountains .page-quote{font-size:13px;margin:18px 0 4px;color:#3f665e}
+.screen-home .home-stats{gap:7px;margin:13px 0 17px}
+.screen-home .home-stats>button{padding:9px 3px 11px;background:linear-gradient(#fff,#f8fbf8);border-color:#e2ebe6}
+.screen-home .home-stats strong{font-size:24px;line-height:1.1}
+.screen-home .home-stats span:not(.trail-icon){font-size:10px}
+.screen-home .home-stats .trail-icon{width:40px;height:40px}
+.screen-home .next-trail{box-shadow:0 4px 10px #193e4510;background:linear-gradient(125deg,#fff,#f8fbf9);border-color:#dce8e0;min-height:68px;margin-top:18px}
+.screen-home .scenic-foot p{font-style:italic;font-weight:650;background:linear-gradient(110deg,#073d37f0,#073d37b0);border:1px solid #ffffff25}
+.screen-home .scenic-title{padding:12px 15px;background:linear-gradient(110deg,#fffffff0,#ffffffab);border-radius:0 0 18px 0}
+.screen-home .scenic-title h2{font-size:30px;letter-spacing:-1px}
+.screen-home .scenic-title>span{font-size:10px;font-weight:700}
+.screen-home .scenic-title p{font-size:10px;color:#285d54}
+.game-shell .collection-intro{text-align:center;padding:4px 0 15px}
+.game-shell .collection-intro h1{font-size:29px;letter-spacing:-.6px;margin:7px 0}
+.game-shell .collection-intro p{font-size:12px;color:#466775;margin:5px 0}
+.screen-badges .badge-grid{gap:8px}
+.screen-badges .badge{border-radius:14px;background:linear-gradient(155deg,#fff,#f6f9f5);border-color:#dce7de}
+.screen-badges .page-quote{font-size:14px;margin:20px 0 10px}
+.screen-profile .profile-hero{padding-bottom:8px}
+.screen-profile .profile-hero h1{font-size:29px;letter-spacing:-.7px}
+.screen-profile .profile-hero>p{font-size:12px}
+.game-shell .personal-trail-strip{display:flex;align-items:center;gap:10px;padding:13px 12px;border-block:1px solid #e0e9e2;margin:0 0 18px}
+.personal-trail-strip>svg{width:24px;height:28px;color:#e47b1b}.personal-trail-strip>span{display:grid;gap:4px;flex:1}.personal-trail-strip small{font-size:8px;letter-spacing:1px;color:#52776c;font-weight:800}.personal-trail-strip strong{font-size:14px;color:#143d4c}.personal-trail-strip>b{font-size:12px;color:#3c6a60}
+.screen-profile .profile-form{padding:0 0 18px}.screen-profile .profile-form label{font-size:11px;font-weight:700;color:#4d6d76}.screen-profile .profile-form input{background:#f8fbf9;border-color:#cddfd5;border-radius:12px}
+.screen-sessions .page-intro{padding:3px 0 15px}.screen-sessions .page-intro h1{font-size:28px;letter-spacing:-.8px}.screen-sessions .page-intro p{font-size:12px;color:#476c76}
+.screen-sessions .session-history>button{border:1px solid #dce7e0;border-radius:15px;box-shadow:0 2px 6px #173b4510;padding:14px 10px;margin-bottom:9px;background:linear-gradient(120deg,#fff,#f8fbf8)}
+.screen-sessions .session-history>button>span:nth-child(2)>strong{font-size:13px}.screen-sessions .session-history>button>strong{font-size:15px}.screen-sessions .history-icon{background:#eaf5ee;border:1px solid #d2e4d8;border-radius:12px;color:#057453}
+.screen-results .results-heading{padding-top:9px}.screen-results .results-breakdown{border-top:1px solid #e1e9e4;padding-top:14px;margin-top:14px}.screen-results .results-breakdown summary{font-size:12px;color:#3c6b61}
+.screen-session .manual-checkpoint,.screen-mountain .overview-next{background:linear-gradient(115deg,#fff,#f9fbf4);border:1px solid #dae6d8;box-shadow:0 4px 12px #143d4a22;border-radius:16px}
+.screen-mountain.overview-mode .route-details{background:#ffffffed;border-color:#d0e2dc;box-shadow:0 2px 8px #163d4212}
+.screen-mountain.overview-mode .route-details summary{font-size:11px;letter-spacing:.1px}
+.screen-mountain .view-control{box-shadow:0 3px 9px #123b4928}
+.screen-mountain .view-control button{font-size:12px;font-weight:800}
+.screen-welcome .welcome-bottom h1{font-size:32px;letter-spacing:-.8px}
+.screen-welcome .welcome-bottom p{max-width:290px;margin:10px auto 18px;line-height:1.5}
+.screen-welcome .welcome-bottom .text-button{font-size:11px;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:360px){.screen-mountains .expedition-card{padding:12px;min-height:160px}.screen-mountains .expedition-name>strong{font-size:21px}.screen-mountains .expedition-lock{min-width:76px;width:76px;padding:7px}.screen-home .scenic-title h2{font-size:27px}.screen-home .home-stats strong{font-size:21px}.screen-home .home-stats .trail-icon{width:34px;height:34px}.screen-welcome .welcome-bottom h1{font-size:29px}}
+@media(orientation:landscape) and (max-height:500px){.screen-mountains .journey-intro h1{font-size:25px}.screen-mountains .expedition-card{min-height:160px}.screen-welcome .welcome-bottom h1{font-size:24px}.screen-home .home-stats .trail-icon{width:32px;height:32px}}
+/* Keep navigation in its own row; longer screens scroll above it. */
+.game-shell:is(.screen-home,.screen-mountains,.screen-badges,.screen-profile,.screen-sessions){height:calc(100dvh - 44px);min-height:0}
+.game-shell:is(.screen-home,.screen-mountains,.screen-badges,.screen-profile,.screen-sessions)>.game-main{min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:22px;scrollbar-width:thin}
+.game-shell:is(.screen-home,.screen-mountains,.screen-badges,.screen-profile,.screen-sessions)>.game-nav{position:relative;inset:auto;transform:none;flex-shrink:0;margin-top:auto;width:100%;max-width:none}
+.screen-home .scenic-title{left:12px;right:auto;top:12px;width:auto;max-width:70%;border-radius:13px;padding:10px 13px}
+.screen-mountains .journey-intro{padding:0 4px 12px}
+.screen-mountains .journey-intro h1{font-size:27px;margin:6px 0}
+.screen-mountains .journey-intro p{font-size:11px;margin-top:6px}
+.screen-mountains .expedition-card{min-height:144px}
+.screen-badges .badge-card{border-radius:14px;background:linear-gradient(155deg,#fff,#f6f9f5);border-color:#dce7de}
+.screen-badges .page-quote{margin:16px 0 2px}
+@media(max-width:500px){.game-shell:is(.screen-home,.screen-mountains,.screen-badges,.screen-profile,.screen-sessions){height:100dvh}}

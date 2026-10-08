@@ -1,0 +1,127 @@
+{
+  "capturedAt": "2026-10-08T10:54:36.282Z",
+  "errors": [],
+  "captures": [
+    {
+      "name": "welcome-phone",
+      "overflow": false
+    },
+    {
+      "name": "home-phone",
+      "overflow": false
+    },
+    {
+      "name": "mountains-phone",
+      "overflow": false
+    },
+    {
+      "name": "badges-phone",
+      "overflow": false
+    },
+    {
+      "name": "profile-phone",
+      "overflow": false
+    },
+    {
+      "name": "sessions-phone",
+      "overflow": false
+    },
+    {
+      "name": "climb-phone",
+      "overflow": false
+    },
+    {
+      "name": "overview-phone",
+      "overflow": false
+    },
+    {
+      "name": "welcome-narrow",
+      "overflow": false
+    },
+    {
+      "name": "home-narrow",
+      "overflow": false
+    },
+    {
+      "name": "mountains-narrow",
+      "overflow": false
+    },
+    {
+      "name": "badges-narrow",
+      "overflow": false
+    },
+    {
+      "name": "profile-narrow",
+      "overflow": false
+    },
+    {
+      "name": "sessions-narrow",
+      "overflow": false
+    },
+    {
+      "name": "climb-narrow",
+      "overflow": false
+    },
+    {
+      "name": "overview-narrow",
+      "overflow": false
+    },
+    {
+      "name": "welcome-landscape",
+      "overflow": false
+    },
+    {
+      "name": "home-landscape",
+      "overflow": false
+    },
+    {
+      "name": "mountains-landscape",
+      "overflow": false
+    },
+    {
+      "name": "badges-landscape",
+      "overflow": false
+    },
+    {
+      "name": "profile-landscape",
+      "overflow": false
+    },
+    {
+      "name": "sessions-landscape",
+      "overflow": false
+    },
+    {
+      "name": "climb-landscape",
+      "overflow": false
+    },
+    {
+      "name": "overview-landscape",
+      "overflow": false
+    },
+    {
+      "name": "session-phone-fixture",
+      "overflow": false
+    },
+    {
+      "name": "batch-phone-fixture",
+      "overflow": false
+    },
+    {
+      "name": "paused-phone-fixture",
+      "overflow": false
+    },
+    {
+      "name": "session-landscape-fixture",
+      "overflow": false
+    },
+    {
+      "name": "results-phone-fixture",
+      "overflow": false
+    },
+    {
+      "name": "history-phone-fixture",
+      "overflow": false
+    }
+  ],
+  "note": "Visual inspection only; populated states are synthetic. No gameplay/camera acceptance claimed."
+}

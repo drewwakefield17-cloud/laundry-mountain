@@ -2,10 +2,24 @@
 
 ## Latest priority: complete the personal-game design first
 
+Personal-adventure design pass is implemented for integrated review. Community,
+competitor markers and extra mountain choices removed; old community URL safely
+opens Home. Shared nav is Home / Mountains / Start / Badges / You. Existing source
+assets remain. Welcome/home, three illustrated mountain cards, personal overview,
+badges/profile/history/results refined. Inner scrolling keeps navigation separate
+from content. Manual session and owner storage preserved. Cadence-only badges now
+use session item counts (five/twenty), retaining old camera achievements. Only stale
+copy on the deferred landing was adjusted, not its design. Evidence and remaining
+scope are in `completion-plan.md` and `design/review/personal-adventure/`.
+Build and visual inspection only this pass; no new gameplay/camera test acceptance,
+AI or deployment. Full visual acceptance remains pending.
+
+Original scope-reset request, retained for context:
+
 Owner explicitly redirects the next work away from AI/physical testing and back to
 coherent design. Exactly three mountains: Ben Nevis, Mount Fuji and Everest.
 Community and route demo competitors are out of the release scope. These removals
-are PLANNED, not yet applied. Existing manual loop remains; Fuji/Everest are still
+were initially planned and are now applied above. Existing manual loop remains; Fuji/Everest are still
 previews, not playable expeditions. `docs/completion-plan.md` is the current ordered
 plan and supersedes the immediate AI/owner-testing next step below. This planning
 turn changes documentation only, leaving the owner's live session untouched.

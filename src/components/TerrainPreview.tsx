@@ -11,27 +11,6 @@ export const EXPEDITIONS = [
     difficulty: 'Challenging'
   },
   {
-    id: 'matterhorn',
-    name: 'Matterhorn',
-    region: 'The Alps',
-    elevation: 4478,
-    difficulty: 'Challenging'
-  },
-  {
-    id: 'kilimanjaro',
-    name: 'Kilimanjaro',
-    region: 'Tanzania',
-    elevation: 5895,
-    difficulty: 'Expert'
-  },
-  {
-    id: 'denali',
-    name: 'Denali',
-    region: 'Alaska',
-    elevation: 6190,
-    difficulty: 'Expert'
-  },
-  {
     id: 'everest',
     name: 'Everest',
     region: 'The Himalayas',

@@ -327,6 +327,11 @@ export function MountainScene({
         const next = markerPosition(nextCheckpoint.metres)
         drawSock(next.x * width, next.y * height, composition?.wide ? 48 : 70)
       }
+      // With competitors removed, the upper trail has one quiet destination cue.
+      if (showLabel && metres < 850 && nextCheckpoint?.metres !== 850) {
+        const upper = markerPosition(850)
+        drawSock(upper.x * width, upper.y * height, composition?.wide ? 32 : 46)
+      }
       if (showLabel)
         for (const [ghostIndex, ghost] of ghostImages.entries()) {
           if (composition?.wide && ghostIndex > 0) continue

@@ -1,5 +1,22 @@
 # Reference fidelity review — 8 October 2026
 
+## Latest: personal three-mountain design review
+
+`docs/design/review/personal-adventure/whole-app.png` collects the current actual
+screens and two landscape views; `index.html` opens the individual-size gallery.
+Community/competitors removed. Welcome returns to the reference's compact promise;
+home uses a compact title plate, honest item count, shared stat/action treatments.
+Three mountain cards now give each geographic scene enough space. Achievements,
+profile and history share the same type, materials and restrained depth. Main
+content scrolls above navigation rather than underneath it. The original boards
+remain the benchmark, with the personal scope and manual flow as deliberate changes.
+
+30 visual states at phone/narrow/landscape widths inspected for layout; no script
+errors or horizontal overflow in capture evidence. Build passed. Actual gameplay,
+physical camera and AI tests are deferred as requested. Visual approval pending;
+Fuji/Everest are still labelled previews, not claimed playable. Results/session
+images use explicitly isolated fixture counts and do not alter owner progress.
+
 ## Functional follow-up: manual session fallback
 
 Owner-approved simplification implemented without replacing the visual system.

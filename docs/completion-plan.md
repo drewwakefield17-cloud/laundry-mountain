@@ -2,6 +2,29 @@
 
 Updated 8 October 2026 after the owner requested one clear sequence.
 
+## Implementation checkpoint — personal adventure pass
+
+Steps 1–3 now have an integrated implementation for review: three active mountain
+choices, personal navigation, no community or demo competitors; refined welcome,
+home, selection, overview, achievements, profile, history and results. The original
+approved basket and mountain geometry remain. Regular screens now scroll above
+their navigation, avoiding content hidden underneath it. Cadence badge wording is
+replaced by five/twenty items in one session, using saved counts rather than speed;
+prior camera-earned badges remain valid. No session data is rewritten.
+
+Step 4 is now the review point. See `design/review/personal-adventure/index.html`
+and `whole-app.png`. Screens are actual renders; populated states are isolated
+visual fixtures. TypeScript/build passed; 30 captured visual states have no script
+errors or horizontal overflow. Gameplay/camera suites have deliberately not been
+run in this design pass; their outdated navigation expectations were maintained
+for later execution. No AI work or deployment occurred.
+
+Visual acceptance is still the owner's decision. The full overview preserves real
+terrain and a land-following route; it is not a pixel copy of the conceptual board.
+Fuji and Everest now have prominent geographic preview cards but still need the
+playable progression work in step 5. Landing composition and adult wordmark remain
+deferred; only inaccurate scope/camera copy was corrected on the existing landing.
+
 ## Release scope
 
 Personal laundry adventure. Ben Nevis → Mount Fuji → Everest. No community,

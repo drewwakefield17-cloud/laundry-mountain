@@ -212,12 +212,12 @@ for (const countItem of [false, true])
     await expect(page.locator('.climb-scene')).toHaveAttribute('data-motion', 'idle')
   })
 
-test('profile, demo community, badge criteria and locked expeditions are honest and keyboard usable', async ({
+test('personal profile, badge criteria and three expeditions are honest and keyboard usable', async ({
   page
 }) => {
   await page.setViewportSize({ width: 390, height: 786 })
   await page.goto('/?view=home')
-  await page.getByRole('button', { name: 'Profile', exact: true }).click()
+  await page.getByRole('button', { name: 'You', exact: true }).click()
   await page.getByLabel('Your climber name').fill('Alex')
   await page.getByRole('button', { name: 'Save name' }).click()
   await expect(page.getByRole('status')).toContainText('saved on this phone')
@@ -245,16 +245,9 @@ test('profile, demo community, badge criteria and locked expeditions are honest 
   ).toBeFocused()
   await page.getByRole('button', { name: 'Earned', exact: true }).click()
   await expect(page.locator('.badge-card')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Community', exact: true }).click()
-  await expect(page.locator('.demo-notice')).toContainText('fictional')
-  await expect(page.locator('.leaderboard>button')).toHaveCount(5)
-  await page.getByRole('button', { name: 'Jamie Demo Ben Nevis 72%', exact: true }).click()
-  await expect(dialog).toContainText('not a registered user')
-  await dialog.getByRole('button', { name: 'Got it' }).click()
-  await page.getByRole('button', { name: 'You', exact: true }).click()
-  await expect(page.locator('.leaderboard>button')).toHaveCount(1)
-  await expect(page.locator('.your-row')).toContainText('0%')
+  await expect(page.getByRole('button', { name: 'Community', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Mountains', exact: true }).click()
+  await expect(page.locator('.expedition-card')).toHaveCount(3)
   await page.getByRole('button', { name: 'Everest Future expedition', exact: true }).click()
   await expect(dialog).toContainText('future update')
   await dialog.getByRole('button', { name: 'Got it' }).click()

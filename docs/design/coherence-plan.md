@@ -1,5 +1,10 @@
 # Coherence correction — 8 October 2026
 
+Historical tactile-pass plan. The current sequence and reduced personal-game scope
+are now in `../completion-plan.md`; the latest integrated evidence is
+`review/personal-adventure/`. Community work and immediate camera testing below are
+superseded. Retain the shared style guidance and reference boards.
+
 Implementation resumed with owner approval. Shared tactile controls, contextual
 wording, profile progress shortcuts, supporting-screen grouping and two refined
 overview materials are implemented. The overview player label is repositioned

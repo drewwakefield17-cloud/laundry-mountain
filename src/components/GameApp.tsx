@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   Basket,
   Star,
-  Users,
   User,
   Plus,
   Bell,
@@ -42,6 +41,7 @@ import './game.css'
 import './reference-theme.css'
 import './adventure-theme.css'
 import './visual-refinement.css'
+import './personal-adventure.css'
 
 type Screen =
   | 'home'
@@ -53,7 +53,6 @@ type Screen =
   | 'mountain'
   | 'welcome'
   | 'profile'
-  | 'community'
   | 'badges'
   | 'mountains'
 const SESSION_KEY = 'laundry-mountain:game-sessions:v1'
@@ -62,7 +61,7 @@ const time = (n: number) =>
   `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`
 function initialScreen(): Screen {
   const requested = new URLSearchParams(location.search).get('view')
-  const s = requested === 'setup' ? 'camera' : requested
+  const s = requested === 'setup' ? 'camera' : requested === 'community' ? 'home' : requested
   return [
     'home',
     'camera',
@@ -70,7 +69,6 @@ function initialScreen(): Screen {
     'mountain',
     'welcome',
     'profile',
-    'community',
     'badges',
     'mountains'
   ].includes(s ?? '')
@@ -136,7 +134,6 @@ export function GameApp() {
   })
   const [nameDraft, setNameDraft] = useState(profileName),
     [profileMessage, setProfileMessage] = useState('')
-  const [communityTab, setCommunityTab] = useState<'Global' | 'Friends' | 'You'>('Global')
   const [badgeTab, setBadgeTab] = useState<'All badges' | 'Earned' | 'Next up'>('All badges')
   const [mountainTab, setMountainTab] = useState<'All mountains' | 'Your progress'>('All mountains')
   const [dialog, setDialog] = useState<{
@@ -323,6 +320,7 @@ export function GameApp() {
   const stats = summary(ledger),
     progress = expeditionProgress(stats.mountainMetres)
   const completedLoads = sessions.filter((s) => s.status === 'finished' && s.items > 0).length
+  const bestSessionItems = Math.max(stats.best, 0, ...sessions.map(s => s.items))
   const elapsed = current
     ? sessionSeconds(current, clock)
     : 0
@@ -346,8 +344,8 @@ export function GameApp() {
     },
     {
       name: 'On a Roll',
-      detail: 'Count 5 items in one momentum streak',
-      earned: stats.best >= 5,
+      detail: 'Complete 5 items in one session',
+      earned: bestSessionItems >= 5,
       Icon: Flame,
       color: 'orange'
     },
@@ -388,8 +386,8 @@ export function GameApp() {
     },
     {
       name: 'Steady Climber',
-      detail: 'Count 20 items in one momentum streak',
-      earned: stats.best >= 20,
+      detail: 'Complete 20 items in one session',
+      earned: bestSessionItems >= 20,
       Icon: Layers,
       color: 'gold'
     },
@@ -402,48 +400,6 @@ export function GameApp() {
     }
   ]
   const earnedBadges = badges.filter((b) => b.earned).length
-  // Fictional profiles for the approved asynchronous competition preview.
-  // This data is never registered user activity or written to the real event ledger.
-  const demoProfiles = [
-    {
-      id: 'demo-jamie',
-      name: 'Jamie',
-      metres: 968,
-      avatar: '/art/demo-jamie.webp',
-      is_demo: true as const
-    },
-    {
-      id: 'demo-taylor',
-      name: 'Taylor',
-      metres: 377,
-      avatar: '/art/demo-taylor.webp',
-      is_demo: true as const
-    },
-    {
-      id: 'demo-morgan',
-      name: 'Morgan',
-      metres: 323,
-      avatar: '/art/demo-morgan.webp',
-      is_demo: true as const
-    },
-    {
-      id: 'demo-casey',
-      name: 'Casey',
-      metres: 242,
-      avatar: '/art/demo-casey.webp',
-      is_demo: true as const
-    }
-  ]
-  const communityRows = [
-    ...(communityTab === 'You' ? [] : communityTab === 'Friends' ? demoProfiles.slice(0, 2) : demoProfiles),
-    {
-      id: 'you',
-      name: profileName,
-      metres: stats.mountainMetres,
-      avatar: '',
-      is_demo: false
-    }
-  ].sort((a, b) => b.metres - a.metres)
   function scenic(mode: 'card' | 'mini' | 'map' | 'dial' | 'welcome' = 'card') {
     return (
       <div
@@ -459,7 +415,6 @@ export function GameApp() {
           close={false}
           finish="natural"
           showLabel
-          ghosts={demoProfiles.slice(0, 2)}
         /> : <ClimbScene metres={stats.mountainMetres}
           variant={mode === 'map' ? 'climb' : mode}
           sceneryFinish="illustrated"
@@ -472,7 +427,7 @@ export function GameApp() {
               <span className="difficulty-bars">
                 <Mountain weight="fill" size={16} />
               </span>{' '}
-              Your first expedition
+              Scottish Highlands
             </p>
           </div>
         )}
@@ -520,7 +475,6 @@ export function GameApp() {
     mountain: 'Ben Nevis',
     welcome: 'Welcome',
     profile: 'Your Profile',
-    community: 'Community',
     badges: 'Achievements',
     mountains: 'Mountains'
   }
@@ -601,11 +555,11 @@ export function GameApp() {
             />
             <div className="welcome-bottom">
               <h1>
-                A mountain of laundry.
+                Small loads.
                 <br />
-                Meet your match.
+                Big progress.
               </h1>
-              <p>Turn the never-ending pile into an uphill adventure.</p>
+              <p>Three real mountains. One less mountain of laundry.</p>
               <button className="primary game-cta" onClick={() => navigate('home')}>
                 Get Started <ArrowRight size={20} />
               </button>
@@ -637,8 +591,8 @@ export function GameApp() {
               </button>
               <button onClick={() => navigate('sessions')}>
                 <TrailIcon kind="streak" />
-                <strong>{stats.best}</strong>
-                <span>Best streak</span>
+                <strong>{stats.items}</strong>
+                <span>Items done</span>
               </button>
               <button onClick={() => navigate('badges')}>
                 <TrailIcon kind="badge" />
@@ -847,10 +801,10 @@ export function GameApp() {
                   <span>Base metres</span>
                   <strong>{format(current.base)} m</strong>
                 </p>
-                <p>
+                {current.mode !== 'manual' && <p>
                   <span>Momentum bonus</span>
                   <strong>+{format(current.metres - current.base)} m</strong>
-                </p>
+                </p>}
                 <p>
                   <span>Total Laundry Metres</span>
                   <strong>{format(current.metres)} m</strong>
@@ -858,9 +812,7 @@ export function GameApp() {
                 <p>Saved on this phone.</p>
               </div>
             </details>
-            <a className="diagnostics-link" href="/?view=test">
-              Open test diagnostics
-            </a>
+
           </>
         )}
         {screen === 'mountain' && (
@@ -911,6 +863,7 @@ export function GameApp() {
         )}
         {screen === 'mountains' && (
           <>
+            <div className="journey-intro"><span className="eyebrow">YOUR THREE-PEAK CHALLENGE</span><h1>Big peaks.<br />Little victories.</h1><p>From the Highlands to the Himalayas.<br />One finished item at a time.</p></div>
             <div className="segmented" aria-label="Mountain filter">
               {(['All mountains', 'Your progress'] as const).map((t) => (
                 <button key={t} aria-pressed={mountainTab === t} onClick={() => setMountainTab(t)}>
@@ -924,13 +877,14 @@ export function GameApp() {
                 aria-label="Explore Ben Nevis"
                 onClick={() => navigate('mountain')}
               >
-                <span className="expedition-thumbnail">{scenic('mini')}</span>
+                <span className="expedition-thumbnail"><ScenicArtwork companion={false} /></span>
+                <span className="expedition-number">01 <span>YOUR CURRENT CLIMB</span></span>
                 <span className="expedition-name">
                   <strong>Ben Nevis</strong>
                   <small>
                     <Mountain weight="fill" /> Scottish Highlands
                   </small>
-                  <span>1,345 m · Your first expedition</span>
+                  <span>1,345 m summit · {format(stats.mountainMetres)} m climbed</span>
                 </span>
                 <span
                   className="mini-progress-ring"
@@ -960,24 +914,25 @@ export function GameApp() {
                     <span className="expedition-thumbnail">
                       <TerrainPreview id={mountain.id} name={mountain.name} />
                     </span>
+                    <span className="expedition-number">0{index + 2} <span>{index ? 'THE ULTIMATE PEAK' : 'A NEW HORIZON'}</span></span>
                     <span className="expedition-name">
                       <strong>{mountain.name}</strong>
                       <small>
-                        <Mountain weight="fill" /> {mountain.difficulty}
+                        <Mountain weight="fill" /> {mountain.region}
                       </small>
                       <span>
-                        {format(mountain.elevation)} m · {mountain.region}
+                        {format(mountain.elevation)} m summit
                       </span>
                     </span>
                     <span className="expedition-lock">
                       <Lock weight="fill" />
-                      <strong>Locked</strong>
-                      <small>Future expedition</small>
+                      <strong>Preview</strong>
+                      <small>Coming to your trail</small>
                     </span>
                   </button>
                 ))}
             </div>
-            <p className="page-quote">“A cleaner home. A higher you.”</p>
+            <p className="page-quote">Same basket. Bigger horizons.</p>
           </>
         )}
         {screen === 'sessions' && (
@@ -1037,6 +992,7 @@ export function GameApp() {
         )}
         {screen === 'badges' && (
           <>
+            <div className="collection-intro"><span className="eyebrow">A LITTLE PROOF OF PROGRESS</span><h1>Earn your stripes.</h1><p>{earnedBadges} of {badges.length} badges earned. Every one has a story.</p></div>
             <div className="segmented" aria-label="Badge filter">
               {(['All badges', 'Earned', 'Next up'] as const).map((t) => (
                 <button key={t} aria-pressed={badgeTab === t} onClick={() => setBadgeTab(t)}>
@@ -1086,66 +1042,6 @@ export function GameApp() {
             </p>
           </>
         )}
-        {screen === 'community' && (
-          <>
-            <div className="segmented" aria-label="Community filter">
-              {(['Global', 'Friends', 'You'] as const).map((t) => (
-                <button key={t} aria-pressed={communityTab === t} onClick={() => setCommunityTab(t)}>
-                  {t}
-                </button>
-              ))}
-            </div>
-            <p className="demo-notice">Demo community preview · profiles labelled Demo are fictional.</p>
-            <div className="leaderboard">
-              {communityRows.map((person, i) => (
-                <button
-                  key={person.id}
-                  className={!person.is_demo ? 'your-row' : ''}
-                  onClick={() =>
-                    setDialog({
-                      title: person.is_demo ? `${person.name} · Demo profile` : 'Your climb',
-                      body: person.is_demo
-                        ? 'This is fictional test data showing how asynchronous competition will look. This person is not a registered user.'
-                        : `${format(stats.mountainMetres)} Laundry Metres earned on this phone. Live community accounts and syncing are not connected yet.`
-                    })
-                  }
-                >
-                  <span className="rank">
-                    {i === 0 && person.metres > 0 ? <Crown weight="fill" /> : i + 1}
-                  </span>
-                  {person.avatar ? (
-                    <img src={person.avatar} alt="" />
-                  ) : (
-                    <span className="avatar-small">
-                      <User weight="duotone" />
-                    </span>
-                  )}
-                  <span className="person-name">
-                    <strong>
-                      {person.is_demo ? person.name : 'You'}
-                      {person.is_demo && <small>Demo</small>}
-                    </strong>
-                    <span>Ben Nevis</span>
-                  </span>
-                  <strong>{format((person.metres / 1345) * 100)}%</strong>
-                </button>
-              ))}
-            </div>
-            <div className="community-motto">
-              <Users weight="duotone" />
-              <p>
-                <strong>Good company. Higher ground.</strong>
-                <span>
-                  Different piles.
-                  <br />Same uphill ambition.
-                </span>
-              </p>
-            </div>
-            <p className="small-print">
-              Preview only. Your progress is local; accounts and live competition are not connected.
-            </p>
-          </>
-        )}
         {screen === 'profile' && (
           <>
             <div className="profile-hero">
@@ -1154,12 +1050,13 @@ export function GameApp() {
                 <BasketAvatar />
               </span>
               <h1>{profileName}</h1>
-              <p>Making a mountain out of the washing.</p>
+              <p>Your pace. Your peaks. Your pile, conquered.</p>
             </div>
             <div className="profile-progress" aria-label="Your climbing progress">
               <button onClick={() => navigate('mountain')}><TrailIcon kind="mountain" /><span><strong>{format(stats.lifetimeMetres)} m</strong><small>Climbed so far</small></span><ArrowRight size={16}/></button>
               <button onClick={() => navigate('badges')}><TrailIcon kind="badge" /><span><strong>{earnedBadges}</strong><small>Badges earned</small></span><ArrowRight size={16}/></button>
             </div>
+            <div className="personal-trail-strip"><Sock weight="duotone"/><span><small>YOUR NEXT LITTLE WIN</small><strong>{progress.next?.name ?? 'Ben Nevis, conquered.'}</strong></span><b>{format(progress.remaining)} m</b></div>
             <form
               className="profile-form"
               onSubmit={(e) => {
@@ -1209,12 +1106,6 @@ export function GameApp() {
             </div>
           </>
         )}
-        {!['live', 'session', 'welcome', 'mountain'].includes(screen) && (
-          <p className="validation-note">
-            <span />
-            Camera validation pending · <a href="/?view=test">Folding test</a>
-          </p>
-        )}
       </main>
       {!['live', 'session', 'camera', 'welcome', 'results'].includes(screen) && (
         <nav className="game-nav" aria-label="Game navigation">
@@ -1222,9 +1113,9 @@ export function GameApp() {
             [
               { s: 'home', label: 'Home', Icon: Home },
               { s: 'mountains', label: 'Mountains', Icon: Mountain },
-              { s: 'camera', label: 'Add', Icon: Plus },
-              { s: 'community', label: 'Community', Icon: Users },
-              { s: 'profile', label: 'Profile', Icon: User }
+              { s: 'camera', label: 'Start', Icon: Plus },
+              { s: 'badges', label: 'Badges', Icon: Star },
+              { s: 'profile', label: 'You', Icon: User }
             ] as const
           ).map(({ s, label, Icon }) => (
             <button

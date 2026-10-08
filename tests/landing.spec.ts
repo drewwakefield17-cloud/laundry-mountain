@@ -39,7 +39,7 @@ test('landing connects to onboarding and diagnostics without awarding progress',
   await expect(page.getByRole('button', { name: 'Get Started' })).toBeVisible()
   await page.getByRole('button', { name: 'Get Started' }).click()
   await expect(page.getByRole('heading', { name: 'Climber!' })).toBeVisible()
-  await page.getByRole('link', { name: 'Folding test', exact: true }).click()
+  await page.goto('/?view=test')
   await expect(page.getByRole('heading', { name: 'Your folding workspace' })).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
   expect(errors).toEqual([])
