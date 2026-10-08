@@ -3,6 +3,9 @@
 ## Current gate: visual refinement
 
 Latest supporting-screen evidence: `docs/design/review/app-consistency/`.
+Camera-off artwork now shares home's illustrated Ben Nevis/basket and welcome's
+curved white caption, replacing the rejected photographic laundry room. Inspected
+at 320 px, 390 px and landscape widths; build and 3 targeted browser tests passed.
 Shared surfaces, controls, icons, profile artwork, empty history and mountain list
 have been inspected across phone, narrow phone, landscape and desktop. The camera
 introduction now fits landscape with Enable camera visible. Entry goes directly to

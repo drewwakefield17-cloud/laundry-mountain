@@ -2,6 +2,12 @@
 
 ## Current: approved-board refinement on `visual-refinement`
 
+- Camera style correction: the owner rejected the photographic laundry-room art as
+  inconsistent. Camera-off setup now reuses the same illustrated Ben Nevis and
+  approved basket as home, with the white welcome-style curved caption, flat CTA,
+  quieter privacy copy and white guidance. Real camera replaces the artwork once
+  enabled; detection/calibration remain unchanged. Narrow/portrait/landscape visuals,
+  build and three targeted entry/synthetic-camera browser tests passed.
 - Supporting-screen pass: shared white/navy/emerald surfaces, consistent stat art,
   Ben Nevis artwork in the list/profile, basket empty history, quieter demo labels,
   and landscape camera-off setup with its action visible without scrolling.

@@ -80,7 +80,12 @@
 .game-shell .community-motto span{color:var(--muted);font-size:12px}
 .game-shell .game-camera .setup-note{background:var(--surface-soft);border:1px solid var(--border);color:var(--navy)}
 .game-shell .game-camera .setup-note.calibrated{background:var(--selected);border-color:#00865e}
-.game-shell .game-camera .camera-off-message{background:#ffffffed;border-color:#dce5e9;box-shadow:0 6px 18px #15334314;color:var(--navy)}
+.game-shell .game-camera .camera-off-message{bottom:0;left:0;right:0;background:#fff;border:0;border-radius:50% 50% 0 0 / 15% 15% 0 0;padding:17px 10px 12px;box-shadow:none;color:var(--navy)}
+.game-camera .illustrated-setup .scenic-artwork-companion{width:42%;left:5%;bottom:23%}
+.game-camera .illustrated-setup .scenic-artwork-landscape{object-position:50% 40%}
+.game-shell .game-camera:has(.camera-off-message) .camera-preview{border:0;border-radius:16px}
+.game-shell .game-camera:has(.camera-off-message) .setup-note{background:none;border:0;padding:0 8px;text-align:center;justify-content:center;font-size:12px;line-height:1.45;color:var(--muted)}
+.game-shell.screen-camera .phone-position{background:#fff;border-color:var(--border);border-radius:12px}
 .game-shell .game-camera .illustration-label{background:#fffffff2;color:var(--muted)}
 .game-shell .camera-intro h1{font-size:26px;line-height:1.15}
 .game-shell .camera-intro p{font-size:13px;color:var(--muted)}
