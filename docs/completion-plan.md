@@ -1,6 +1,21 @@
 # Laundry Mountain completion plan
 
-Updated 8 October 2026 after the owner requested one clear sequence.
+Updated 8 October 2026 after the owner approved the personal app / Ben Nevis finish.
+
+## Current priority (supersedes older acceptance notes below)
+
+The owner likes the built app and Ben Nevis. Finish Fuji and Everest in that family,
+then prioritise the working demo sequence in `submission-plan.md`: completed items,
+basket movement, checkpoint celebration, animated newly earned badge, saved progress.
+The target is a compelling truthful video and open-source repository, not a broad
+production backend. Vercel is now explicitly selected; deployment remains paused.
+The deadline is 9 October at 19:00 UK time. AI and continuous detection are deferred.
+
+Fuji and Everest now have full overview/climb scene implementations in the existing
+app, with independent terrain, foregrounds, game trails and rigged basket. These
+remain clearly marked previews; actual expedition unlocks and saved progress still
+need the separate gameplay pass. Ben Nevis and owner session data remain unchanged.
+
 
 ## Implementation checkpoint — personal adventure pass
 
@@ -19,7 +34,7 @@ errors or horizontal overflow. Gameplay/camera suites have deliberately not been
 run in this design pass; their outdated navigation expectations were maintained
 for later execution. No AI work or deployment occurred.
 
-Visual acceptance is still the owner's decision. The full overview preserves real
+The owner has since approved the Ben Nevis/app visual direction. The full overview preserves real
 terrain and a land-following route; it is not a pixel copy of the conceptual board.
 Fuji and Everest now have prominent geographic preview cards but still need the
 playable progression work in step 5. Landing composition and adult wordmark remain
@@ -37,8 +52,8 @@ coordinated board remain the visual reference. No restart or stack change.
 
 - Built: existing app screens; Ben Nevis live climb; manual timer/batch loop;
   local progress, session history, badges and optional temporary photo previews.
-- Not visually signed off: welcome/home, full-mountain composition, supporting
-  screens and consistency with the newly added manual session.
+- Approved visual baseline: current personal app and Ben Nevis; Fuji/Everest
+  receive the same finish in the next scene pass.
 - Fuji/Everest: existing artwork/terrain previews, not playable progression.
 - Outstanding: release scope cleanup, final app design, three-mountain progression,
   phone/gameplay acceptance, optional AI photo estimates, landing and submission.
@@ -74,9 +89,8 @@ coordinated board remain the visual reference. No restart or stack change.
    implementation then. Don't block release on continuous live-fold detection.
 7. **Package the finished app.** Carry the settled style into the landing page,
    record a truthful demo and prepare the submission. Review the owner's forthcoming
-   example before choosing demo format. Netlify remains the host and deployment
-   remains paused until explicitly resumed; other entries using Vercel do not
-   change that decision.
+   example before choosing demo format. Vercel is now the selected host. Deployment remains paused until explicitly
+   resumed. Follow the demo priorities in `submission-plan.md`.
 
 ## Working discipline
 

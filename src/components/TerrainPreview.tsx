@@ -18,7 +18,7 @@ export const EXPEDITIONS = [
     difficulty: 'Legendary'
   }
 ] as const
-interface TerrainData {
+export interface TerrainData {
   size: number
   heights: number[]
   span: number
@@ -32,7 +32,7 @@ interface TerrainData {
 const sources = new Map<string, Promise<TerrainData>>()
 const paintedMaterials = new Map<string, HTMLImageElement>()
 const backdrops = new Map<string, { canvas: HTMLCanvasElement; paint: typeof paintPreview }>()
-function paintedMaterial(id: string) {
+export function paintedMaterial(id: string) {
   let image = paintedMaterials.get(id)
   if (!image) {
     image = new Image()
@@ -41,12 +41,15 @@ function paintedMaterial(id: string) {
   }
   return image
 }
-function source(id: string) {
+export function source(id: string) {
   let result = sources.get(id)
   if (!result) {
     result = fetch(`/data/${id}.json`).then((response) => {
       if (!response.ok) throw new Error('Terrain unavailable')
       return response.json() as Promise<TerrainData>
+    }).catch(error => {
+      sources.delete(id)
+      throw error
     })
     sources.set(id, result)
   }

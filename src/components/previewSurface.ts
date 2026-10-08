@@ -20,10 +20,10 @@ function groundTexture(image?: HTMLImageElement) {
   let pixels = groundSamples.get(image)
   if (!pixels) {
     const canvas = document.createElement('canvas')
-    canvas.width = canvas.height = 1024
+    canvas.width = canvas.height = 2048
     const context = canvas.getContext('2d')!
-    context.drawImage(image, 0, 0, 1024, 1024)
-    pixels = context.getImageData(0, 0, 1024, 1024).data
+    context.drawImage(image, 0, 0, 2048, 2048)
+    pixels = context.getImageData(0, 0, 2048, 2048).data
     groundSamples.set(image, pixels)
   }
   return pixels
@@ -65,7 +65,8 @@ export function paintPreview(
     meadow?: HTMLImageElement
     clouds?: HTMLImageElement
     ground?: HTMLImageElement
-  }
+  },
+  view?: { scale: number; originX: number; originY: number }
 ) {
   const sky = ctx.createLinearGradient(0, 0, 0, h)
   sky.addColorStop(0, '#75beec')
@@ -86,7 +87,7 @@ export function paintPreview(
     tilt = (6 * Math.PI) / 180
   const n = data.size,
     step = data.span / (n - 1)
-  const scale = Math.min(w / (data.span * 0.42), h / (((data.elevation - data.datum) / 1000) * 1.5))
+  const scale = view?.scale ?? Math.min(w / (data.span * 0.42), h / (((data.elevation - data.datum) / 1000) * 1.5))
   const sample = (i: number, j: number) =>
     data.heights[clamp(j, 0, n - 1) * n + clamp(i, 0, n - 1)] / 1000
   const vertices = data.heights.map((metres, index) => {
@@ -96,9 +97,9 @@ export function paintPreview(
       z = (j / (n - 1) - 0.5) * data.span
     const depth = x * Math.sin(angle) + z * Math.cos(angle)
     return {
-      x: w * 0.5 + (x * Math.cos(angle) - z * Math.sin(angle)) * scale,
+      x: (view?.originX ?? w * 0.5) + (x * Math.cos(angle) - z * Math.sin(angle)) * scale,
       y:
-        h * 0.81 -
+        (view?.originY ?? h * 0.81) -
         (depth * Math.sin(tilt) + ((metres - data.datum) / 1000) * Math.cos(tilt)) * scale,
       wx: x,
       wz: z,
@@ -108,7 +109,7 @@ export function paintPreview(
       nz: (sample(i, j + 1) - sample(i, j - 1)) / (2 * step)
     }
   })
-  const density = Math.min(1.7, 900 / Math.max(w, h)),
+  const density = Math.min(devicePixelRatio || 1, 2, (view ? 1800 : 1100) / Math.max(w, h)),
     sw = Math.ceil(w * density),
     sh = Math.ceil(h * density)
   const canvas = document.createElement('canvas')
@@ -159,16 +160,16 @@ export function paintPreview(
         const exposure = clamp(light * 0.9 + 0.12 + grain * 0.55)
         const mist = clamp((depth / data.span + 0.1) * 0.2, 0, 0.2)
         const volcanic = data.id === 'fuji' || data.id === 'kilimanjaro'
-        const gx = clamp((wx / data.span + 0.5) * 1023, 0, 1023),
-          gz = clamp((0.5 - wz / data.span) * 1023, 0, 1023)
+        const gx = clamp((wx / data.span + 0.5) * 2047, 0, 2047),
+          gz = clamp((0.5 - wz / data.span) * 2047, 0, 2047)
         const ix = Math.floor(gx),
           iz = Math.floor(gz),
-          jx = Math.min(ix + 1, 1023),
-          jz = Math.min(iz + 1, 1023)
-        const ga = (iz * 1024 + ix) * 4,
-          gb = (iz * 1024 + jx) * 4,
-          gc = (jz * 1024 + ix) * 4,
-          gd = (jz * 1024 + jx) * 4
+          jx = Math.min(ix + 1, 2047),
+          jz = Math.min(iz + 1, 2047)
+        const ga = (iz * 2048 + ix) * 4,
+          gb = (iz * 2048 + jx) * 4,
+          gc = (jz * 2048 + ix) * 4,
+          gd = (jz * 2048 + jx) * 4
         const opacity = ground ? quad(ground, 3, ga, gb, gc, gd, gx - ix, gz - iz) / 255 : 0
         for (let k = 0; k < 3; k++) {
           const rock = mix(
@@ -193,9 +194,13 @@ export function paintPreview(
               quad(ground, k, ga, gb, gc, gd, gx - ix, gz - iz) * (0.96 + light * 0.08),
               opacity * 0.96
             )
-          pixels.data[index * 4 + k] = mix(material, [146, 191, 204][k], mist)
+          pixels.data[index * 4 + k] = mix(material, [146, 191, 204][k], view ? Math.max(mist, (1-opacity)*.52) : mist)
         }
-        pixels.data[index * 4 + 3] = 255
+        // The height grid is a finite survey patch, not a rectangular island.
+        // Let its outer margin recede into the sky/atmosphere rather than expose
+        // a vertical cut edge when the landscape viewport shows the whole grid.
+        const margin = clamp((data.span * .5 - Math.max(Math.abs(wx), Math.abs(wz))) / (data.span * .13))
+        pixels.data[index * 4 + 3] = view ? 255 * margin * margin * (3 - 2 * margin) : 255
       }
   }
   for (let j = 0; j < n - 1; j++)
@@ -218,6 +223,7 @@ export function paintPreview(
     }
   c.putImageData(pixels, 0, 0)
   ctx.drawImage(canvas, 0, 0, w, h)
+  if (view) return
   // A cream atmospheric frame softens the finite data boundary. It is not an
   // invented continuation of the mountain or a claim of additional land cover.
   const foregroundMist = ctx.createLinearGradient(0, h * 0.64, 0, h * 0.97)

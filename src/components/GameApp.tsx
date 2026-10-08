@@ -33,6 +33,8 @@ import { manualBatch, reconcileManualSession, sessionSeconds, type Session } fro
 import { ScenicArtwork, TrailIcon } from './ScenicArtwork'
 import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
+import { ExpeditionScene } from './ExpeditionScene'
+import { scenicExpeditionId, SCENIC_EXPEDITIONS, type ScenicExpeditionId } from '../domain/expeditionScenery'
 import { BEN_NEVIS, GAME } from '../domain/config'
 import { expeditionProgress } from '../domain/expedition'
 import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from '../domain/ledger'
@@ -99,6 +101,8 @@ function readSessions(): Session[] {
 }
 export function GameApp() {
   const [screen, setScreen] = useState<Screen>(initialScreen)
+  const [previewId, setPreviewId] = useState(() => scenicExpeditionId(new URLSearchParams(location.search).get('expedition')))
+  const preview = previewId ? SCENIC_EXPEDITIONS[previewId] : null
   const [error, setError] = useState(''),
     blocked = useRef(false)
   const [ledger, setLedger] = useState(() => {
@@ -123,7 +127,7 @@ export function GameApp() {
     [paused, setPaused] = useState(false)
   const [observation, setObservation] = useState<Observation | null>(null),
     [clock, setClock] = useState(Date.now()),
-    [close, setClose] = useState(true)
+    [close, setClose] = useState(!previewId)
   const [burst, setBurst] = useState('')
   const [profileName, setProfileName] = useState(() => {
     try {
@@ -162,9 +166,16 @@ export function GameApp() {
     }
   }, [])
   function navigate(next: Screen) {
+    setPreviewId(null)
     history.pushState(null, '', `/?view=${next}`)
     setScreen(next)
     window.scrollTo(0, 0)
+  }
+  function exploreExpedition(id: ScenicExpeditionId) {
+    navigate('mountain')
+    setPreviewId(id)
+    setClose(false)
+    history.replaceState(null, '', `/?view=mountain&expedition=${id}`)
   }
   const saveSession = useCallback((value: Session) => {
     const list = [value, ...sessionsRef.current.filter((s) => s.id !== value.id)]
@@ -236,6 +247,7 @@ export function GameApp() {
   )
   useEffect(() => {
     const pop = () => {
+      setPreviewId(scenicExpeditionId(new URLSearchParams(location.search).get('expedition')))
       if (run.current?.mode === 'manual') { run.current = null; setScreen(initialScreen()) }
       else if (run.current) finish('Left the live session')
       else setScreen(initialScreen())
@@ -472,7 +484,7 @@ export function GameApp() {
     live: 'Ben Nevis',
     results: 'Session Results',
     sessions: 'Session History',
-    mountain: 'Ben Nevis',
+    mountain: preview?.name ?? 'Ben Nevis',
     welcome: 'Welcome',
     profile: 'Your Profile',
     badges: 'Achievements',
@@ -517,8 +529,8 @@ export function GameApp() {
             <>
               <button
                 className="icon-button"
-                aria-label="Back to home"
-                onClick={() => (run.current?.mode === 'manual' ? pauseManual(true) : run.current ? finish('Returned home') : navigate('home'))}
+                aria-label={preview ? 'Back to mountains' : 'Back to home'}
+                onClick={() => (preview ? navigate('mountains') : run.current?.mode === 'manual' ? pauseManual(true) : run.current ? finish('Returned home') : navigate('home'))}
               >
                 <ArrowLeft size={22} />
               </button>
@@ -527,7 +539,7 @@ export function GameApp() {
                 <div className="summit-chip">
                   <Crown weight="fill" />
                   <span>
-                    Summit<strong>1,345 m</strong>
+                    Summit<strong>{format(preview?.elevation ?? 1345)} m</strong>
                   </span>
                 </div>
               ) : screen === 'live' ? (
@@ -818,8 +830,9 @@ export function GameApp() {
         {screen === 'mountain' && (
           <>
             <div className="map-scene">
-              {scenic('map')}
-              {!close && <div className="overview-next"><Sock weight="duotone" size={28} /><span><small>{progress.summit ? 'Expedition complete' : 'Next checkpoint'}</small><strong>{progress.next?.name ?? 'Summit reached'}</strong></span><b>{progress.summit ? '1,345 m' : `${format(progress.remaining)} m`}</b></div>}
+              {previewId ? <div className="game-scenic scenic-map"><ExpeditionScene id={previewId} close={close} /></div> : scenic('map')}
+              {preview && <div className="expedition-preview-note"><Sock weight="duotone" size={28} /><span><strong>{preview.checkpoints[0].name}</strong><small>Future expedition · explore the scenery</small></span></div>}
+              {!preview && !close && <div className="overview-next"><Sock weight="duotone" size={28} /><span><small>{progress.summit ? 'Expedition complete' : 'Next checkpoint'}</small><strong>{progress.next?.name ?? 'Summit reached'}</strong></span><b>{progress.summit ? '1,345 m' : `${format(progress.remaining)} m`}</b></div>}
               <div className="view-control">
                 <button aria-pressed={!close} onClick={() => setClose(false)}>
                   Full mountain
@@ -829,10 +842,10 @@ export function GameApp() {
                 </button>
               </div>
               <a className="terrain-credit" href="/terrain-credits.html" target="_blank" rel="noreferrer">
-                Map data © OpenStreetMap · Terrain credits
+                {preview ? 'Real terrain · Illustrated game trail · Credits' : 'Map data © OpenStreetMap · Terrain credits'}
               </a>
             </div>
-            <details className="route-details">
+            {!preview && <details className="route-details">
               <summary aria-label="Your route checkpoints">Checkpoints</summary>
               <div className="mountain-progress">
                 <div>
@@ -858,7 +871,7 @@ export function GameApp() {
                 Real Ben Nevis terrain and Mountain Path. Checkpoints measure Laundry Metres, not hiking
                 distance.
               </p>
-            </details>
+            </details>}
           </>
         )}
         {screen === 'mountains' && (
@@ -903,13 +916,7 @@ export function GameApp() {
                     className="expedition-card"
                     key={mountain.id}
                     aria-label={`${mountain.name} Future expedition`}
-                    onClick={() =>
-                      setDialog({
-                        title: mountain.name,
-                        mountainId: mountain.id,
-                        body: `${mountain.region} · ${format(mountain.elevation)} m. Complete ${index ? EXPEDITIONS[index - 1].name : 'Ben Nevis'} to reach this expedition. This terrain preview is ready to explore; playable progression arrives in a future update.`
-                      })
-                    }
+                    onClick={() => exploreExpedition(mountain.id)}
                   >
                     <span className="expedition-thumbnail">
                       <TerrainPreview id={mountain.id} name={mountain.name} />

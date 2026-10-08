@@ -66,13 +66,10 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   capacity is available. Protect user data with appropriate ownership/RLS policies;
   verify actual operations. Do not expose server credentials in the browser.
   Current local persistence must remain usable without Supabase.
-- **Hosting:** Netlify is the selected project host. Deployment is paused until the
-  owner explicitly resumes it; GitHub pushes are allowed. Use Netlify capabilities
-  for the selected host. Vercel capabilities are also available for environments,
-  deployment/log investigation and production verification if Vercel is explicitly
-  chosen later. Merely mentioning available Vercel tools does not migrate hosting.
-  Do not deploy as a side effect of testing. Keep the Netlify skip marker on commits
-  pushed while deployment is paused.
+- **Hosting (8 October, latest):** the owner explicitly selected Vercel on their
+  hobby account. Deployment remains paused until requested; GitHub pushes are
+  allowed. Keep `[skip netlify]` while the old integration may still be attached.
+  Do not deploy as a side effect of testing or this hosting preference change.
 - **Other specialists:** use image generation for appropriate individual assets,
   web research for grounded mountain references, GitHub tools for repository/PR/CI
   work, and performance/security skills when their findings materially help the task.
@@ -80,6 +77,17 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   clearly bounded ownership. Tool/plugin defaults never override project constraints.
 
 ## Product and design requirements
+
+- **Latest owner approval and submission focus:** the owner likes the implemented
+  personal-app design and Ben Nevis. Finish Fuji and Everest in that visual family,
+  then prioritise a reliable recorded demo path: real laundry → manual batch →
+  basket movement → sock checkpoint → badge unlock animation → saved progress.
+  Broader production features and automatic counting are deferred. Demo emphasis
+  does not authorize fabricated earned progress or claiming AI that is not built.
+  Artwork/thumbnail and video follow the app scenes. See `docs/submission-plan.md`.
+  This approval supersedes older statements below that Ben Nevis/the whole app
+  still await visual sign-off. Fuji/Everest remain previews until connected to
+  actual expedition progression. Do not restart the accepted design exploration.
 
 - **Latest 8 October scope/order reset:** finish the coherent app design before
   advancing AI, backend or owner gameplay/camera testing. Release scope is now a

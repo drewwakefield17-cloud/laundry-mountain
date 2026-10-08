@@ -1,0 +1,68 @@
+{
+  "capturedAt": "2026-10-08T12:23:13.576Z",
+  "errors": [],
+  "captures": [
+    {
+      "name": "fuji-overview-phone",
+      "overflow": false,
+      "renderMs": "637.2"
+    },
+    {
+      "name": "fuji-climb-phone",
+      "overflow": false,
+      "renderMs": "0.1"
+    },
+    {
+      "name": "everest-overview-phone",
+      "overflow": false,
+      "renderMs": "1340.6"
+    },
+    {
+      "name": "everest-climb-phone",
+      "overflow": false,
+      "renderMs": "0.0"
+    },
+    {
+      "name": "fuji-overview-landscape",
+      "overflow": false,
+      "renderMs": "599.4"
+    },
+    {
+      "name": "fuji-climb-landscape",
+      "overflow": false,
+      "renderMs": "0.0"
+    },
+    {
+      "name": "everest-overview-landscape",
+      "overflow": false,
+      "renderMs": "930.6"
+    },
+    {
+      "name": "everest-climb-landscape",
+      "overflow": false,
+      "renderMs": "0.1"
+    },
+    {
+      "name": "fuji-overview-narrow",
+      "overflow": false,
+      "renderMs": "668.0"
+    },
+    {
+      "name": "fuji-climb-narrow",
+      "overflow": false,
+      "renderMs": "0.1"
+    },
+    {
+      "name": "everest-overview-narrow",
+      "overflow": false,
+      "renderMs": "911.3"
+    },
+    {
+      "name": "everest-climb-narrow",
+      "overflow": false,
+      "renderMs": "0.0"
+    }
+  ],
+  "storageKeysAfterPreview": [],
+  "note": "Visual preview routes only; no earned progress or gameplay acceptance."
+}

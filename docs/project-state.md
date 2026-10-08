@@ -1,5 +1,22 @@
 # Project handoff — 8 October 2026
 
+## Latest direction: approved baseline, two scenes, then the demo
+
+The owner approved the current personal app and Ben Nevis visual direction.
+Fuji/Everest now have integrated overview/climb scenery previews with independent
+geographic meshes, refined paint materials, separate foregrounds, sock trails and
+the approved basket rig. Open from Mountains or `?view=mountain&expedition=fuji`
+(and `everest`). Preview navigation writes no progress. Playable expedition
+selection/unlocks and persistence remain separate gameplay work.
+
+Owner now prioritises a compelling truthful demo video: real laundry, manual batch,
+basket walking, checkpoint celebration, new badge reveal and saved progress.
+See `submission-plan.md` for inspected Yard 4 requirements/examples and deadline.
+Vercel explicitly replaces Netlify as selected host; no deployment requested yet.
+Do not reopen Ben Nevis or the approved full-app design exploration.
+
+The following is the prior milestone record; its pending-approval notes are superseded.
+
 ## Latest priority: complete the personal-game design first
 
 Personal-adventure design pass is implemented for integrated review. Community,

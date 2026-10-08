@@ -12,7 +12,7 @@ art=root/'docs/design/source-art'; cache=root/'artifacts/geography'
 cache.mkdir(parents=True,exist_ok=True)
 mountain=sys.argv[1]; data=json.loads((root/f'public/data/{mountain}.json').read_text())
 n=data['size']; span=data['span']; heights=np.array(data['heights']).reshape(n,n)/1000
-angle=np.deg2rad(data['heading']); tilt=np.deg2rad(6); w,h=768,540
+angle=np.deg2rad(data['heading']); tilt=np.deg2rad(6); w,h=1536,1080
 scale=min(w/(span*.42),h/((data['elevation']-data['datum'])/1000*1.5))
 
 def project(x,z,y):
@@ -22,14 +22,15 @@ def project(x,z,y):
 if len(sys.argv)>2:
     painted=np.array(Image.open(sys.argv[2]).convert('RGB').resize((w,h),Image.Resampling.LANCZOS))
     buffers=np.load(cache/f'{mountain}-material-view.npz')
-    side=1024
+    side=2048
     x,z=np.meshgrid(np.linspace(-span/2,span/2,side),np.linspace(span/2,-span/2,side))
     fx=(x/span+.5)*(n-1); fz=(z/span+.5)*(n-1)
     i=np.clip(fx.astype(int),0,n-2); j=np.clip(fz.astype(int),0,n-2); a,b=fx-i,fz-j
     y=(heights[j,i]*(1-a)+heights[j,i+1]*a)*(1-b)+(heights[j+1,i]*(1-a)+heights[j+1,i+1]*a)*b
     sx,sy,depth=project(x,z,y); ix=np.clip(sx.astype(int),0,w-1); iy=np.clip(sy.astype(int),0,h-1)
     visible=(sx>=0)&(sx<w)&(sy>=0)&(sy<h)&(abs(depth-buffers['depth'][iy,ix])<span*.005)
-    alpha=np.array(Image.fromarray((visible*255).astype('uint8')).filter(ImageFilter.GaussianBlur(1)))*visible
+    edge=np.clip(np.minimum.reduce([sx,w-1-sx,sy,h-1-sy])/55,0,1)
+    alpha=np.array(Image.fromarray((visible*edge*255).astype('uint8')).filter(ImageFilter.GaussianBlur(1)))*visible
     rgba=np.concatenate([painted[iy,ix],alpha[...,None]],axis=-1).astype('uint8')
     Image.fromarray(rgba).save(cache/f'{mountain}-material-baked.png')
     Image.fromarray(rgba).save(root/f'public/textures/{mountain}-terrain-material.webp',quality=94)

@@ -1,5 +1,17 @@
 # Reference fidelity review — 8 October 2026
 
+## Latest: two expedition scenes and owner approval
+
+The owner approved the personal app / Ben Nevis baseline. Fuji and Everest now
+have full overview and climb scenery previews in the same app, independently
+rendered from their geographic grids. Scene framing, high-resolution materials,
+separate illustrated foregrounds and marker/basket placement were checked in
+phone, narrow and landscape layouts. See `docs/design/review/three-peaks/` and
+`docs/design/three-peaks-scenes.md`. Build passed; twelve captures recorded no
+script/asset errors or horizontal overflow; preview navigation left isolated
+localStorage empty. No physical-phone/gameplay acceptance or deployment claimed.
+The older pending whole-app-approval wording below is superseded by owner feedback.
+
 ## Latest: personal three-mountain design review
 
 `docs/design/review/personal-adventure/whole-app.png` collects the current actual

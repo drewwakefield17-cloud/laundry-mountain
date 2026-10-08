@@ -4,9 +4,10 @@ An event-built MVP turning physical laundry activity into mountain progress.
 
 The current release direction is a personal three-mountain adventure: **Ben Nevis,
 Mount Fuji and Everest**. Community/leaderboards are out of scope. Ben Nevis is
-playable; Fuji and Everest are currently geographic previews. The next gate is the
-whole-app visual review in `docs/design/review/personal-adventure/`, followed by
-three-mountain gameplay completion and AI later. See `docs/completion-plan.md`.
+playable; Fuji and Everest are currently geographic previews. The owner has approved the
+personal-app/Ben Nevis visual direction. Fuji/Everest have full overview and climb
+scenery previews; their playable progression remains to be connected. The priority
+is now the real manual game loop and its recorded demo, with AI later. See `docs/completion-plan.md`.
 
 ## Current scope: playable manual fallback
 

@@ -1,0 +1,27 @@
+.expedition-world{position:absolute;inset:0;overflow:hidden;background:#92c9e9;isolation:isolate}
+.expedition-canvas{display:block;width:100%;height:100%}
+.expedition-foreground{position:absolute;bottom:0;left:-25%;width:150%;height:54%;object-fit:fill;pointer-events:none}
+.expedition-world.is-close .expedition-foreground{left:0;width:100%;height:120%;object-fit:cover;object-position:center bottom}
+.expedition-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.expedition-basket{position:absolute;transform:translate(-50%,-94%);z-index:2;pointer-events:none;filter:drop-shadow(0 5px 3px #0c293329)}
+.expedition-basket .basket-avatar{display:block;width:100%;height:auto}
+.expedition-caption{position:absolute;top:88px;left:18px;max-width:70%;padding:9px 13px;background:#ffffffee;border:1px solid #dce6e4;border-radius:13px;box-shadow:0 3px 12px #0d344017;z-index:4}
+.expedition-caption span{display:block;font-size:9px;font-weight:800;color:#55736f;letter-spacing:.09em;text-transform:uppercase}
+.expedition-caption strong{display:block;font-size:13px;margin-top:3px;color:#0b3548}
+.expedition-near-sock{position:absolute;left:68%;top:48%;width:17%;height:24%;object-fit:contain;z-index:1}
+.expedition-loading{position:absolute;top:43%;left:10%;right:10%;padding:14px;text-align:center;background:#fff;border-radius:14px;color:#12394a;z-index:5}
+.screen-mountain .expedition-preview-note{position:absolute;bottom:82px;left:18px;right:18px;padding:11px 14px;background:#ffffffef;border:1px solid #d6e3dd;border-radius:14px;box-shadow:0 3px 12px #102e351a;z-index:5;display:flex;align-items:center;gap:10px}
+.expedition-preview-note svg{color:#e99022;flex-shrink:0}.expedition-preview-note strong{display:block;font-size:13px}.expedition-preview-note small{font-size:10px;color:#58726f}
+@media(orientation:landscape){.expedition-caption{top:65px;left:18px;max-width:230px}.expedition-foreground{left:0;width:100%;height:70%}.expedition-world.is-close .expedition-foreground{left:0;width:100%;height:100%}.expedition-near-sock{left:65%;top:37%;width:9%;height:32%}.screen-mountain .expedition-preview-note{left:auto;right:18px;bottom:83px;max-width:210px;padding:9px 12px}.expedition-caption strong{font-size:12px}}
+
+/* Keep the approach legible beneath the information card. */
+.expedition-world.is-close .expedition-basket{transform:translate(-50%,-92%)}
+
+.expedition-basket{transition:left 1.8s ease,top 1.8s ease}
+@media(prefers-reduced-motion:reduce){.expedition-basket{transition:none}}
+
+@media(orientation:landscape){
+  .expedition-world.is-close .expedition-foreground{object-position:center center}
+  .screen-mountain:has(.expedition-world.is-close) .expedition-preview-note{left:18px;right:auto;bottom:84px;max-width:200px}
+  .screen-mountain:has(.expedition-world.is-close) .view-control{left:18px;right:auto;transform:none}
+}
