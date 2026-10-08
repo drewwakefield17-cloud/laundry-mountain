@@ -68,17 +68,10 @@ export function paintPreview(
   }
 ) {
   const sky = ctx.createLinearGradient(0, 0, 0, h)
-  sky.addColorStop(0, '#8ccdf3')
-  sky.addColorStop(1, '#e5f1df')
+  sky.addColorStop(0, '#75beec')
+  sky.addColorStop(1, '#edf5f7')
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, w, h)
-  const sun = ctx.createLinearGradient(0, 0, 0, h * 0.3)
-  sun.addColorStop(0, '#ffe093')
-  sun.addColorStop(1, '#ffb54f')
-  ctx.fillStyle = sun
-  ctx.beginPath()
-  ctx.arc(w * 0.82, h * 0.19, Math.min(w, h) * 0.095, 0, Math.PI * 2)
-  ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
     ctx.globalAlpha = 0.85

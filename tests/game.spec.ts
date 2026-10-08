@@ -35,7 +35,7 @@ test('the game route keeps navigation and view controls accessible when the phon
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
 })
 
-test('game screens choose a load and goal, retain zero progress, and show genuine empty history', async ({
+test('starting a session goes straight to camera with no load restrictions and preserves empty history', async ({
   page
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -48,16 +48,15 @@ test('game screens choose a load and goal, retain zero progress, and show genuin
     fullPage: true
   })
   await page.getByRole('button', { name: 'Start a Laundry Session' }).click()
-  await page.getByRole('button', { name: 'Towels', exact: true }).click()
-  await page.getByRole('button', { name: '30 items', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Towels', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true'
-  )
-  await expect(page.getByRole('button', { name: '30 items', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true'
-  )
+  await expect(page.getByRole('button', { name: 'Enable camera' })).toBeVisible()
+  await expect(page.getByText('Fold at your pace. Finish whenever you like.')).toBeVisible()
+  await expect(page.locator('.load-picker, .goal-picker')).toHaveCount(0)
+  for (const viewport of [{width:844,height:390},{width:667,height:375}]) {
+    await page.setViewportSize(viewport)
+    const button = await page.getByRole('button', { name: 'Enable camera' }).boundingBox()
+    expect(button!.y + button!.height).toBeLessThanOrEqual(viewport.height)
+  }
+  await page.setViewportSize({width:390,height:844})
   await page.screenshot({
     path: path.join(os.tmpdir(), 'laundry-mountain-game-setup.png'),
     fullPage: true
@@ -121,7 +120,6 @@ for (const countItem of [false, true])
       localStorage.setItem('laundry-mountain:field-report:v1', 'field-report-must-be-preserved')
     )
     await page.getByRole('button', { name: 'Start a Laundry Session' }).click()
-    await page.getByRole('button', { name: 'Set up my camera' }).click()
     await page.getByRole('button', { name: 'Enable camera' }).click()
     await page.getByRole('button', { name: 'Calibrate empty work area' }).click()
     await expect(page.getByRole('button', { name: 'Start folding now' })).toBeVisible({

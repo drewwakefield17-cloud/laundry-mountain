@@ -18,6 +18,92 @@
 .game-shell .dial-time{background:#fff}
 .game-shell .scenic-dial{border-color:#fff}
 
+/* Shared supporting screens: the same surfaces, type and controls as home. */
+.game-shell{--surface:#fff;--surface-soft:#f4f8f8;--selected:#eef8f3;--muted:#496477;--radius:12px}
+.game-shell ::selection{background:#cce9dd;color:#0b2d4b}
+.game-shell input{caret-color:var(--green)}
+.game-shell :is(.profile-links>button,.session-history>button,.expedition-card,.leaderboard>button,.history-empty,.load-picker button,.goal-picker button,.profile-form input){background:var(--surface);border-color:var(--border);border-radius:var(--radius);box-shadow:none}
+.game-shell :is(.load-picker button,.goal-picker button){color:var(--muted)}
+.game-shell :is(.load-picker button,.goal-picker button)[aria-pressed='true']{background:var(--selected);border-color:var(--green);box-shadow:none;color:#006f4e}
+.game-shell :is(.load-picker button,.goal-picker button):hover{border-color:#76aa99}
+.game-shell .load-picker button>svg{color:#368d72;filter:none}
+.game-shell .load-picker button[aria-pressed='true']>svg{color:#007752}
+.game-shell .goal-picker .trail-icon{width:36px;height:36px}
+.game-shell .privacy-card{background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--radius)}
+.game-shell .privacy-card p{color:var(--muted);line-height:1.5}
+.game-shell .privacy-card strong{color:var(--navy)}
+.game-shell .segmented{padding:3px;box-shadow:none}
+.game-shell .segmented button{min-height:38px;color:var(--muted);font-size:12px;font-weight:650}
+.game-shell .segmented button[aria-pressed='true']{background:var(--green);color:#fff;box-shadow:none}
+.game-shell :is(.page-quote,.small-print,.demo-notice){color:var(--muted)}
+.game-shell .page-quote{font-size:15px!important;line-height:1.5}
+.game-shell .game-stat-row .trail-icon{width:36px;height:36px}
+.game-shell .home-stats .trail-icon{width:50px;height:50px}
+.game-shell .game-stat-row strong{font-variant-numeric:tabular-nums}
+.game-shell .game-dialog{background:#fff;border-color:var(--border);color:var(--navy);border-radius:18px}
+.game-shell .game-dialog p{color:var(--muted)}
+.game-shell .game-dialog::backdrop{background:#092c4566}
+.game-shell .game-dialog .icon-button{min-width:44px;min-height:44px}
+.game-shell .profile-form input{border-color:#9cabb5;min-height:48px}
+.game-shell .profile-form input:focus-visible{outline:3px solid #db8d24;outline-offset:3px}
+.game-shell .profile-links>button{min-height:56px;color:var(--navy);font-size:14px}
+.game-shell .profile-links>button:hover,.game-shell .session-history>button:hover{background:var(--surface-soft)}
+.game-shell .profile-links>button>span,.game-shell .session-history small{color:var(--muted)}
+.screen-profile .profile-hero{position:relative;isolation:isolate;padding:25px 0 22px;overflow:hidden;border-radius:16px;margin-bottom:18px}
+.profile-landscape{position:absolute;inset:0 0 auto;height:145px;z-index:-1;mask-image:linear-gradient(#000 50%,transparent)}
+.profile-landscape .scenic-artwork-landscape{object-position:50% 35%}
+.screen-profile .profile-avatar{margin-bottom:7px}
+.screen-profile .profile-hero h1{font-size:28px}
+.screen-profile .profile-hero p{font-size:13px;color:var(--muted)}
+.screen-sessions .page-intro{padding-top:12px}
+.screen-sessions .page-intro h1{font-size:25px}
+.screen-sessions .history-empty{padding:18px 20px 22px}
+.screen-sessions .history-empty>.basket-avatar{width:120px;height:124px;display:block;margin:0 auto}
+.screen-sessions .history-empty h2{font-size:21px;line-height:1.25;max-width:270px;margin:12px auto 9px}
+.screen-sessions .history-empty p{font-size:13px;color:var(--muted);max-width:270px;margin:0 auto 18px}
+.screen-sessions .history-empty .game-cta{font-size:14px;min-height:48px}
+.game-shell .expedition-card.current-expedition{background:var(--selected);border-color:#8fc5b1}
+.game-shell .expedition-card{gap:10px;padding:8px;min-height:92px}
+.game-shell .expedition-thumbnail{width:82px;height:76px;border-radius:9px;flex:0 0 82px}
+.game-shell .expedition-name{min-width:0}
+.game-shell .expedition-name>strong{font-size:17px;color:var(--navy)}
+.game-shell .expedition-name>small,.game-shell .expedition-name>span{color:var(--muted);font-size:10px}
+.game-shell .expedition-lock{min-width:52px;color:var(--muted)}
+.game-shell .expedition-lock small{color:var(--muted)}
+.game-shell .leaderboard .your-row{background:var(--selected);border-color:#00865e}
+.game-shell .person-name>span,.game-shell .person-name small{color:var(--muted)}
+.game-shell .person-name strong>small{background:#f4f7f8;border:1px solid #d7e2e8;border-radius:4px;padding:1px 4px;font-size:9px}
+.game-shell .community-motto{position:relative;isolation:isolate;overflow:hidden;background:var(--surface-soft);border:1px solid var(--border);padding:16px;border-radius:var(--radius)}
+.game-shell .community-motto::after{content:'';position:absolute;z-index:-1;inset:0 0 0 55%;background:url('/art/approved-forest-border.webp') right bottom/auto 100% no-repeat;mask-image:linear-gradient(90deg,transparent,#000)}
+.game-shell .community-motto>svg{width:46px;height:46px;filter:none;color:#00865e}
+.game-shell .community-motto strong{font-size:15px}
+.game-shell .community-motto span{color:var(--muted);font-size:12px}
+.game-shell .game-camera .setup-note{background:var(--surface-soft);border:1px solid var(--border);color:var(--navy)}
+.game-shell .game-camera .setup-note.calibrated{background:var(--selected);border-color:#00865e}
+.game-shell .game-camera .camera-off-message{background:#ffffffed;border-color:#dce5e9;box-shadow:0 6px 18px #15334314;color:var(--navy)}
+.game-shell .game-camera .illustration-label{background:#fffffff2;color:var(--muted)}
+.game-shell .camera-intro h1{font-size:26px;line-height:1.15}
+.game-shell .camera-intro p{font-size:13px;color:var(--muted)}
+.game-shell .live-instruction{background:var(--surface-soft);color:var(--navy);border-color:var(--border)}
+.game-shell .game-live-buttons>button:first-child{background:#f4f8f8;border:1px solid #c5d4dc;color:var(--navy)}
+.game-shell .reward-ribbon,.game-shell .momentum-card{background:#fff8ec;border-color:#efd4a7}
+.game-shell .results-breakdown summary{color:var(--muted);min-height:44px;align-content:center}
+@media(orientation:portrait) and (max-width:600px){.screen-live .game-stat-row .trail-icon{width:26px;height:26px}}
+@media(orientation:landscape) and (max-height:600px){.screen-live .game-stat-row .trail-icon{width:24px;height:24px}}
+@media(max-width:360px){.game-shell .expedition-thumbnail{width:65px;height:70px;flex-basis:65px}.game-shell .expedition-card{gap:7px}.game-shell .expedition-name>strong{font-size:15px}.game-shell .expedition-lock{min-width:45px}}
+/* Camera-off introduction fits a landscape phone; live diagnostics stay intact. */
+@media(orientation:landscape) and (max-height:600px){
+  .screen-camera .game-camera-column:has(.camera-off-message){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 20px;align-items:center}
+  .screen-camera .game-camera-column:has(.camera-off-message) .camera-intro{grid-column:2;margin:0}
+  .screen-camera .game-camera:has(.camera-off-message){display:contents}
+  .screen-camera .game-camera:has(.camera-off-message) .camera-preview{grid-column:1;grid-row:1/5;width:100%;max-width:none;max-height:270px;margin:0}
+  .screen-camera .game-camera:has(.camera-off-message) :is(.camera-actions,.setup-note,.error){grid-column:2;margin:0}
+  .screen-camera .game-camera-column:has(.camera-off-message) .phone-position{grid-column:2;max-width:none;margin:0;padding:10px}
+  .screen-camera .game-camera-column:has(.camera-off-message) .phone-position p{font-size:12px}
+  .screen-camera .game-camera-column:has(.camera-off-message) .camera-intro h1{font-size:23px}
+  .screen-camera .game-camera-column:has(.camera-off-message) .camera-off-message{padding:12px}
+}
+
 .scenic-artwork{position:absolute;inset:0;overflow:hidden;background:#abd9f2}
 .scenic-artwork-landscape{width:100%;height:100%;object-fit:cover;display:block}
 .scenic-artwork-companion{position:absolute;width:35%;left:9%;bottom:14%}

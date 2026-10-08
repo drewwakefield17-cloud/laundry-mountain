@@ -2,6 +2,24 @@
 
 ## Current: approved-board refinement on `visual-refinement`
 
+- Supporting-screen pass: shared white/navy/emerald surfaces, consistent stat art,
+  Ben Nevis artwork in the list/profile, basket empty history, quieter demo labels,
+  and landscape camera-off setup with its action visible without scrolling.
+- Latest session simplification is implemented: home/Add/empty history open camera
+  directly; no category, load-size or item-goal selection. Live progress follows
+  the mountain/checkpoint instead of an item quota. Legacy metadata is retained;
+  `?view=setup` still works as an alias. Calibration/detection are unchanged.
+- Current verification: 30 unit tests, TypeScript/build and 5 game browser tests
+  passed, including direct entry, camera-off actions at 844x390 and 667x375,
+  synthetic zero/one-event persistence, rotation and keyboard/dialog navigation.
+  Captures at 390x844, 320x740, 844x390 and 1100x900 report no horizontal overflow
+  or page/HTTP errors. Evidence: `docs/design/review/app-consistency/`.
+- Latest steering: visual consistency remains the immediate priority; backend and
+  physical testing are parked. For the later camera phase, target automatic setup:
+  front camera, landscape, place laundry naturally and start. Avoid mandatory fixed
+  zones/manual calibration as the final experience. Existing boxes are diagnostic
+  scaffolding, not the approved end-state. This requires detector validation, not
+  an overlay-only change. Preserve working diagnostics during current visual work.
 - Branch created from `main` at `bd064c0`; main is the unchanged fallback. No
   history rewriting or deployment. Landing is parked, approved active climb and
   achievements retained. The owner requests a bounded but substantial pass aiming

@@ -155,6 +155,17 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Camera and progression integrity
 
+- **8 October session simplification:** starting from home, Add or empty history
+  goes straight to camera setup. No laundry-category picker, load-size choice or
+  item quota. Sessions are open-ended; checkpoint progress supplies motivation.
+  Keep old saved session metadata readable. `?view=setup` remains a camera alias.
+- **8 October setup direction:** final gameplay should be as frictionless as
+  possible: enable front camera, landscape, place a laundry pile, fold and set items
+  down naturally. Prefer automatic pile/work/completion discovery; do not make fixed
+  source/work/completed rectangles or manual zone placement a permanent product
+  requirement. Current boxes remain prototype calibration/debug aids until the
+  detector can genuinely support that experience. Hiding overlays is not automatic
+  detection. The owner explicitly parks this implementation until after visual work.
 - Front camera is required so users can see the game. Keep camera, progress and
   controls usable together, including landscape on a real phone browser.
 - Folding is the first physical gate: 20 items, target at least 18 correct detections,

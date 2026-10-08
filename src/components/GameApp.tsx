@@ -11,14 +11,10 @@ import {
   Mountain,
   Pause,
   Play,
-  Shirt,
   Timer,
   Layers,
   History,
   ShieldCheck,
-  Bed,
-  Dots,
-  Activewear,
   Basket,
   Star,
   Users,
@@ -33,7 +29,6 @@ import { CameraLab } from './CameraLab'
 import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
 import { ClimbScene } from './ClimbScene'
-import { ScenicOverview } from './ScenicOverview'
 import { ScenicArtwork, TrailIcon } from './ScenicArtwork'
 import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
@@ -48,7 +43,6 @@ import './visual-refinement.css'
 
 type Screen =
   | 'home'
-  | 'setup'
   | 'camera'
   | 'live'
   | 'results'
@@ -64,7 +58,7 @@ interface Session {
   startedAt: number
   endedAt?: number
   load: string
-  goal: number
+  goal?: number // Legacy sessions retain their original optional target.
   items: number
   metres: number
   base: number
@@ -72,22 +66,15 @@ interface Session {
   reason?: string
 }
 const SESSION_KEY = 'laundry-mountain:game-sessions:v1'
-const loads = [
-  { name: 'Everyday', Icon: Shirt },
-  { name: 'Delicates', Icon: Leaf },
-  { name: 'Towels', Icon: Layers },
-  { name: 'Bedding', Icon: Bed },
-  { name: 'Activewear', Icon: Activewear },
-  { name: 'Mixed load', Icon: Dots }
-]
 const format = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 1 })
 const time = (n: number) =>
   `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`
 function initialScreen(): Screen {
-  const s = new URLSearchParams(location.search).get('view')
+  const requested = new URLSearchParams(location.search).get('view')
+  const s = requested === 'setup' ? 'camera' : requested
   return [
     'home',
-    'setup',
+    'camera',
     'sessions',
     'mountain',
     'welcome',
@@ -120,9 +107,7 @@ function readSessions(): Session[] {
   return v as Session[]
 }
 export function GameApp() {
-  const [screen, setScreen] = useState<Screen>(initialScreen),
-    [load, setLoad] = useState('Everyday'),
-    [goal, setGoal] = useState(20)
+  const [screen, setScreen] = useState<Screen>(initialScreen)
   const [error, setError] = useState(''),
     blocked = useRef(false)
   const [ledger, setLedger] = useState(() => {
@@ -285,8 +270,7 @@ export function GameApp() {
     const s: Session = {
       id: crypto.randomUUID(),
       startedAt: Date.now(),
-      load,
-      goal,
+      load: 'Folding',
       items: 0,
       metres: 0,
       base: 0,
@@ -433,11 +417,11 @@ export function GameApp() {
         className={`game-scenic scenic-${mode}`}
         style={
           {
-            '--session-progress': `${Math.min(1, (current?.items ?? 0) / (current?.goal || 20)) * 360}deg`
+            '--session-progress': `${stats.percent * 3.6}deg`
           } as CSSProperties
         }
       >
-        {mode === 'card' ? <ScenicArtwork /> : mode === 'welcome' ? <ScenicArtwork welcome /> : mode === 'mini' ? <ScenicOverview metres={stats.mountainMetres} companion={false} /> : mode === 'map' && !close ? <MountainScene
+        {mode === 'card' ? <ScenicArtwork /> : mode === 'welcome' ? <ScenicArtwork welcome /> : mode === 'mini' ? <ScenicArtwork companion={false} /> : mode === 'map' && !close ? <MountainScene
           metres={stats.mountainMetres}
           close={false}
           finish="natural"
@@ -495,7 +479,6 @@ export function GameApp() {
   }
   const title: Record<Screen, string> = {
     home: 'Home',
-    setup: 'Start a Session',
     camera: 'Camera Setup',
     live: 'Ben Nevis',
     results: 'Session Results',
@@ -629,7 +612,7 @@ export function GameApp() {
                 <span>Badges</span>
               </button>
             </div>
-            <button className="primary game-cta start-session-cta" onClick={() => navigate('setup')}>
+            <button className="primary game-cta start-session-cta" onClick={() => navigate('camera')}>
               <span className="play-disc">
                 <Play weight="fill" size={17} />
               </span>
@@ -647,72 +630,13 @@ export function GameApp() {
             </button>
           </>
         )}
-        {screen === 'setup' && (
-          <>
-            <fieldset className="load-picker">
-              <legend>What are you folding?</legend>
-              <div>
-                {loads.map(({ name, Icon }) => (
-                  <button key={name} aria-pressed={load === name} onClick={() => setLoad(name)}>
-                    <Icon size={40} weight="fill" />
-                    <span>{name}</span>
-                    {load === name && <Check className="choice-check" size={15} />}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <fieldset className="goal-picker">
-              <legend>Your load size</legend>
-              <div>
-                {[
-                  { n: 10, label: 'Small' },
-                  { n: 20, label: 'Medium' },
-                  { n: 30, label: 'Large' }
-                ].map(({ n, label }) => (
-                  <button
-                    key={n}
-                    aria-label={`${n} items`}
-                    aria-pressed={goal === n}
-                    onClick={() => setGoal(n)}
-                  >
-                    <Basket size={n === 20 ? 35 : 31} weight="duotone" />
-                    <strong>{label}</strong>
-                    <span>~{n} items</span>
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-            <div className="session-plan">
-              <Timer size={35} weight="duotone" />
-              <div>
-                <h2>A little time. A little higher.</h2>
-                <p>Aim for {goal} items. Finish whenever you need.</p>
-              </div>
-            </div>
-            <div className="privacy-card">
-              <Leaf size={38} weight="duotone" />
-              <p>
-                <strong>Every load gets you higher.</strong>
-                <br />
-                Clean clothes. A higher you.
-              </p>
-            </div>
-            <button className="primary game-cta" onClick={() => navigate('camera')}>
-              Set up my camera <ArrowRight size={18} />
-            </button>
-            <p className="setup-privacy">
-              <ShieldCheck size={15} />
-              Camera processing stays on your phone.
-            </p>
-          </>
-        )}
         {(screen === 'camera' || screen === 'live') && (
           <div className={`game-session ${screen === 'live' ? 'is-live' : ''}`}>
             <div className="game-camera-column">
               {screen === 'camera' && (
                 <div className="camera-intro">
                   <h1>Get Ready to Climb!</h1>
-                  <p>Frame your workspace. We’ll count as you fold.</p>
+                  <p>Fold at your pace. Finish whenever you like.</p>
                 </div>
               )}
               <CameraLab
@@ -762,17 +686,17 @@ export function GameApp() {
               )}
               <div className="game-stat-row">
                 <div>
-                  <Basket weight="duotone" />
+                  <TrailIcon kind="loads" />
                   <strong>{current?.items ?? 0}</strong>
                   <span>Items Counted</span>
                 </div>
                 <div>
-                  <Mountain weight="fill" />
+                  <TrailIcon kind="mountain" />
                   <strong>+{format(current?.metres ?? 0)} m</strong>
                   <span>Elevation Gained</span>
                 </div>
                 <div>
-                  <Flame weight="fill" />
+                  <TrailIcon kind="streak" />
                   <strong>×{multiplier.toFixed(2)}</strong>
                   <span>Momentum</span>
                 </div>
@@ -782,14 +706,12 @@ export function GameApp() {
                   <div className="momentum-card">
                     <Flame weight="fill" />
                     <div className="goal-progress">
-                      <span>{(current?.items ?? 0) >= goal ? 'Goal reached!' : 'One item closer'}</span>
-                      <strong>
-                        {current?.items ?? 0} / {goal}
-                      </strong>
+                      <span>{progress.next ? 'Next checkpoint' : 'Ben Nevis complete'}</span>
+                      <strong>{progress.next ? `${format(progress.remaining)} m to go` : 'Summit reached'}</strong>
                       <progress
-                        aria-label="Session item goal"
-                        max={goal}
-                        value={Math.min(goal, current?.items ?? 0)}
+                        aria-label="Mountain progress"
+                        max={BEN_NEVIS.elevation}
+                        value={stats.mountainMetres}
                       />
                       <small>
                         {streak >= 5 ? 'Keep the momentum going!' : 'Five steady items starts your momentum.'}
@@ -836,12 +758,12 @@ export function GameApp() {
             </div>
             <div className="game-stat-row result-stats">
               <div>
-                <Mountain weight="fill" />
+                <TrailIcon kind="mountain" />
                 <strong>+{format(current.metres)} m</strong>
                 <span>Elevation Gained</span>
               </div>
               <div>
-                <Basket weight="duotone" />
+                <TrailIcon kind="loads" />
                 <strong>{current.items}</strong>
                 <span>Items</span>
               </div>
@@ -1035,10 +957,10 @@ export function GameApp() {
             </div>
             {!sessions.length ? (
               <section className="history-empty">
-                <Basket weight="duotone" />
+                <BasketAvatar />
                 <h2>Your journey starts with one load.</h2>
                 <p>Finish a session and its results will be waiting here.</p>
-                <button className="primary game-cta" onClick={() => navigate('setup')}>
+                <button className="primary game-cta" onClick={() => navigate('camera')}>
                   Start your first session <ArrowRight size={16} />
                 </button>
               </section>
@@ -1194,6 +1116,7 @@ export function GameApp() {
         {screen === 'profile' && (
           <>
             <div className="profile-hero">
+              <div className="profile-landscape" aria-hidden="true"><ScenicArtwork companion={false} /></div>
               <span className="profile-avatar">
                 <BasketAvatar />
               </span>
@@ -1256,25 +1179,25 @@ export function GameApp() {
           </p>
         )}
       </main>
-      {!['live', 'camera', 'welcome', 'results', 'setup'].includes(screen) && (
+      {!['live', 'camera', 'welcome', 'results'].includes(screen) && (
         <nav className="game-nav" aria-label="Game navigation">
           {(
             [
               { s: 'home', label: 'Home', Icon: Home },
               { s: 'mountains', label: 'Mountains', Icon: Mountain },
-              { s: 'setup', label: 'Add', Icon: Plus },
+              { s: 'camera', label: 'Add', Icon: Plus },
               { s: 'community', label: 'Community', Icon: Users },
               { s: 'profile', label: 'Profile', Icon: User }
             ] as const
           ).map(({ s, label, Icon }) => (
             <button
               key={s}
-              className={s === 'setup' ? 'nav-add' : ''}
+              className={s === 'camera' ? 'nav-add' : ''}
               aria-current={screen === s || (screen === 'mountain' && s === 'mountains') ? 'page' : undefined}
               onClick={() => navigate(s)}
             >
               <span>
-                <Icon weight={s === 'setup' ? 'bold' : 'fill'} />
+                <Icon weight={s === 'camera' ? 'bold' : 'fill'} />
               </span>
               <small>{label}</small>
             </button>

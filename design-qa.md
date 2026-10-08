@@ -2,6 +2,15 @@
 
 ## Current gate: visual refinement
 
+Latest supporting-screen evidence: `docs/design/review/app-consistency/`.
+Shared surfaces, controls, icons, profile artwork, empty history and mountain list
+have been inspected across phone, narrow phone, landscape and desktop. The camera
+introduction now fits landscape with Enable camera visible. Entry goes directly to
+camera; load/category selections and live item quotas have been removed by request.
+Results/history evidence uses an explicitly synthetic fixture, not physical laundry.
+30 unit checks/build and 5 game browser tests passed after these changes. No page/
+HTTP errors or horizontal overflow in the 26 captures. Actual folding remains unproven.
+
 **Not yet owner-approved.** The owner says all three LEFT reference screens remain
 stronger than implementation. This is the acceptance target, not a reason to lower
 the standard. Aim for at least 90% fidelity in a bounded pass; no measured percentage

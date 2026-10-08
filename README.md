@@ -13,6 +13,12 @@ Current local entries: `/` is the landing page; `/?view=welcome` is onboarding;
 geographic-route toggle; `/?view=test` opens the original camera field test.
 Existing browser storage keys and failed reports are preserved.
 
+Starting a session opens camera setup directly: no laundry category, load size or
+item quota. Fold any amount and finish whenever ready; progress follows mountain
+checkpoints. `/?view=setup` is a compatible alias for camera setup. Prototype camera
+calibration is still required until automatic detection is physically validated.
+Supporting-screen evidence: `docs/design/review/app-consistency/index.html`.
+
 Current priority: refine the app against the approved coordinated board on
 `visual-refinement`; `main` at `bd064c0` remains the fallback. Landing redesign is
 parked. White surfaces, purpose-composed welcome/home art and the approved graphic
