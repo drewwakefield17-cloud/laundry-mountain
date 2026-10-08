@@ -1,5 +1,34 @@
 # Project handoff — 8 October 2026
 
+## Current: playable manual batch fallback on `visual-refinement`
+
+- Owner approved a simpler working loop before automatic counting. Home/Add now
+  start or continue a timer and the approved moving basket. Bank a completed batch,
+  confirm its count, gain 10 m/item, cross checkpoints, save/return, finish and see
+  real session history. No load quota or camera calibration on this path.
+- Ledger events use `source: manual` and one stable ID per batch. Counts are
+  explicitly self-reported. No timer rewards or momentum multiplier. Legacy camera
+  rewards/data stay intact; manual batches do not earn cadence-based badges.
+- Optional batch photo previews stay in memory, are never uploaded or analysed,
+  and are discarded on dialog close. AI counts, before/after comparison, voice
+  encouragement and continuous automatic recognition are not implemented.
+- Active sessions can be continued from home after reopening. Save & come back
+  later pauses the timer. Closing without pausing leaves it measuring wall time;
+  no progress is earned by time. Ledger totals recover manual session metadata if
+  storage fails between writes. Failed saves visibly block further crediting.
+- Camera spike retained at `?view=camera` / `?view=test`; the old 20-item physical
+  acceptance gate remains unpassed. No Supabase or hosting changes; local only.
+- Evidence: `docs/design/review/manual-session/` contains isolated browser captures
+  (25/28-item counts are software test data, never the owner's ledger). 34 unit
+  checks/build and 8 distinct affected browser scenarios passed: 5 existing camera/
+  navigation checks plus 3 manual-loop/photo/storage checks. Portrait, narrow phone
+  and landscape exercised; actual Pixel camera/file-picker behaviour remains untested.
+- Next: owner tries the manual loop on phone; then a separate, honest photo-count
+  experiment with editable estimates and a secure server endpoint. Do not claim
+  exact counts from hidden/stacked garments or remove manual entry as fallback.
+
+## Previous visual milestone (retained below)
+
 ## Current: approved-board refinement on `visual-refinement`
 
 - Tactile pass implemented: common emerald gradient/highlight/lower-edge controls,

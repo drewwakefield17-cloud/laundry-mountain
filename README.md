@@ -2,7 +2,16 @@
 
 An event-built MVP turning physical laundry activity into mountain progress.
 
-## Current scope: Phase 1
+## Current scope: playable manual fallback
+
+Home/Add now start a timer and the live basket climb without camera calibration.
+Use **Bank this batch**, confirm the number of newly completed items, then climb
+10 Laundry Metres per item. Multiple batches, pause/resume, saved sessions, results
+and history work locally. Counts are explicitly manual. Timer duration and batch
+speed do not award progress. Optional batch photos are temporary previews only;
+there is no AI counting/upload endpoint yet. Automatic counting is still planned.
+
+### Preserved camera spike
 
 Folding camera/calibration spike first. Ben Nevis (1,345 m) is the first gameplay environment. Hanging and ironing share the future event contract but are not validated modes. No physical accuracy claim is made until the product owner tests real laundry on a phone.
 
@@ -13,13 +22,13 @@ Current local entries: `/` is the landing page; `/?view=welcome` is onboarding;
 geographic-route toggle; `/?view=test` opens the original camera field test.
 Existing browser storage keys and failed reports are preserved.
 
-Starting a session opens camera setup directly: no laundry category, load size or
+The camera prototype remains at `/?view=camera`: no laundry category, load size or
 item quota. Fold any amount and finish whenever ready; progress follows mountain
 checkpoints. `/?view=setup` is a compatible alias for camera setup. Prototype camera
 calibration is still required until automatic detection is physically validated.
 Supporting-screen evidence: `docs/design/review/app-consistency/index.html`.
 
-Current priority: refine the app against the approved coordinated board on
+Visual direction: refine the app against the approved coordinated board on
 `visual-refinement`; `main` at `bd064c0` remains the fallback. Landing redesign is
 parked. White surfaces, purpose-composed welcome/home art and the approved graphic
 basket carry the new direction. The interactive overview retains measured terrain,

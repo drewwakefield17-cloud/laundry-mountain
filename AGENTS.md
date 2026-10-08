@@ -163,6 +163,18 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Camera and progression integrity
 
+- **8 October playable fallback (latest, supersedes camera-first session entry):**
+  the owner approved timer + manually confirmed completed batches so the game is
+  usable while automatic counting is developed. Home/Add start or continue a saved
+  manual session. Each completed item earns exactly 10 Laundry Metres; elapsed time
+  and batch submission speed award nothing. Folding/hanging/ironing share this rule.
+  Batch IDs deduplicate retries; `source: manual` is always self-reported, never
+  detector evidence. Optional batch photos are temporary local previews only, not
+  AI counts or stored/uploaded evidence. Preserve camera setup at `?view=camera`
+  and the field test at `?view=test`. Physical detection remains unvalidated.
+  Automatic photo counts and eventually frictionless live detection remain future
+  work; do not invent estimates. Retain existing ledgers and failed field reports.
+
 - **8 October session simplification:** starting from home, Add or empty history
   goes straight to camera setup. No laundry-category picker, load-size choice or
   item quota. Sessions are open-ended; checkpoint progress supplies motivation.

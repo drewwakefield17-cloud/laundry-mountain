@@ -35,7 +35,7 @@ test('the game route keeps navigation and view controls accessible when the phon
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
 })
 
-test('starting a session goes straight to camera with no load restrictions and preserves empty history', async ({
+test('camera prototype stays accessible separately without load restrictions or fabricated history', async ({
   page
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -47,7 +47,7 @@ test('starting a session goes straight to camera with no load restrictions and p
     path: path.join(os.tmpdir(), 'laundry-mountain-game-home.png'),
     fullPage: true
   })
-  await page.getByRole('button', { name: 'Start a Laundry Session' }).click()
+  await page.goto('/?view=camera')
   await expect(page.getByRole('button', { name: 'Enable camera' })).toBeVisible()
   await expect(page.getByText('Fold at your pace. Finish whenever you like.')).toBeVisible()
   await expect(page.locator('.load-picker, .goal-picker')).toHaveCount(0)
@@ -119,7 +119,7 @@ for (const countItem of [false, true])
     await page.evaluate(() =>
       localStorage.setItem('laundry-mountain:field-report:v1', 'field-report-must-be-preserved')
     )
-    await page.getByRole('button', { name: 'Start a Laundry Session' }).click()
+    await page.goto('/?view=camera')
     await page.getByRole('button', { name: 'Enable camera' }).click()
     await page.getByRole('button', { name: 'Calibrate empty work area' }).click()
     await expect(page.getByRole('button', { name: 'Start folding now' })).toBeVisible({

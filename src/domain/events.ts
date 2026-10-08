@@ -5,8 +5,8 @@ export interface LaundryEvent {
   sessionId: string
   at: number
   action: LaundryAction
-  source: 'camera' | 'correction'
-  items: 1 | -1
+  source: 'camera' | 'correction' | 'manual'
+  items: number // Camera: 1, correction: -1; manual: confirmed positive batch count.
   evidence: string
 }
 

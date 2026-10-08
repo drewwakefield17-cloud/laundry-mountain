@@ -29,13 +29,15 @@ import { CameraLab } from './CameraLab'
 import type { Calibration, Observation } from './CameraLab'
 import { MountainScene } from './MountainScene'
 import { ClimbScene } from './ClimbScene'
+import { ManualSession } from './ManualSession'
+import { manualBatch, reconcileManualSession, sessionSeconds, type Session } from '../domain/manualSession'
 import { ScenicArtwork, TrailIcon } from './ScenicArtwork'
 import { BasketAvatar } from './BasketAvatar'
 import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
 import { BEN_NEVIS, GAME } from '../domain/config'
 import { expeditionProgress } from '../domain/expedition'
 import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from '../domain/ledger'
-import type { LaundryEvent } from '../domain/events'
+import type { LaundryAction, LaundryEvent } from '../domain/events'
 import './game.css'
 import './reference-theme.css'
 import './adventure-theme.css'
@@ -43,6 +45,7 @@ import './visual-refinement.css'
 
 type Screen =
   | 'home'
+  | 'session'
   | 'camera'
   | 'live'
   | 'results'
@@ -53,18 +56,6 @@ type Screen =
   | 'community'
   | 'badges'
   | 'mountains'
-interface Session {
-  id: string
-  startedAt: number
-  endedAt?: number
-  load: string
-  goal?: number // Legacy sessions retain their original optional target.
-  items: number
-  metres: number
-  base: number
-  status: 'active' | 'finished'
-  reason?: string
-}
 const SESSION_KEY = 'laundry-mountain:game-sessions:v1'
 const format = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 1 })
 const time = (n: number) =>
@@ -100,7 +91,9 @@ function readSessions(): Session[] {
         !Number.isFinite(s.items) ||
         !Number.isFinite(s.metres) ||
         !Number.isFinite(s.base) ||
-        !['active', 'finished'].includes(s.status)
+        !['active', 'finished'].includes(s.status) ||
+        (s.pausedAt !== undefined && !Number.isFinite(s.pausedAt)) ||
+        (s.pausedMs !== undefined && (!Number.isFinite(s.pausedMs) || s.pausedMs < 0))
     )
   )
     throw new Error('Saved sessions could not be read. Existing data has been kept.')
@@ -120,7 +113,7 @@ export function GameApp() {
   const ledgerRef = useRef(ledger)
   const [sessions, setSessions] = useState<Session[]>(() => {
       try {
-        return readSessions()
+        return readSessions().map(s => reconcileManualSession(s, ledger))
       } catch {
         return []
       }
@@ -183,11 +176,49 @@ export function GameApp() {
     setSessions(list)
     setCurrent(value)
   }, [])
+  function startManual() {
+    if (blocked.current) return
+    const existing = sessionsRef.current.find(s => s.mode === 'manual' && s.status === 'active')
+    const s: Session = existing ? reconcileManualSession(existing, ledgerRef.current) : {
+      id: crypto.randomUUID(), startedAt: Date.now(), mode: 'manual', load: 'Laundry',
+      items: 0, metres: 0, base: 0, status: 'active'
+    }
+    try { saveSession(s); run.current = s; setClock(Date.now()); navigate('session') }
+    catch { blocked.current = true; setError('Session could not be saved. Check that browser storage is enabled.') }
+  }
+  function pauseManual(leave = false) {
+    const s = run.current
+    if (!s || s.mode !== 'manual') return
+    const now = Date.now()
+    const updated = s.pausedAt && !leave ? { ...s, pausedAt: undefined, pausedMs: (s.pausedMs ?? 0) + now - s.pausedAt } : { ...s, pausedAt: s.pausedAt ?? now }
+    try { saveSession(updated); run.current = updated; if (leave) { run.current = null; navigate('home') } }
+    catch { blocked.current = true; setError('Your timer could not be saved. Previously banked items are safe.') }
+  }
+  function bankManual(id: string, count: number, action: LaundryAction) {
+    const s = run.current
+    if (!s || s.mode !== 'manual' || s.status !== 'active' || s.pausedAt || blocked.current) return false
+    try {
+      const saved = parseLedger(localStorage.getItem(STORAGE_KEY))
+      const next = appendEvent(saved, manualBatch(id, s.id, count, action, Date.now()))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      ledgerRef.current = next; setLedger(next)
+      const updated = reconcileManualSession(s, next)
+      run.current = updated
+      saveSession(updated)
+      return true
+    } catch {
+      blocked.current = true
+      setError('Saving was interrupted. Reopen the app to recover your last saved batch; do not add it again yet.')
+      return false
+    }
+  }
   const finish = useCallback(
     (reason = 'Session finished') => {
       if (!run.current) return
       const value = {
         ...run.current,
+        pausedMs: (run.current.pausedMs ?? 0) + (run.current.pausedAt ? Date.now() - run.current.pausedAt : 0),
+        pausedAt: undefined,
         endedAt: Date.now(),
         status: 'finished' as const,
         reason
@@ -208,7 +239,8 @@ export function GameApp() {
   )
   useEffect(() => {
     const pop = () => {
-      if (run.current) finish('Left the live session')
+      if (run.current?.mode === 'manual') { run.current = null; setScreen(initialScreen()) }
+      else if (run.current) finish('Left the live session')
       else setScreen(initialScreen())
     }
     window.addEventListener('popstate', pop)
@@ -292,12 +324,13 @@ export function GameApp() {
     progress = expeditionProgress(stats.mountainMetres)
   const completedLoads = sessions.filter((s) => s.status === 'finished' && s.items > 0).length
   const elapsed = current
-    ? Math.max(0, Math.floor(((current.endedAt ?? clock) - current.startedAt) / 1000))
+    ? sessionSeconds(current, clock)
     : 0
   const sessionEvents = current ? ledger.events.filter((e) => e.sessionId === current.id) : []
   let streak = 0,
     last = 0
   for (const e of sessionEvents) {
+    if (e.source === 'manual') continue
     streak = e.at - last > GAME.momentumResetMs ? 1 : streak + 1
     last = e.at
   }
@@ -479,6 +512,7 @@ export function GameApp() {
   }
   const title: Record<Screen, string> = {
     home: 'Home',
+    session: 'Ben Nevis',
     camera: 'Camera Setup',
     live: 'Ben Nevis',
     results: 'Session Results',
@@ -530,7 +564,7 @@ export function GameApp() {
               <button
                 className="icon-button"
                 aria-label="Back to home"
-                onClick={() => (run.current ? finish('Returned home') : navigate('home'))}
+                onClick={() => (run.current?.mode === 'manual' ? pauseManual(true) : run.current ? finish('Returned home') : navigate('home'))}
               >
                 <ArrowLeft size={22} />
               </button>
@@ -551,7 +585,7 @@ export function GameApp() {
           )}
         </header>
       )}
-      {error && (
+      {error && screen !== 'session' && (
         <p role="alert" className="error">
           {error}
         </p>
@@ -612,11 +646,11 @@ export function GameApp() {
                 <span>Badges</span>
               </button>
             </div>
-            <button className="primary game-cta start-session-cta" onClick={() => navigate('camera')}>
+            <button className="primary game-cta start-session-cta" onClick={startManual}>
               <span className="play-disc">
                 <Play weight="fill" size={17} />
               </span>
-              Start a Laundry Session
+              {sessions.some(s => s.mode === 'manual' && s.status === 'active') ? 'Continue your session' : 'Start a Laundry Session'}
             </button>
             <button className="next-trail" onClick={() => navigate('mountain')}>
               <Sock weight="duotone" />
@@ -630,6 +664,7 @@ export function GameApp() {
             </button>
           </>
         )}
+        {screen === 'session' && current && <ManualSession session={current} metres={stats.mountainMetres} disabled={blocked.current} error={error} onBank={bankManual} onPause={() => pauseManual()} onFinish={() => finish()} onLeave={() => pauseManual(true)} />}
         {(screen === 'camera' || screen === 'live') && (
           <div className={`game-session ${screen === 'live' ? 'is-live' : ''}`}>
             <div className="game-camera-column">
@@ -754,7 +789,8 @@ export function GameApp() {
               )}
               <BasketAvatar />
               <h1>{current.items ? 'That’s a load off.' : 'Session Finished'}</h1>
-              <p>{current.items ? `${format(current.items)} items folded. ${format(current.metres)} Laundry Metres earned.` : 'Your mountain will be here when you’re ready.'}</p>
+              <p>{current.items ? `${format(current.items)} items ${current.mode === 'manual' ? 'banked' : 'folded'}. ${format(current.metres)} Laundry Metres earned.` : 'Your mountain will be here when you’re ready.'}</p>
+              {current.mode === 'manual' && <p className="manual-honesty">Manually confirmed · 10 metres per item</p>}
             </div>
             <div className="game-stat-row result-stats">
               <div>
@@ -791,9 +827,9 @@ export function GameApp() {
               <div className="privacy-card zero-result">
                 <Leaf weight="duotone" />
                 <p>
-                  <strong>No items were detected.</strong>
+                  <strong>{current.mode === 'manual' ? 'No batches banked this time.' : 'No items were detected.'}</strong>
                   <br />
-                  Your saved position is unchanged. Your test results are still available.
+                  Your saved position is unchanged.
                 </p>
               </div>
             )}
@@ -956,7 +992,7 @@ export function GameApp() {
                 <BasketAvatar />
                 <h2>Your first load is your first step.</h2>
                 <p>A few folds today. A little further up the mountain. Your completed sessions will live here.</p>
-                <button className="primary game-cta" onClick={() => navigate('camera')}>
+                <button className="primary game-cta" onClick={startManual}>
                   Start your first session <ArrowRight size={16} />
                 </button>
               </section>
@@ -966,6 +1002,7 @@ export function GameApp() {
                   <button
                     key={s.id}
                     onClick={() => {
+                      if (s.mode === 'manual' && s.status === 'active') { startManual(); return }
                       setCurrent(s)
                       setClock(s.endedAt ?? s.startedAt)
                       navigate('results')
@@ -976,7 +1013,7 @@ export function GameApp() {
                     </span>
                     <span>
                       <strong>
-                        {s.load} · {s.items} items
+                        {s.load} · {s.items} items{s.mode === 'manual' ? ' · Manual' : ''}
                       </strong>
                       <small>
                         {new Date(s.startedAt).toLocaleDateString(undefined, {
@@ -985,8 +1022,8 @@ export function GameApp() {
                         })}{' '}
                         ·{' '}
                         {s.status === 'active'
-                          ? 'Left before finishing'
-                          : time(Math.max(0, Math.floor(((s.endedAt ?? s.startedAt) - s.startedAt) / 1000)))}
+                          ? s.mode === 'manual' ? 'Ready to continue' : 'Left before finishing'
+                          : time(sessionSeconds(s, s.endedAt ?? s.startedAt))}
                       </small>
                     </span>
                     <strong>+{format(s.metres)} m</strong>
@@ -1172,14 +1209,14 @@ export function GameApp() {
             </div>
           </>
         )}
-        {!['live', 'welcome', 'mountain'].includes(screen) && (
+        {!['live', 'session', 'welcome', 'mountain'].includes(screen) && (
           <p className="validation-note">
             <span />
             Camera validation pending · <a href="/?view=test">Folding test</a>
           </p>
         )}
       </main>
-      {!['live', 'camera', 'welcome', 'results'].includes(screen) && (
+      {!['live', 'session', 'camera', 'welcome', 'results'].includes(screen) && (
         <nav className="game-nav" aria-label="Game navigation">
           {(
             [
@@ -1194,7 +1231,7 @@ export function GameApp() {
               key={s}
               className={s === 'camera' ? 'nav-add' : ''}
               aria-current={screen === s || (screen === 'mountain' && s === 'mountains') ? 'page' : undefined}
-              onClick={() => navigate(s)}
+              onClick={() => s === 'camera' ? startManual() : navigate(s)}
             >
               <span>
                 <Icon weight={s === 'camera' ? 'bold' : 'fill'} />

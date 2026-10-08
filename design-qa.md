@@ -1,5 +1,16 @@
 # Reference fidelity review — 8 October 2026
 
+## Functional follow-up: manual session fallback
+
+Owner-approved simplification implemented without replacing the visual system.
+The live scene retains the approved basket/scenery; shared tactile emerald actions
+lead into an explicit manual batch dialog. Portrait and landscape captures are in
+`docs/design/review/manual-session/`. Landscape keeps scene and actions together;
+the batch dialog scrolls on short screens. No camera permission is required.
+34 unit tests/build and 8 affected browser scenarios passed, including resume,
+checkpoint movement, storage interruption and temporary photo disposal. This is
+software verification of manual entry, not detection accuracy or visual sign-off.
+
 ## Current gate: visual refinement
 
 Latest tactile correction: `docs/design/review/tactile-direction/`. Shared raised
