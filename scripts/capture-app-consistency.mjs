@@ -3,7 +3,7 @@ import { chromium } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const out = path.resolve('docs/design/review/app-consistency')
+const out = path.resolve(process.argv[2] || 'docs/design/review/app-consistency')
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 })
@@ -17,17 +17,22 @@ const capture = async name => {
   })
   if (await page.locator('.terrain-preview').count())
     await page.waitForFunction(() => [...document.querySelectorAll('.terrain-preview')].every(el => el.dataset.terrainRenderMs))
+  if (await page.locator('.mountain-canvas').count())
+    await page.waitForFunction(() => [...document.querySelectorAll('.mountain-canvas')].filter(el => el.clientWidth && el.clientHeight).every(el => el.dataset.terrainReady === 'true'))
   overflows.push({ name, overflow: await page.evaluate(() => document.documentElement.scrollWidth > innerWidth) })
   await page.screenshot({ path: path.join(out, `${name}.png`), fullPage: true })
 }
 for (const [size, width, height] of [['phone',390,844],['narrow',320,740],['landscape',844,390],['desktop',1100,900]]) {
   await page.setViewportSize({ width, height })
-  for (const view of ['mountains','profile','sessions','community','badges']) {
+  for (const view of ['home','welcome','mountains','profile','sessions','community','badges']) {
     await page.goto(`http://localhost:5173/?view=${view}`)
     await capture(`${view}-${size}`)
   }
   await page.goto('http://localhost:5173/?view=setup')
   await capture(`camera-${size}`)
+  await page.goto('http://localhost:5173/?view=mountain')
+  await page.getByRole('button', {name:'Full mountain',exact:true}).click()
+  await capture(`overview-${size}`)
 }
 // Inspect the saved-results presentation with an explicitly synthetic session.
 await page.setViewportSize({ width: 390, height: 844 })
@@ -40,6 +45,10 @@ await page.goto('http://localhost:5173/?view=sessions')
 await capture('history-populated-fixture')
 await page.getByRole('button', { name: /Everyday.*12 items/ }).click()
 await capture('results-fixture')
+for (const [size,width,height] of [['narrow',320,740],['landscape',844,390]]) {
+  await page.setViewportSize({width,height})
+  await capture(`results-${size}-fixture`)
+}
 await writeFile(path.join(out, 'browser-evidence.json'), JSON.stringify({ capturedAt:new Date().toISOString(), errors, overflows,
   state:'Isolated browser. Results/history fixture is synthetic; no physical accuracy claim.' },null,2))
 await browser.close()

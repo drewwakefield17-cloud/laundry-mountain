@@ -64,7 +64,7 @@ test('starting a session goes straight to camera with no load restrictions and p
   await page.getByRole('button', { name: 'Back to home', exact: true }).click()
   await page.getByRole('button', { name: '0 Loads', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Your journey starts with one load.' })
+    page.getByRole('heading', { name: 'Your first load is your first step.' })
   ).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
   for (const view of ['home', 'mountain', 'sessions']) {

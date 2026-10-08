@@ -2,6 +2,32 @@
 
 ## Current: approved-board refinement on `visual-refinement`
 
+- Tactile pass implemented: common emerald gradient/highlight/lower-edge controls,
+  pressed feedback with reduced-motion handling, dimensional stat/progress/reward
+  surfaces and adult laundry/climbing wordplay. Profile shows genuine metre/badge
+  shortcuts; history/community use less repetitive card framing. Camera remains
+  direct entry without load categories or quotas. Approved climb/badges retained.
+- Two terrain materials refined through the built-in image editor for cleaner
+  painted rock/shadow groups; source/prompt provenance is in
+  `docs/design/source-art/ben-nevis-tactile-materials.md`. Geographic meshes,
+  proportions, mapped path and persisted position are unchanged. Wide player label
+  moved above the basket so it does not obscure the next sock marker.
+- New visual evidence: `docs/design/review/tactile-direction/` includes actual Home
+  beside the existing approved reference, plus explicitly synthetic results.
+  Captures cover all app screens at 390, 320, 844-landscape and 1100 desktop widths.
+  Physical camera accuracy remains unproven. No numerical visual fidelity claim.
+- Verification: 30 unit tests and production build passed; all 19 browser tests
+  passed after the shared UI/copy changes, followed by 5 focused route, rotation,
+  persistence and navigation checks after the final terrain materials. Forty final
+  captures report no page/HTTP errors or horizontal overflow. The profile badge
+  shortcut was also exercised in the shared browser. Actual-phone performance is
+  still unmeasured; existing JS chunk warning remains (~434 kB gzip).
+- Latest owner feedback supersedes flat controls: the supporting pass feels too
+  clinical/dry and has drifted. Restore restrained button depth, adult playful
+  laundry/climbing copy and intentional screen composition. Planning request only;
+  no runtime edits made for this correction. `docs/design/coherence-plan.md` records
+  the bounded proof → shared treatment → overview → verification plan. Do not
+  repeat the already-completed full review or reopen the entire style direction.
 - Camera style correction: the owner rejected the photographic laundry-room art as
   inconsistent. Camera-off setup now reuses the same illustrated Ben Nevis and
   approved basket as home, with the white welcome-style curved caption, flat CTA,

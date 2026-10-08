@@ -1,0 +1,167 @@
+{
+  "capturedAt": "2026-10-08T09:55:14.243Z",
+  "errors": [],
+  "overflows": [
+    {
+      "name": "home-phone",
+      "overflow": false
+    },
+    {
+      "name": "welcome-phone",
+      "overflow": false
+    },
+    {
+      "name": "mountains-phone",
+      "overflow": false
+    },
+    {
+      "name": "profile-phone",
+      "overflow": false
+    },
+    {
+      "name": "sessions-phone",
+      "overflow": false
+    },
+    {
+      "name": "community-phone",
+      "overflow": false
+    },
+    {
+      "name": "badges-phone",
+      "overflow": false
+    },
+    {
+      "name": "camera-phone",
+      "overflow": false
+    },
+    {
+      "name": "overview-phone",
+      "overflow": false
+    },
+    {
+      "name": "home-narrow",
+      "overflow": false
+    },
+    {
+      "name": "welcome-narrow",
+      "overflow": false
+    },
+    {
+      "name": "mountains-narrow",
+      "overflow": false
+    },
+    {
+      "name": "profile-narrow",
+      "overflow": false
+    },
+    {
+      "name": "sessions-narrow",
+      "overflow": false
+    },
+    {
+      "name": "community-narrow",
+      "overflow": false
+    },
+    {
+      "name": "badges-narrow",
+      "overflow": false
+    },
+    {
+      "name": "camera-narrow",
+      "overflow": false
+    },
+    {
+      "name": "overview-narrow",
+      "overflow": false
+    },
+    {
+      "name": "home-landscape",
+      "overflow": false
+    },
+    {
+      "name": "welcome-landscape",
+      "overflow": false
+    },
+    {
+      "name": "mountains-landscape",
+      "overflow": false
+    },
+    {
+      "name": "profile-landscape",
+      "overflow": false
+    },
+    {
+      "name": "sessions-landscape",
+      "overflow": false
+    },
+    {
+      "name": "community-landscape",
+      "overflow": false
+    },
+    {
+      "name": "badges-landscape",
+      "overflow": false
+    },
+    {
+      "name": "camera-landscape",
+      "overflow": false
+    },
+    {
+      "name": "overview-landscape",
+      "overflow": false
+    },
+    {
+      "name": "home-desktop",
+      "overflow": false
+    },
+    {
+      "name": "welcome-desktop",
+      "overflow": false
+    },
+    {
+      "name": "mountains-desktop",
+      "overflow": false
+    },
+    {
+      "name": "profile-desktop",
+      "overflow": false
+    },
+    {
+      "name": "sessions-desktop",
+      "overflow": false
+    },
+    {
+      "name": "community-desktop",
+      "overflow": false
+    },
+    {
+      "name": "badges-desktop",
+      "overflow": false
+    },
+    {
+      "name": "camera-desktop",
+      "overflow": false
+    },
+    {
+      "name": "overview-desktop",
+      "overflow": false
+    },
+    {
+      "name": "history-populated-fixture",
+      "overflow": false
+    },
+    {
+      "name": "results-fixture",
+      "overflow": false
+    },
+    {
+      "name": "results-narrow-fixture",
+      "overflow": false
+    },
+    {
+      "name": "results-landscape-fixture",
+      "overflow": false
+    }
+  ],
+  "state": "Isolated browser. Results/history fixture is synthetic; no physical accuracy claim."
+}

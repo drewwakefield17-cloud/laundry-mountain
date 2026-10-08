@@ -81,6 +81,14 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
 
 ## Product and design requirements
 
+- **Latest 8 October correction:** the owner says the recent white/flat pass feels
+  clinical and has drifted from the already-reviewed board. Restore restrained
+  dimensional/embossed primary controls (highlight, rich emerald shading, shallow
+  lower edge, tactile pressed state). This supersedes the flat-button preference
+  below, not the approved graphic mascot finish. Use playful adult laundry/climbing
+  wordplay in headlines/rewards, with clear action labels and factual camera/error
+  messages. Follow `docs/design/coherence-plan.md`; do not restart broad exploration
+  or repeat the full review as though it had not already happened.
 - **8 October visual refinement:** the owner approved the coordinated board at
   `docs/design/source-art/approved-app-visual-direction.png`, with the correction
   that routes must follow land/the mapped path, never the concept's invented lake.

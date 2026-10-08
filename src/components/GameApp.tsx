@@ -446,9 +446,9 @@ export function GameApp() {
         {mode === 'card' && (
           <div className="scenic-foot">
             <p>
-              Steady progress,
+              Less pile.
               <br />
-              brighter days.
+              More peak.
             </p>
             <div
               className="progress-ring"
@@ -567,11 +567,11 @@ export function GameApp() {
             />
             <div className="welcome-bottom">
               <h1>
-                Small loads.
+                A mountain of laundry.
                 <br />
-                Big progress.
+                Meet your match.
               </h1>
-              <p>Turn everyday laundry into your next adventure.</p>
+              <p>Turn the never-ending pile into an uphill adventure.</p>
               <button className="primary game-cta" onClick={() => navigate('home')}>
                 Get Started <ArrowRight size={20} />
               </button>
@@ -635,7 +635,7 @@ export function GameApp() {
             <div className="game-camera-column">
               {screen === 'camera' && (
                 <div className="camera-intro">
-                  <h1>Get Ready to Climb!</h1>
+                  <h1>Ready, set, fold.</h1>
                   <p>Fold at your pace. Finish whenever you like.</p>
                 </div>
               )}
@@ -676,7 +676,7 @@ export function GameApp() {
             <section className="game-climb-column">
               <div className="live-heading">
                 <h1>{paused ? 'Take a Breather' : 'Keep Going!'}</h1>
-                <p>{paused ? 'Your mountain will wait.' : 'Fresh vibes on the way.'}</p>
+                <p>{paused ? 'Even mountains can wait.' : 'The pile goes down. You go up.'}</p>
               </div>
               {scenic('dial')}
               {burst && (
@@ -753,8 +753,8 @@ export function GameApp() {
                 </div>
               )}
               <BasketAvatar />
-              <h1>{current.items ? 'Session Complete!' : 'Session Finished'}</h1>
-              <p>{current.items ? 'Another load higher!' : 'A fresh start is always waiting.'}</p>
+              <h1>{current.items ? 'That’s a load off.' : 'Session Finished'}</h1>
+              <p>{current.items ? `${format(current.items)} items folded. ${format(current.metres)} Laundry Metres earned.` : 'Your mountain will be here when you’re ready.'}</p>
             </div>
             <div className="game-stat-row result-stats">
               <div>
@@ -778,7 +778,7 @@ export function GameApp() {
                 <Flame weight="fill" />
                 <p>
                   <strong>
-                    {current.metres > current.base ? 'Momentum Boost!' : 'A brighter day starts here.'}
+                    {current.metres > current.base ? 'On a roll. On a climb.' : 'One less thing on the pile.'}
                   </strong>
                   <span>
                     {current.metres > current.base
@@ -797,11 +797,7 @@ export function GameApp() {
                 </p>
               </div>
             )}
-            <blockquote>
-              “Clean clothes. Brighter days.
-              <br />
-              You’re on your way!”
-            </blockquote>
+            {current.items > 0 && <blockquote>Less laundry. More altitude.</blockquote>}
             <button className="primary game-cta" onClick={() => navigate('mountain')}>
               Back to my mountain <ArrowRight size={18} />
             </button>
@@ -953,13 +949,13 @@ export function GameApp() {
             <div className="page-intro">
               <History weight="duotone" />
               <h1>Every load tells a story.</h1>
-              <p>Your adventures, saved on this phone.</p>
+              <p>Proof that the laundry got you somewhere.</p>
             </div>
             {!sessions.length ? (
               <section className="history-empty">
                 <BasketAvatar />
-                <h2>Your journey starts with one load.</h2>
-                <p>Finish a session and its results will be waiting here.</p>
+                <h2>Your first load is your first step.</h2>
+                <p>A few folds today. A little further up the mountain. Your completed sessions will live here.</p>
                 <button className="primary game-cta" onClick={() => navigate('camera')}>
                   Start your first session <ArrowRight size={16} />
                 </button>
@@ -999,7 +995,7 @@ export function GameApp() {
                 ))}
               </div>
             )}
-            <p className="page-quote">Small habits create extraordinary places.</p>
+            <p className="page-quote">One pile at a time. One peak at a time.</p>
           </>
         )}
         {screen === 'badges' && (
@@ -1101,10 +1097,10 @@ export function GameApp() {
             <div className="community-motto">
               <Users weight="duotone" />
               <p>
-                <strong>Together, we climb higher.</strong>
+                <strong>Good company. Higher ground.</strong>
                 <span>
-                  Small habits. Cleaner homes.
-                  <br />A brighter tomorrow.
+                  Different piles.
+                  <br />Same uphill ambition.
                 </span>
               </p>
             </div>
@@ -1121,7 +1117,11 @@ export function GameApp() {
                 <BasketAvatar />
               </span>
               <h1>{profileName}</h1>
-              <p>Your little habits. Your higher ground.</p>
+              <p>Making a mountain out of the washing.</p>
+            </div>
+            <div className="profile-progress" aria-label="Your climbing progress">
+              <button onClick={() => navigate('mountain')}><TrailIcon kind="mountain" /><span><strong>{format(stats.lifetimeMetres)} m</strong><small>Climbed so far</small></span><ArrowRight size={16}/></button>
+              <button onClick={() => navigate('badges')}><TrailIcon kind="badge" /><span><strong>{earnedBadges}</strong><small>Badges earned</small></span><ArrowRight size={16}/></button>
             </div>
             <form
               className="profile-form"

@@ -2,6 +2,11 @@
 
 ## Current app direction — 8 October 2026
 
+Latest correction: restore restrained dimensional emerald buttons and a livelier
+adult laundry/climbing voice. The owner rejected the clinical effect of the flat
+pass. This supersedes flat-control guidance below. See `coherence-plan.md`; the
+existing approved board remains the reference and is not being re-explored.
+
 The owner approved `source-art/approved-app-visual-direction.png` and authorized
 implementation on the new `visual-refinement` branch. `main` at `bd064c0` remains
 the baseline fallback. The original ten-screen board still anchors the UI family.

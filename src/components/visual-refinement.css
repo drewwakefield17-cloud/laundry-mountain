@@ -192,3 +192,64 @@
   .screen-welcome .welcome-bottom h1{font-size:26px}
   .screen-welcome .artwork-welcome .scenic-artwork-companion{width:36%;bottom:3%}
 }
+/* Tactile adventure finish. Latest owner direction supersedes flat controls. */
+.game-shell{--emerald-button:linear-gradient(180deg,#07875f 0%,#00825c 48%,#006747 100%);--raised-shadow:0 3px 0 #00543f,0 7px 13px #064a3c21;--card-shadow:0 3px 9px #163c4d0c,0 1px 2px #163c4d0a}
+.game-shell .primary{background:var(--emerald-button);border:1px solid #007650;box-shadow:inset 0 1px 0 #91e0b97a,var(--raised-shadow);text-shadow:0 1px 1px #003d3a55;transition:filter .15s,transform .15s,box-shadow .15s}
+.game-shell .primary:hover{background:var(--emerald-button);filter:brightness(1.015)}
+.game-shell .primary:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 1px 3px #004b3d40,0 1px 0 #00543f;filter:brightness(.97)}
+.game-shell .primary:disabled{box-shadow:none;filter:saturate(.5);text-shadow:none}
+.game-shell .secondary,.game-shell .game-live-buttons>button:first-child{background:linear-gradient(#fff,#eff5f3);box-shadow:inset 0 1px white,0 2px 0 #d4e0dc;border-color:#cadbd4}
+.game-shell .segmented{background:#edf3f1;box-shadow:inset 0 1px 3px #113e3f0c}
+.game-shell .segmented button[aria-pressed='true'],.screen-mountain .view-control button[aria-pressed='true']{background:var(--emerald-button);box-shadow:inset 0 1px 0 #89d5b680,0 2px 3px #003e3624}
+.game-shell .game-nav{box-shadow:0 -5px 16px #173b4507}
+.game-shell .game-nav .nav-add>span{background:var(--emerald-button);box-shadow:inset 0 2px 1px #8fddbd88,0 3px 6px #074d3e30}
+.game-shell .game-nav .nav-add:active>span{transform:translateY(2px)}
+.game-shell .game-stat-row>div,.game-shell .home-stats>button{background:linear-gradient(160deg,#fff 55%,#f3f8f6);border-color:#e1eae5;box-shadow:var(--card-shadow)}
+.game-shell .home-stats>button:hover{border-color:#8ec8b3;background:#f1faf6}
+.screen-home .scenic-card{box-shadow:0 3px 0 #dbe8df,0 9px 20px #153f4214}
+.screen-home .progress-ring{box-shadow:0 4px 11px #052d3830,inset 0 1px 3px #fff9}
+.screen-home .progress-ring::before{background:linear-gradient(145deg,#fff,#eff7f3);box-shadow:inset 0 1px 3px #123e3820}
+.screen-home .scenic-foot>p{font-size:15px;font-weight:750;line-height:1.2;padding:9px 12px;border:1px solid #ffffff32;background:#103e42db}
+.screen-home .next-trail,.overview-next{box-shadow:var(--card-shadow);border-color:#dce7e2}
+.screen-home .next-trail>svg,.overview-next>svg{width:33px;height:33px;filter:drop-shadow(0 2px 1px #97530f22)}
+.screen-home .home-stats{margin-top:15px}
+.game-shell .camera-off-message{box-shadow:none}
+.game-shell .phone-position{box-shadow:var(--card-shadow)}
+.game-shell .scenic-dial{box-shadow:0 5px 14px #16533d22,inset 0 0 0 1px #cbe0d3}
+.screen-results .results-heading{padding-top:8px}
+.screen-results .results-heading.has-progress{background:radial-gradient(ellipse at 50% 42%,#edf8ed,transparent 67%)}
+.screen-results .results-heading h1{font-size:32px;letter-spacing:-.8px}
+.screen-results .results-heading p{max-width:310px;margin:6px auto 0;font-size:14px;line-height:1.5}
+.screen-results .result-stats{margin-top:20px;gap:8px}
+.screen-results .result-stats>div{padding:12px 3px}
+.screen-results .result-stats .trail-icon{width:44px;height:44px}
+.game-shell .reward-ribbon{background:linear-gradient(120deg,#fff9ea,#fff3d9);border:1px solid #e9c783;box-shadow:0 3px 9px #8958120c}
+.game-shell .reward-ribbon strong{color:#875000}
+.game-shell .reward-ribbon span{color:#705028}
+.game-shell .reward-ribbon>svg{filter:drop-shadow(0 2px 2px #e69e2d40)}
+.screen-results blockquote{font-size:17px;font-weight:700;color:#386353;margin:22px 0}
+.screen-results .game-cta{margin-bottom:15px}
+.game-shell .expedition-card{box-shadow:var(--card-shadow);border-color:#e1eae5}
+.game-shell .expedition-card.current-expedition{background:linear-gradient(110deg,#eef9f1,#fff);border-color:#80bfa6;box-shadow:0 3px 8px #06583f14}
+.game-shell .leaderboard>button{border:0;border-bottom:1px solid #e5ece8;border-radius:0;background:none;padding-left:10px;padding-right:10px}
+.game-shell .leaderboard>button.your-row{border:1px solid #80bfa6;border-radius:12px;background:linear-gradient(110deg,#e9f6ee,#f7fcf9);box-shadow:var(--card-shadow)}
+.game-shell .leaderboard>button:first-child .person-avatar{box-shadow:0 0 0 3px #f3d795,0 3px 6px #a2671525}
+.game-shell .community-motto{border:0;border-top:1px solid #dce9e2;border-radius:0 0 12px 12px;background:#f6faf8}
+.screen-sessions .page-intro>svg{color:#087852;background:#edf7f0;border:1px solid #cce1d5;border-radius:50%;padding:9px;width:52px;height:52px;box-shadow:inset 0 1px white,0 2px 3px #25433510}
+.screen-sessions .history-empty{border:0;background:radial-gradient(ellipse at 50% 28%,#f0f8ef,transparent 60%);padding-top:5px}
+.screen-sessions .history-empty>.basket-avatar{width:150px;height:155px}
+.screen-sessions .history-empty h2{max-width:290px}
+.game-shell .profile-links{gap:0;border-top:1px solid #e0e9e3}
+.game-shell .profile-links>button{border:0;border-bottom:1px solid #e0e9e3;border-radius:0;min-height:54px}
+.profile-progress{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:23px}
+.profile-progress>button{display:flex;align-items:center;gap:7px;padding:11px 8px;border:1px solid #dce9e2;border-radius:12px;background:linear-gradient(140deg,#fff,#f2f8f4);box-shadow:var(--card-shadow);text-align:left;color:var(--navy)}
+.profile-progress .trail-icon{width:36px;height:36px}
+.profile-progress>button>span:not(.trail-icon){display:flex;flex-direction:column;flex:1}
+.profile-progress strong{font-size:18px;white-space:nowrap}
+.profile-progress small{font-size:10px;color:var(--muted)}
+.screen-profile .profile-form{padding-bottom:18px}
+.screen-profile .profile-hero{margin-bottom:10px}
+.screen-profile .privacy-card{background:transparent;border:0;padding-left:0;padding-right:0}
+@media(max-width:360px){.screen-results .results-heading h1{font-size:29px}.profile-progress{gap:6px}.profile-progress .trail-icon{width:28px;height:28px}.profile-progress>button{gap:4px}.screen-welcome .welcome-bottom h1{font-size:25px}}
+@media(orientation:landscape) and (max-height:600px){.game-shell .primary{box-shadow:inset 0 1px 0 #91e0b97a,0 2px 0 #00543f,0 4px 8px #064a3c15}.screen-welcome .welcome-bottom h1{font-size:24px}.screen-welcome .welcome-bottom p{margin:8px 0 14px}}
+@media(prefers-reduced-motion:reduce){.game-shell .primary{transition:none}.game-shell .primary:active:not(:disabled),.game-shell .game-nav .nav-add:active>span{transform:none}}

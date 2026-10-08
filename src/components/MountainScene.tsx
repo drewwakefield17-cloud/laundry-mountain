@@ -71,14 +71,14 @@ function overviewForeground() {
 function wideOverviewMaterial() {
   if (!wideMaterial) {
     wideMaterial = new Image()
-    wideMaterial.src = '/textures/ben-nevis-wide-refined.webp'
+    wideMaterial.src = '/textures/ben-nevis-wide-tactile.webp'
   }
   return wideMaterial
 }
 function detailedOverviewMaterial() {
   if (!overviewMaterial) {
     overviewMaterial = new Image()
-    overviewMaterial.src = '/textures/ben-nevis-overview-refined.webp'
+    overviewMaterial.src = '/textures/ben-nevis-overview-tactile.webp'
   }
   return overviewMaterial
 }
@@ -331,15 +331,15 @@ export function MountainScene({
         for (const [ghostIndex, ghost] of ghostImages.entries()) {
           if (composition?.wide && ghostIndex > 0) continue
           const compact = height < 400,
-            portraitRadius = compact ? 11 : 15,
+            portraitRadius = compact ? 13 : 18,
             portraitOffset = compact ? 54 : 24
           const p = markerPosition(ghost.metres),
             gx = Math.max(28, Math.min(width - 28, p.x * width + (ghostIndex % 2 ? -portraitOffset : portraitOffset))),
             gy = p.y * height - (compact ? 8 : 24)
           // Portrait size stays independent of terrain zoom. Socks are reserved
           // for milestones, while demo climbers retain explicit labels.
-          ctx.strokeStyle = '#fff9df'
-          ctx.lineWidth = 2
+          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = 2.5
           ctx.beginPath()
           ctx.moveTo(gx, gy)
           ctx.lineTo(p.x * width, p.y * height)
@@ -408,8 +408,10 @@ export function MountainScene({
         }
         ctx.restore()
         const labelWidth = 58,
-          labelX = Math.max(5, Math.min(width - labelWidth - 5, basketArt ? (px < width / 2 ? px + 32 + 38 * (1 - player.progress) : px - labelWidth - 32 - 38 * (1 - player.progress)) : px + 12)),
-          labelY = py - (composition?.wide ? 70 : 108 - 56 * player.progress)
+          // In the wide view, a label alongside the basket obscures the first
+          // checkpoint. Anchor it above the player instead, clear of the header.
+          labelX = Math.max(5, Math.min(width - labelWidth - 5, composition?.wide ? px - labelWidth / 2 : basketArt ? (px < width / 2 ? px + 32 + 38 * (1 - player.progress) : px - labelWidth - 32 - 38 * (1 - player.progress)) : px + 12)),
+          labelY = composition?.wide ? Math.max(55, py - (42 + 46 * (1 - player.progress)) - 46) : py - (108 - 56 * player.progress)
         ctx.fillStyle = '#ffffff'
         ctx.strokeStyle = '#087c5a'
         ctx.lineWidth = 2

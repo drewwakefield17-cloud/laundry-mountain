@@ -2,6 +2,18 @@
 
 ## Current gate: visual refinement
 
+Latest tactile correction: `docs/design/review/tactile-direction/`. Shared raised
+emerald controls, progress/reward depth, contextual wordplay and quieter supporting
+screen grouping are implemented. Ben Nevis materials refined in both orientations;
+geographic geometry and route retained. Compare `home-results-proof.jpg` against
+the approved board. Results evidence is synthetic. No owner acceptance or invented
+90% score is claimed. See material provenance in `docs/design/source-art/`.
+30 unit tests/build, all 19 browser tests and five final terrain/navigation checks
+passed. Forty final captures have no page/HTTP errors or horizontal overflow.
+Physical detection remains unverified. Palette spot checks: white on the darkest/
+lightest default emerald gradient stops is at least 4.53:1; reward text on its pale
+amber background is 6.0:1. These checks are not a whole-app accessibility audit.
+
 Latest supporting-screen evidence: `docs/design/review/app-consistency/`.
 Camera-off artwork now shares home's illustrated Ben Nevis/basket and welcome's
 curved white caption, replacing the rejected photographic laundry room. Inspected
