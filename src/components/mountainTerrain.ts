@@ -173,13 +173,6 @@ export function drawHighlands(
   halo.addColorStop(1, '#fff5cb00')
   ctx.fillStyle = halo
   ctx.fillRect(0, 0, w, h)
-  const sun = ctx.createLinearGradient(0, sunY - sunRadius, 0, sunY + sunRadius)
-  sun.addColorStop(0, '#ffdc7c')
-  sun.addColorStop(1, '#ffad4b')
-  ctx.fillStyle = sun
-  ctx.beginPath()
-  ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2)
-  if (!natural) ctx.fill()
   if (assets.clouds?.complete && assets.clouds.naturalWidth) {
     ctx.save()
     ctx.globalAlpha = overview ? 0.94 : natural ? 0.65 : 0.9

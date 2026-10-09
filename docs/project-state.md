@@ -1,4 +1,356 @@
-# Project handoff — 8 October 2026
+## Submission repository update - 9 October 2026
+
+The owner requested the complete current app in the GitHub submission repository.
+Main is being fast-forwarded to the verified working app and demo source; preserve
+all history and the earlier baseline commits. This is repository publication only,
+not a new production deployment. Commit messages retain [skip netlify].
+
+- Replaced the stale root/trailer README introductions with current scope, install
+  and render instructions, real app screenshots, approved cover and voiceover links.
+  Previous README notes are preserved in docs/archive/.
+- Included the accepted three-mountain app, HTTP-safe session IDs, artwork, domain
+  tests, approved Remotion composition, trimmed isolated demo takes and cover.
+- Kept personal recording originals, intermediate footage, video exports, caches,
+  credentials and the locally licensed OS emphasis font out of Git. The optional
+  trailer README explains the font setup and historical compositions.
+- Updated existing browser tests for the accepted controls, journal and reward
+  dialogs. Moved demo capture recipes behind playwright.capture.config.ts.
+- Fixed two bounded layout regressions: the preserved live-camera screen now uses
+  landscape width, and manual Save for later stays visible at 667 x 375.
+- Verification: 48 unit tests, TypeScript and Vite production build passed. All
+  22 browser regressions passed across focused runs (11 camera/geography; 8 app;
+  3 corrected selector/reward cases). Production npm audit: zero findings.
+  Literal runtime assets and README links checked. The initial broad run exposed
+  cold dev-server startup timeouts and stale UI selectors; subsequent focused
+  runs passed after server readiness and selector/layout corrections.
+- The large preserved geographic-renderer chunk still triggers a Vite size warning.
+  Physical camera accuracy, cloud sync and photo estimation remain unvalidated or
+  unimplemented; the demo labels photo estimation as a concept.
+
+## Approved 43.8-second visual edit — 9 October
+
+Owner accepted the tightened cut with “pretty happy with this”. Preserve this
+visual edit, including the sunset closing; the new cover is a separate asset.
+A subsequent overlap report is fixed: Basky sits below/right of the full subtitle.
+
+- Live timeline: http://localhost:5190/LaundryMountain-Landscape-Edit
+- Review/download: http://127.0.0.1:5192/
+- MP4: trailer/out/laundry-mountain-final-silent.mp4 — 43.8 s, 1920 × 1080,
+  30 fps, 1,314 decoded frames, 22,325,195 bytes. Silent for owner-added music/VO.
+- Script: trailer/VOICEOVER-ELEVENLABS.txt; exact visual windows and suggested
+  recording blocks: trailer/VOICEOVER-43S-CUES.md. No voice audio generated.
+- Fresh isolated recordings: tests/demo-polish-capture.spec.ts, both cases passed.
+  Images including SVG scenery were preloaded; actual Start/Bank clicks were filmed.
+  Only the test recording has a tap indicator. Owner progress and app code unchanged.
+- Short standalone clips have fixed boundaries, one readable badge, no outgoing
+  dialogs, and walking cuts ending before the idle/camera-reset phase. Scene times
+  are in the cue sheet; the 64.3-second MP4/source archive remains available.
+- Verified TypeScript, full video decode, source in/out frames, and exported frames
+  across all scenes. Evidence: trailer/out/final-qa-board-{1,2,3}.jpg and
+  trailer/out/polish-source-boundaries.jpg. The exported MP4 played through 43.8 s in the shared browser with no media error;
+  proof: trailer/out/approved-playback-proof.png.
+- Photo estimation remains explicitly labelled concept, not implemented detection.
+  Later summits come from illustrative manual UI batches in isolated demo profiles.
+
+Cover: owner approved the new combined composition (sunset Basky/logo, three
+mountains, three phones) and requested home / Mount Fuji close-up / badge screens.
+Completed and visually inspected: trailer/cover/laundry-mountain-combined-final.png.
+Phones show Ben Nevis home, Mount Fuji uphill climb and Glen Explorer badge.
+The prior combined version is retained alongside it. The approved video ending
+remains the selected sunset artwork.
+
+This supersedes the earlier 64.3-second edit and voiceover instructions.
+
+
+## Latest owner steering — full demo and headline finish, 9 October
+
+Owner confirmed Remotion and requested the complete product story, actual app
+screens in motion and all three mountains. The 22-second sample is superseded.
+The full sequence is now 64.3 seconds in the SAME live composition:
+http://localhost:5190/LaundryMountain-Landscape-Edit.
+
+Owner then said the rest was looking good and requested larger headers, with some
+logo-like font variation. Main headers are now 132 px, with local video-only Arial
+Black emphasis (not claimed to be the exact raster-logo font). App UI fonts and
+production remain unchanged. Owner explicitly selected a new closing image:
+`trailer/public/art/owner-selected-closing.png`; use it full-width with a gentle
+camera push. This supersedes the earlier request to retain the V3 logo ending.
+
+Sources: trailer/src/ProductStory.tsx and PhotoWalkthrough.tsx.
+Real recordings cover start, 25-item batch, walking, checkpoint/badge, saved trail,
+Ben Nevis/Fuji/Everest progression and summits. Three recording scenarios passed
+individually after the first portrait run exposed a delayed-dialog timing issue
+in the capture script. Demo progression is isolated and labelled; no owner data
+was altered. Photo estimation is an animated, visibly labelled concept, not built.
+TypeScript passed. The full export is 64.3 seconds, 1920 × 1080 at 30 fps
+(1,929 decoded frames, 55.3 MB). Selected exported photo, checkpoint, Fuji, Everest
+and closing frames were visually inspected. The browser player loaded the new
+file and played at its native dimensions without a media error. Review/download:
+http://127.0.0.1:5192/ and trailer/out/laundry-mountain-product-story.mp4.
+Sound is still deferred. Creative final approval remains open.
+
+See trailer/PRODUCT-STORY.md and trailer/VOICEOVER-PRODUCT-STORY.md.
+
+## Current demo direction — landscape edit, 9 October
+
+The owner rejected v3's pale surrounds, generic corner labels and portrait-first
+presentation. They liked its reward and logo ending. The live working composition
+is now http://localhost:5190/LaundryMountain-Landscape-Edit (21.8 seconds).
+The owner requested two opening still beats (Tuesday / Basky taking it personally),
+then real app use and reward, with the cinematic climb moved to the payoff.
+This is a direction review, not an approved final submission. Music remains deferred.
+
+- `src/LandscapeEdit.tsx`: new sequence; exact existing Nunito fonts and logo.
+- `public/art/basky-takes-it-personally.png`: matching reaction edit generated with
+  the built-in image tool from laundry-expedition plus the approved mascot face.
+  The room, lighting, laundry mountain and character materials are preserved.
+- `public/recordings/landscape-app-demo.webm`: actual app at 960×540, recorded in an
+  isolated Playwright context. Manually banked 20 items → 200 m → walking and badge.
+  This is software-demo footage, not the owner's phone or physical detector evidence.
+  `tests/demo-landscape-capture.spec.ts` passed; owner storage was not touched.
+- Existing free generation returned 720×1280 despite a wide source/prompt. The
+  closing shot follows Basky with a 16:9 crop; there is no native wide generated
+  source, no stretched character and no new paid video generation.
+- V3 reward and logo ending are reused. The photo concept is omitted from this
+  short correction sample. Photo counting remains unimplemented.
+- TypeScript passed. Reaction art and closing framing were checked in Studio.
+  Owner creative review is still required. Production and app visuals unchanged.
+
+## Latest: landscape visual cut v3 ready for owner review — 9 October
+
+Owner resumed production after the storyboard and requested landscape, exact app
+assets/fonts, real gameplay, a restrained app-styled photo concept and a Canva
+trial. Owner then explicitly prioritised seeing the visual video over music.
+
+`trailer/out/laundry-mountain-demo-v3.mp4` is now exported: 36.3 seconds, 1920×1080,
+30 fps, H.264, 1,089 decoded frames. Player: http://127.0.0.1:5192/.
+This is an unapproved visual review cut, not a finished submission. It uses larger
+editorial crops of the owner's count/bank/climb/badge recording, an actual results
+capture, the existing free Basky clip, exact logo and app Nunito 800/900 fonts.
+The proposed before/after photo sequence is labelled as a concept. No photo AI was
+implemented. Audio is intentionally deferred at the owner's latest direction.
+Source: `trailer/src/DemoV3.tsx`; narration: `trailer/VOICEOVER-V3.md`.
+
+The variable-frame-rate phone source was normalised before trimming. Climb footage
+is source 18.8–21.35 s, slowed to fit its shot; count footage is 15.6–18.9 s.
+Results uses an exact owner-recording still with a camera move. Do not describe all
+shots as live footage. Selected frames were visually checked; TypeScript passed;
+full MP4 decoded and browser playback started without a media error. Owner's
+creative verdict remains pending; v1/v2 remain rejected historical drafts.
+
+Canva correct-account draft: https://www.canva.com/design/DAHXgi6L_qo/mguOvY38dTHXmsniC_A23Q/edit
+Title: Laundry Mountain — Basky product demo. Exact logo/free Basky clip uploaded;
+Beauty Future Pop added as a trial music track. The v3 film is not yet inserted in
+that Canva timeline. Prioritise owner review of the exported visuals before more
+assembly or sound work. No app code, accepted app visuals or deployment changed.
+
+# Project handoff — 9 October 2026
+
+## Latest: owner stopped v2; storyboard before more production
+
+Owner rejected the 31.8-second v2 as far below target: app too small, generic words,
+no convincing story/flow, mismatched invented photo screens and weak logo tile.
+Remotion was used for assembly, layouts, text moves and rendering; successful
+export/playback was not creative acceptance. Video editing/generation/export is
+paused at the owner's request while the story is reviewed.
+
+New review artifact: `trailer/storyboard/index.html`, served at
+http://127.0.0.1:5192/storyboard/. Eight proposed portrait shots follow one real
+20-item / 200 m batch through banking, movement, badge and saved results. App is
+full-frame for 22/32 seconds. Exact logo appears large in the ending's sky.
+Photo concept is a separate optional insert, based on the real count sheet with
+the same controls and a before/after addition to its photo row. It remains labelled
+as proposed. No app code, accepted design or movie composition changed in this
+reset. Board images are existing artwork and exact samples from owner footage.
+Owner feedback is the next step; do not resume production from older authorization
+without accounting for this explicit stop/review request.
+
+## Latest: Basky product demo, owner footage and phone fix — 9 October 2026
+
+The mascot is **Basky** (like basket). Owner wants a product demo with trailer
+energy, not a generic tagline montage. Preserve the app's exact logo, typography
+and colours. The first custom cut was a useful start but rejected for weak energy,
+disjointed story, reconstructed branding and odd laundry in the old walking shot.
+
+`trailer/` now contains a separate Remotion editing project. The 31.8-second v2
+composition uses the correct logo, a pile → Basky → real manual batch → rewards →
+three mountains story, then a clearly labelled proposed photo-counting animation.
+The proposed 18 → 20 correction is illustrative, not working recognition. No AI
+counting was added to the app. VO script, timings, provisional captions, original
+recordings and source provenance are in `trailer/README.md`. Studio is at
+http://localhost:5190/LaundryMountain-Demo-v2; player at http://127.0.0.1:5192/.
+Export/playback status is recorded in the trailer README. Music/VO and owner
+review remain; do not call this a finished soundtrack or approved submission.
+
+Owner supplied two phone recordings. The second shows 20 manually confirmed items
+earning 200 m and real badges. First recording preserves the failed session start.
+HTTP LAN reproduction found `crypto.randomUUID` unavailable in insecure contexts;
+shared ID generation now falls back to `crypto.getRandomValues`. Native/fallback
+tests plus the existing suite pass: 48 tests in 11 files, TypeScript and production
+build. The same LAN origin was exercised through start, bank, save/reload and
+finish. This is manual-flow evidence, not physical camera/detection validation.
+
+One explicitly authorized free Higgsfield motion attempt completed (720x1280,
+6.04 s); v2 uses 0.4–3.4 s. No paid repeat. The two Creative Claw input uploads
+were explicitly approved solely for this transfer. See generation-record.json.
+Canva was discussed as a possible finishing editor; no Canva upload/project exists.
+
+Accepted landing now includes three different phone views: Ben Nevis, Fuji and
+Everest. Mobile gallery inspected; build passes. Accepted app visuals preserved.
+
+Open release finding from the owner's recording: Fuji/Everest have blue/blank
+scenery for several seconds on cold entry. Not fixed yet. Clear frames are used
+in the demo, and the original recording remains available. This prevents claiming
+all physical-phone performance checks passed. Final hosting/site choice, cover
+selection, soundtrack/VO and demo approval also remain. No new deployment.
+Older status sections below are historical where they conflict with this update.
+
+## Latest: landing revision and trailer rejection — 9 October 2026
+
+Owner rejected the first landing pass as weak and the 19-second DemoBro video as
+not good enough. The approved three-mountain app is unchanged. Landing now has
+purpose-composed portrait/desktop Ben Nevis artwork, a grounded waving companion,
+shorter copy, illustrated stat icons, tactile steps and a sock-stop entry card.
+Actual page review is at http://localhost:5180/. Agent inspected 390x844, 320x740,
+1440x900 and 844x390; app entry, mountain anchor and FAQ expansion work. Build and
+whitespace checks pass; no captured browser warnings/errors. Owner accepted this
+landing direction with “much better”. Preserve its hero and visual finish.
+New images were made with built-in imagegen; sources/prompts are in source-art and
+optimized WebP files in public/art. Existing accepted app scenes were not changed.
+
+Three cover alternatives remain at design/review/release-covers/index.html.
+Release evidence and full outstanding work: design/review/release-checks/current-status.md.
+The earlier local manual regression pass passed 46 tests; the normal landing/game
+now defer camera/geographic prototype code. Old combined-bundle figures below are
+historical. The geographic prototype still has a large deferred chunk.
+
+Only a Netlify draft was uploaded, to the existing Laundry Mountain site. Other
+projects and the production version were untouched. The draft contains the first
+landing, not this revision. Production site choice is still pending after automatic
+review rejected creating a duplicate Laundry Mountain project. Netlify access works.
+
+DemoBro draft: https://www.demobro.video/v/d7b4d25b-8ab8-41b7-9fcd-8c8ee33110d5.mp4
+Owner rejected it. A custom mascot-led edit is still required; no new cut exists.
+Creative Claw music generation was blocked before generation (6 required credits,
+1 available, no charge). Do not claim trailer or physical-phone acceptance complete.
+
+## Latest: all three mountains playable — 9 October 2026
+
+The owner accepted the Ben Nevis finish/movement and explicitly authorized Fuji
+and Everest to that standard. Both now use the approved UI and uphill companion,
+with their own painted home, overview, climb, portrait/landscape session, profile
+and reward scenery. No new mockup approval gate. Ben Nevis artwork is preserved.
+
+- Playable order: Ben Nevis (1,345 m) -> Mount Fuji (3,776 m) -> Everest (8,849 m).
+  Each has independent saved position, sock checkpoints and summit/unlock states.
+- New manual ledger events carry an optional mountain ID. A batch crossing a summit
+  fills that mountain and carries its remainder forward exactly once. All three
+  positions cap at their summit; lifetime items/metres continue afterwards.
+- Old untagged events remain Ben Nevis progress. Historical excess is not silently
+  reallocated. Existing ledger/session storage keys and earned badges are retained;
+  selected mountain uses a new separate key. Sessions resume on their own mountain.
+- Home, profile, journal, results and rewards use the relevant mountain. Each real
+  checkpoint has its own copy. Close-camera approaches on the longer climbs are
+  at most 250 m so a small batch visibly moves the whole basket. Internal approach
+  changes do not create fake checkpoints or extra awards.
+- Code lives in the existing React app: shared mountain definitions/progress domain,
+  reused session/reward/scene components, scoped expedition CSS. No new dependency.
+
+Verification: production build, 46 tests across 10 files and git diff whitespace
+check pass. Existing Vite large-chunk warning remains (main JS ~446.6 kB gzip).
+Browser checks used isolated localhost:5174, covering locks, mountain selection,
+all checkpoint/summit transitions, cross-summit remainder, whole-basket travel,
+pause/resume, save/reload, history/results, badge reveal and post-Everest batches.
+Checked 390x844 portrait, 844x390 landscape, 320x740 narrow and 1440x900 desktop.
+No captured browser errors/warnings or broken home images. Owner localhost:5173
+was read unchanged at Drew / 100 m / 10 items / 2 badges / 0 completed loads.
+Test origin ends at all three summits, 14,050 lifetime metres, 1,405 items,
+10 completed loads, 8 badges. Those are synthetic manual QA entries, not owner work.
+
+Review: docs/design/review/playable-mountains/index.html and five reference/app
+comparisons. Agent visual QA passed, and the owner approved the integrated new
+mountains with “perfect” on 9 October. Keep all three mountain designs fixed.
+Remaining release work is physical-phone acceptance,
+performance/package review, demo video and authorized Vercel deployment/submission.
+AI/camera accuracy and cloud sync are deferred; none is claimed or deployed here.
+Older entries below are historical and do not override this state.
+
+## Latest: forward travel and recording quality — 8 October 2026
+
+Owner correctly rejected the earlier walking proof: feet alternated but a 10 m
+batch translated the basket less than one screen pixel, and the GIF was dithered.
+The close scene now stages the current checkpoint approach. Banking animates the
+whole basket along that path at frame rate, with perspective scaling and a small
+weight shift; it remains at its earned position after the step. Footfall timing
+uses whole cycles. At a checkpoint it reaches the sock, celebrates, and stages
+the next approach behind the existing reward. Summit progress remains capped.
+Manual counts, awards and saved totals are unchanged by this presentation fix.
+
+Verified in the in-app browser on isolated localhost:5174: 10 -> 110 m with a
+10-item batch; 110 -> 260 m crossed Into the glen before its real reward; 260 ->
+270 m checked a short step in 844 x 390 landscape. Portrait was 390 x 844. Both
+sprites, contact shadows, persistent destination and the next approach were
+inspected. The final endpoint is beside the visible sock. No console errors.
+Owner localhost:5173 progress was untouched. The isolated test session is saved
+and paused at 270 m / 27 items; the earlier 127.0.0.1:5174 test remains at summit.
+
+The full-colour capture is review/coordinated-implementation/uphill-travel.webp,
+linked from the review gallery. It encodes actual captured frames at their recorded
+intervals using lossless WebP; first frame contains 123,671 colours versus the old
+GIF's 256. Browser capture itself is JPEG. Do not describe it as a 60 fps video.
+Live travel uses requestAnimationFrame. Earlier static screenshots still represent
+the approved composition; the current motion clip is authoritative for travel.
+
+Production build and 39 unit tests pass. New regressions cover meaningful projected
+travel, checkpoint staging, save/reload stability and no replay/post-summit movement.
+Reduced-motion code bypasses travel and foot animation; media emulation was not
+available in the in-app browser, so that setting was reviewed in source, not claimed
+as a browser-emulated check. Final result: passed for the movement/recording scope.
+
+## Latest owner review — final three tweaks, 8 October 2026
+
+The owner accepted the rest of the correction pass and requested three localized
+changes: clear white backing behind the welcome tagline, readable location labels
+on Mountains, and a basket facing uphill in climb/session scenes. These are now
+implemented; preserve the accepted layouts and artwork elsewhere.
+
+- Welcome: soft white backing with the logo layered above it, checked at 390 and 320 px.
+- Mountains: white location text on a dark backing for all three cards.
+- Climb/session: rear three-quarter uphill poses A/B, with each shadow beneath
+  its planted boot. Checked in 390 px portrait and 844 x 390 landscape. Actual
+  isolated test batch added one item / 10 m and showed both frames. Reduced-motion
+  rules also cover the two shadows. Owner localhost:5173 progress was untouched.
+- Production build passed. No console errors in the isolated browser check.
+  Existing 36 unit tests passed in the preceding pass; domain logic is unchanged.
+- Current evidence: docs/design/review/coordinated-implementation/final-tweaks.jpg,
+  welcome-narrow.jpg, session.jpg, session-landscape.jpg and uphill-motion.gif.
+- Built-in imagegen produced public/art/reference-basket-uphill-a.webp and
+  public/art/reference-basket-uphill-b-v2.webp. Full source PNGs and exact prompts
+  are saved under docs/design/source-art/ with the same stems and .prompt.txt.
+  The first uphill B candidate is not used.
+
+## Current correction pass — 8 October 2026, evening
+
+Owner rejected 28 differences versus the approved coordinated references and directed
+“proceed until it matches”, Ben Nevis first. The app now includes the reference
+correction pass: heavy local fonts, reference-derived painted map/climb scenes,
+separate portrait/landscape play compositions, corrected walking boot, socks,
+richer medals/rewards and grounded profile/history. Current comparisons and actual
+movement evidence: docs/design/review/coordinated-implementation/index.html.
+The annotation mapping is docs/design/ben-nevis-reference-match-plan.md.
+
+This is a review checkpoint, not owner sign-off or a measured fidelity percentage.
+The rejected backward-boot B-v2 candidate is NOT used. The active B frame is
+reference-basket-walk-b-corrected.webp. Default Ben Nevis is an illustrated game
+trail; geographic renderer/source is retained. Manual totals and save keys remain.
+Owner Home was read unchanged at Drew/100m/10items/2badges; actual batch tests ran
+at 127.0.0.1:5174 and reached 1,345 m with 1,350 m lifetime, 135 items, 4 finished loads and 7 badges.
+Build passed after the final integration; 36 unit tests passed. Browser checked portrait and
+landscape scenes, batch/reward/results/history, badge filtering and route details.
+No camera/AI accuracy claim, backend work, deployment or Fuji/Everest refinement.
+
+Older status records below are historical and do not override this direction.
+
 
 ## Latest direction: approved baseline, two scenes, then the demo
 

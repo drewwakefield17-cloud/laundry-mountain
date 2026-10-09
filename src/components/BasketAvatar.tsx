@@ -1,8 +1,8 @@
 import './basket-avatar.css'
 
 /** Independently rigged parts; all washing stays attached to the basket body. */
-export function BasketAvatar({ moving = false, celebrating = false, className = '' }: {
-  moving?: boolean; celebrating?: boolean; className?: string
+export function BasketAvatar({ moving = false, celebrating = false, className = '', facing = 'front' }: {
+  moving?: boolean; celebrating?: boolean; className?: string; facing?: 'front' | 'uphill'
 }) {
   const part = (crop: string, x: number, y: number, width: number, height: number) => (
     <svg x={x} y={y} width={width} height={height} viewBox={crop} overflow="hidden">
@@ -18,8 +18,8 @@ export function BasketAvatar({ moving = false, celebrating = false, className = 
       <g className="basket-leg basket-leg-front">{part('130 699 406 441', 80, 225, 78, 85)}</g>
       <g className="basket-arm basket-arm-front">{part('192 127 242 425', 18, 139, 47, 89)}</g>
       <g className="basket-torso">
-        <svg x="38" y="19" width="245" height="224" viewBox="73 134 1114 1018" overflow="hidden">
-          <image href="/art/basket-body.png" width="1254" height="1254" />
+        <svg x="38" y="19" width="245" height="224" viewBox={facing === 'uphill' && !celebrating ? '80 113 1123 1027' : '73 134 1114 1018'} overflow="hidden">
+          <image href={facing === 'uphill' && !celebrating ? '/art/coordinated-basket-rear-body.webp' : '/art/basket-body.png'} width="1254" height="1254" />
         </svg>
       </g>
     </g>

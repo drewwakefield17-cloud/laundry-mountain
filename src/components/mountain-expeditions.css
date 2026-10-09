@@ -1,0 +1,28 @@
+/* Expedition variants share the approved Ben Nevis layout and controls. */
+.mountain-artwork{position:relative;width:100%;height:100%;overflow:hidden}
+.mountain-artwork-background{display:block;width:100%;height:100%;object-fit:cover}
+.mountain-artwork-companion{position:absolute!important;width:43%!important;height:auto!important;object-fit:contain!important;right:2%;bottom:0;filter:drop-shadow(0 5px 3px #0c26352b)}
+.mountain-artwork--cheer .mountain-artwork-companion{width:58%!important;left:21%;right:auto;bottom:0}
+.screen-home .mountain-artwork-background{object-position:58% center}
+.game-shell[data-mountain=fuji] .scenic-title,.game-shell[data-mountain=everest] .scenic-title{width:max-content;max-width:85%;text-shadow:0 1px 7px #ffffffb0}
+.history-panorama .mountain-artwork{position:absolute;inset:0}
+.screen-mountains .expedition-card .expedition-elevation{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.screen-mountains .expedition-lock small{display:none}
+.screen-mountains .expedition-completed{position:absolute;top:16px;right:16px;color:white;filter:drop-shadow(0 1px 2px #123)}
+.screen-mountain .route-details{position:absolute;z-index:8;left:10px;right:10px;bottom:80px;max-height:65%;overflow:auto;background:#f8fcff;opacity:1;border-radius:16px;padding:15px;box-shadow:0 5px 30px #0d243b38}
+.trail-reward[data-mountain=fuji] .reward-landscape,.trail-reward[data-mountain=everest] .reward-landscape{background-size:cover;background-position:center;filter:none}
+.trail-reward[data-mountain=fuji] .reward-companion,.trail-reward[data-mountain=everest] .reward-companion{display:block;bottom:32%;width:64%;left:18%}
+.trail-reward .reward-carry{font-size:13px;color:#1b5c51;line-height:1.3;margin:6px 0}
+.reward-badge[data-mountain=fuji] .reward-landscape,.reward-badge[data-mountain=everest] .reward-landscape{filter:brightness(.38) saturate(.85)}
+.reward-badge[data-mountain=fuji] .reward-companion,.reward-badge[data-mountain=everest] .reward-companion{width:60%;left:20%;bottom:95px}
+.trail-reward .reward-footer h1{font-size:clamp(25px,8vw,37px)}
+.screen-results .expedition-complete-note{font-size:14px;color:#006e55;text-align:center;margin:8px 0}
+.screen-results[data-mountain=fuji] .result-stats strong,.screen-results[data-mountain=everest] .result-stats strong{font-size:clamp(20px,6.1vw,27px);white-space:nowrap}
+.screen-profile button.personal-trail-strip{width:calc(100% - 28px);text-align:left;color:inherit;cursor:pointer}
+.screen-home .home-stats strong.long-distance{font-size:clamp(14px,4.1vw,18px);white-space:nowrap}
+.screen-profile .profile-progress strong.long-distance{font-size:clamp(18px,5.3vw,23px);white-space:nowrap}
+@media(orientation:landscape) and (max-height:650px){
+  .trail-reward[data-mountain=fuji] .reward-companion,.trail-reward[data-mountain=everest] .reward-companion{width:35%;left:4%;bottom:0}
+}
+
+.screen-results[data-mountain=fuji] .manual-honesty,.screen-results[data-mountain=everest] .manual-honesty{color:#10294c!important;background:#fffffff2;border-radius:12px;padding:3px 9px}

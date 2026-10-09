@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
+import os from 'node:os'
 
 const ledgerKey = 'laundry-mountain:phase1:v1'
 const sessionsKey = 'laundry-mountain:game-sessions:v1'
-const evidence = path.resolve('docs/design/review/manual-session')
+const evidence = path.join(os.tmpdir(), 'laundry-mountain-manual-session')
 
 test('confirmed batches drive the climb, survive reload and finish honestly without camera', async ({ page }) => {
   await page.setViewportSize({width:390,height:844})
@@ -12,7 +13,7 @@ test('confirmed batches drive the climb, survive reload and finish honestly with
   await page.getByRole('button',{name:'Start a Laundry Session',exact:true}).click()
   await expect(page.getByRole('button',{name:'Bank this batch'})).toBeVisible()
   await expect(page.locator('video')).toHaveCount(0)
-  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready','true')
+  await expect(page.locator('.reference-climb-world:visible')).toBeVisible()
   await page.screenshot({path:path.join(evidence,'session-phone.png'),fullPage:true})
   await page.getByRole('button',{name:'Bank this batch'}).click()
   await page.getByLabel('Completed items',{exact:true}).fill('0')
@@ -26,12 +27,14 @@ test('confirmed batches drive the climb, survive reload and finish honestly with
   let ledger = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!),ledgerKey)
   expect(ledger.events).toHaveLength(1)
   expect(ledger.events[0]).toMatchObject({source:'manual',items:25,action:'folding'})
+  await page.locator('.trail-reward[open]').waitFor({state:'visible'})
+  while (await page.locator('.trail-reward[open]').count()) await page.locator('.trail-reward[open] button').click()
   await page.getByRole('button',{name:'Pause timer',exact:true}).click()
   const paused = await page.getByLabel('Session timer').innerText()
   await page.waitForTimeout(1200)
   expect(await page.getByLabel('Session timer').innerText()).toBe(paused)
   await expect(page.getByRole('button',{name:'Bank this batch'})).toBeDisabled()
-  await page.getByRole('button',{name:'Save & come back later'}).click()
+  await page.getByRole('button',{name:'Save for later'}).click()
   await page.reload()
   await page.getByRole('button',{name:'Continue your session',exact:true}).click()
   await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres','250')
@@ -54,7 +57,7 @@ test('confirmed batches drive the climb, survive reload and finish honestly with
     await page.setViewportSize(size)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (size.width > size.height) {
-      for (const name of ['Bank this batch','Finish session','Save & come back later']) {
+      for (const name of ['Bank this batch','Finish session','Save for later']) {
         const box = await page.getByRole('button',{name,exact:true}).boundingBox()
         expect(box!.y + box!.height, name).toBeLessThanOrEqual(size.height)
       }
@@ -68,8 +71,10 @@ test('confirmed batches drive the climb, survive reload and finish honestly with
   await expect(page.getByText('28 items banked. 280 Laundry Metres earned.')).toBeVisible()
   await expect(page.getByText('Manually confirmed · 10 metres per item')).toBeVisible()
   await page.screenshot({path:path.join(evidence,'results-phone.png'),fullPage:true})
+  await page.locator('.trail-reward[open]').waitFor({state:'visible'})
+  while (await page.locator('.trail-reward[open]').count()) await page.locator('.trail-reward[open] button').click()
   await page.getByRole('button',{name:'View session history'}).click()
-  await expect(page.getByText('Laundry · 28 items · Manual')).toBeVisible()
+  await expect(page.locator('.session-history')).toContainText('28 items')
   const sessions = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!),sessionsKey)
   expect(sessions).toHaveLength(1)
   expect(sessions[0]).toMatchObject({items:28,base:280,metres:280,status:'finished',mode:'manual'})
@@ -83,7 +88,7 @@ test('optional photo is a temporary preview, never a count or a saved upload', a
   await page.goto('/?view=home')
   await page.getByRole('button',{name:'Start a Laundry Session',exact:true}).click()
   await page.getByRole('button',{name:'Bank this batch'}).click()
-  await page.getByText('Add a batch photo · optional').click()
+  await page.getByText('Add a photo (optional)').click()
   await page.getByLabel('Batch photo',{exact:true}).setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a5mQAAAAASUVORK5CYII=','base64')})
   await expect(page.getByAltText('Your completed laundry batch')).toBeVisible()
   await expect(page.getByLabel('Completed items',{exact:true})).toHaveValue('1')
@@ -114,7 +119,7 @@ test('zero-item finish awards nothing; a failed metadata write recovers from the
   await page.reload()
   await page.getByRole('button',{name:'Continue your session',exact:true}).click()
   await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres','40')
-  await expect(page.locator('.manual-stats')).toContainText('4Items banked')
+  await expect(page.locator('.manual-stats')).toContainText('4items')
   const ledger=await page.evaluate(key => JSON.parse(localStorage.getItem(key)!),ledgerKey)
   expect(ledger.events).toHaveLength(1)
 })

@@ -7,30 +7,20 @@ test('the game route keeps navigation and view controls accessible when the phon
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/?view=mountain')
-  await expect(page.locator('.mountain-canvas')).toHaveAttribute('data-terrain-ready', 'true')
-  await page.screenshot({ path: path.join(os.tmpdir(), 'laundry-mountain-basket-climb.png'), fullPage: true })
-  for (const viewport of [
-    { width: 390, height: 786 },
-    { width: 844, height: 390 },
-    { width: 667, height: 375 }
-  ]) {
+  await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres', '0')
+  for (const viewport of [{ width:390,height:786 },{width:844,height:390},{width:667,height:375}]) {
     await page.setViewportSize(viewport)
-    for (const selector of ['.game-nav', '.view-control', '.route-details summary']) {
+    for (const selector of ['.game-nav', '.view-control']) {
       const bounds = await page.locator(selector).boundingBox()
       expect(bounds, selector).not.toBeNull()
       expect(bounds!.y, selector).toBeGreaterThanOrEqual(0)
       expect(bounds!.y + bounds!.height, selector).toBeLessThanOrEqual(viewport.height + 1)
     }
-    await page.getByRole('button', { name: 'Climb view', exact: true }).click()
-    await expect(page.getByRole('button', { name: 'Climb view', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
-    await page.getByRole('button', { name: 'Full mountain', exact: true }).click()
-    await expect(page.getByRole('button', { name: 'Full mountain', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
+    await page.getByRole('button',{name:'Climb view — switch to full mountain',exact:true}).click()
+    await expect(page.locator('.illustrated-overview')).toBeVisible()
+    await page.getByRole('button',{name:'Full mountain view — switch to climb view',exact:true}).click()
+    await expect(page.locator('.climb-scene')).toHaveAttribute('data-metres','0')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   }
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
 })
@@ -132,7 +122,7 @@ for (const countItem of [false, true])
     })
     for (const selector of [
       '.game-camera .camera-preview',
-      '.game-climb-column .mountain-canvas',
+      '.game-climb-column .climb-scene',
       '.game-live-buttons'
     ]) {
       const b = await page.locator(selector).boundingBox()
@@ -173,7 +163,7 @@ for (const countItem of [false, true])
     await page.setViewportSize({ width: 390, height: 786 })
     for (const selector of [
       '.game-camera .camera-preview',
-      '.game-climb-column .mountain-canvas',
+      '.game-climb-column .climb-scene',
       '.game-live-buttons'
     ]) {
       const bounds = await page.locator(selector).boundingBox()
@@ -200,6 +190,10 @@ for (const countItem of [false, true])
       ),
       fullPage: true
     })
+    if (countItem) {
+      await expect(page.locator('.trail-reward[open]')).toContainText('First Load')
+      await page.locator('.trail-reward[open] button').click()
+    }
     await page.getByRole('button', { name: 'View session history', exact: true }).click()
     await page.reload()
     await expect(page.locator('.session-history')).toContainText(countItem ? '+10 m' : '+0 m')
@@ -218,8 +212,8 @@ test('personal profile, badge criteria and three expeditions are honest and keyb
   await page.setViewportSize({ width: 390, height: 786 })
   await page.goto('/?view=home')
   await page.getByRole('button', { name: 'You', exact: true }).click()
-  await page.getByLabel('Your climber name').fill('Alex')
-  await page.getByRole('button', { name: 'Save name' }).click()
+  await page.getByLabel('Name').fill('Alex')
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
   await expect(page.getByRole('status')).toContainText('saved on this phone')
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Alex', exact: true })).toBeVisible()
@@ -227,7 +221,7 @@ test('personal profile, badge criteria and three expeditions are honest and keyb
   await expect(page.locator('.badge-card')).toHaveCount(9)
   await page
     .getByRole('button', {
-      name: 'First Load Finish your first counted session'
+      name: 'First Load Your first session'
     })
     .click()
   const dialog = page.getByRole('dialog')
@@ -240,7 +234,7 @@ test('personal profile, badge criteria and three expeditions are honest and keyb
   await expect(dialog).not.toBeVisible()
   await expect(
     page.getByRole('button', {
-      name: 'First Load Finish your first counted session'
+      name: 'First Load Your first session'
     })
   ).toBeFocused()
   await page.getByRole('button', { name: 'Earned', exact: true }).click()
@@ -248,9 +242,9 @@ test('personal profile, badge criteria and three expeditions are honest and keyb
   await expect(page.getByRole('button', { name: 'Community', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Mountains', exact: true }).click()
   await expect(page.locator('.expedition-card')).toHaveCount(3)
-  await page.getByRole('button', { name: 'Everest Future expedition', exact: true }).click()
-  await expect(dialog).toContainText('future update')
-  await dialog.getByRole('button', { name: 'Got it' }).click()
+  await page.getByRole('button', { name: 'Explore Everest — locked', exact:true }).click()
+  await expect(page.locator('.illustrated-overview')).toHaveAttribute('aria-label', /Everest/)
+  await expect(page.getByText('Unlock after Mount Fuji', {exact:true})).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('laundry-mountain:phase1:v1'))).toBeNull()
   await page.getByRole('button', { name: 'Home', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Alex!', exact: true })).toBeVisible()

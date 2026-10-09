@@ -1,0 +1,25 @@
+{
+  "jobId": "3bd9bd84-bc63-4c49-844b-a0cfc3f4a430",
+  "model": "hf_mult_motion_control",
+  "use_free_gens": true,
+  "count": 1,
+  "resolution": "720p",
+  "prompt": "Use the supplied image as the appearance, setting and composition reference. Preserve its wide 16:9 laundry-room scene, dramatic morning light, dark empty title space at left, towering pile of realistic clothes at right, and the exact cream and forest-green basket mascot with orange striped sock, teal washing and brown hiking boots. Transfer the small basket character's gentle stepping, whole-body forward travel, body sway, naturally bobbing laundry and brief celebratory hop from the supplied motion reference onto the basket in the laundry-room image. The basket takes a few determined steps toward the pile as if beginning an epic expedition. Both boots remain attached and turn in the same walking direction; no backward feet, no floating or sliding. Keep the pile and sock at its summit stable, with only subtle fabric settling and atmospheric light. Single continuous cinematic shot, slow subtle camera push-in. Retain realistic dimensional materials from the image, not the graphic illustration style of the driving video. No new objects, no humans, no text, no captions, no UI, no watermark, no duplicate limbs, no talking.",
+  "status": "completed",
+  "inputImage": "public/art/laundry-expedition.png",
+  "inputVideo": "../docs/design/source-art/approved-basket-motion.mp4",
+  "drivingVideoTrim": {
+    "start": 0.6,
+    "duration": 6.4,
+    "crop": "720:1240:0:0"
+  },
+  "authorization": "Owner approved one free motion-transfer attempt, no paid fallback, then explicitly approved both Creative Claw asset uploads solely for transfer.",
+  "outputFile": "public/laundry-room-free-attempt.mp4",
+  "outputProperties": {
+    "fps": 24,
+    "height": 1280,
+    "durationSeconds": 6.041667,
+    "width": 720
+  },
+  "selection": "V2 uses 0.4-3.4 seconds. Returned portrait despite landscape prompt. Adapted inside the wide composition; no paid fallback or repeat."
+}

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
-import { expeditionProgress, routePosition } from './expedition'
+import { expeditionProgress } from './expedition'
+import { routePosition } from './geographicProgress'
 it('restores route coordinates from saved metres and clamps the summit', () => {
   expect(routePosition(-10)).toEqual(routePosition(0))
   expect(routePosition(1500)).toEqual(routePosition(1345))

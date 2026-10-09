@@ -1,0 +1,59 @@
+{
+  "note": "Real isolated demo UI takes; exact-frame re-encoding with no stream-copy boundaries.",
+  "shots": [
+    {
+      "name": "start",
+      "source": "polish-portrait.webm",
+      "from": 11,
+      "duration": 3.1
+    },
+    {
+      "name": "checkpoint",
+      "source": "polish-portrait.webm",
+      "from": 19.293,
+      "duration": 2
+    },
+    {
+      "name": "badge",
+      "source": "polish-portrait.webm",
+      "from": 25.506,
+      "duration": 3
+    },
+    {
+      "name": "trail",
+      "source": "polish-portrait.webm",
+      "from": 32.106,
+      "duration": 2.5
+    },
+    {
+      "name": "ben-summit",
+      "source": "polish-portrait.webm",
+      "from": 41.454,
+      "duration": 2.9
+    },
+    {
+      "name": "everest-summit",
+      "source": "polish-portrait.webm",
+      "from": 63.814,
+      "duration": 3
+    },
+    {
+      "name": "ben-walk",
+      "source": "polish-wide.webm",
+      "from": 2.3129999999999997,
+      "duration": 2.2
+    },
+    {
+      "name": "fuji-walk",
+      "source": "polish-wide.webm",
+      "from": 15.064,
+      "duration": 2.3
+    },
+    {
+      "name": "everest-walk",
+      "source": "polish-wide.webm",
+      "from": 25.883000000000003,
+      "duration": 2.3
+    }
+  ]
+}

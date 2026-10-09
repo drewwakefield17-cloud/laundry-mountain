@@ -1,5 +1,12 @@
 # Laundry Mountain — project operating instructions
 
+## Latest submission repository state (9 October)
+
+The owner explicitly authorised tidying and publishing the complete current app
+and demo source to GitHub for submission. Main is the current submission branch;
+older visual-refinement-only instructions are historical. Keep all existing history.
+Repository publication does not authorise a fresh app deployment.
+
 ## Ownership and continuity
 
 Act as the lead engineer: own the requested outcome, integration, quality and verification.
@@ -77,6 +84,53 @@ not because they exist. Do not install frameworks, services or plugins unnecessa
   clearly bounded ownership. Tool/plugin defaults never override project constraints.
 
 ## Product and design requirements
+
+- **Latest demo brief, 9 October:** mascot name is **Basky** (like basket). Preserve
+  the exact in-app logo/font/colours in demo material. Owner wants a product demo
+  with trailer energy and real phone gameplay, not generic tagline montage. A
+  proposed before/after photo-counting sequence is authorized as a clearly labelled
+  concept; do not describe it as working AI or alter manual ledger integrity.
+  Preserve accepted app/landing visuals. Current edit and scripts are in `trailer/`.
+
+- **Latest, 9 October:** owner accepted Ben Nevis and authorized both remaining
+  mountains. Fuji and Everest are now playable with their own scenery, checkpoints,
+  saved positions and sequential summit unlocks. This supersedes all older
+  preview/parked statements below. Preserve the accepted Ben Nevis finish and
+  non-destructive legacy-save policy. Owner approved the integrated Fuji/Everest
+  review with “perfect” on 9 October; freeze this visual baseline. This does not
+  replace physical-device acceptance or authorize deployment. Evidence and next work are
+  at the top of `docs/project-state.md` and `design-qa.md`.
+
+- **Latest owner acceptance:** owner is happy with the rest of the correction pass.
+  Three final tweaks (welcome tagline contrast, mountain location contrast, uphill
+  basket orientation) are implemented and visually checked. Preserve the accepted
+  composition; do not restart broad visual changes. Latest evidence is recorded
+  at the top of design-qa.md and docs/project-state.md.
+
+- **Latest correction authorization, 8 October evening:** owner supplied 28reference
+  mismatches and directed “proceed until it matches”, with Ben Nevis first. The
+  approved LEFT panels remain the target. Default Ben Nevis now uses a recognizable
+  painted illustration with separate functional path/markers/player; geographic
+  source/renderer is preserved. See docs/design/ben-nevis-reference-match-plan.md
+  and coordinated-implementation review gallery. Do not treat earlier baseline
+  approval as approval of this correction pass. Fuji/Everest, AI/backend/deploy
+  remain parked. Preserve owner saved progress and use isolated test origins.
+
+- **Latest implementation authorization, 8 October:** the owner approved ALL five
+  coordinated sheets and explicitly directed implementation screen by screen. These
+  sheets are the fixed visual source of truth, not another exploration. Implement
+  in the existing app, compare actual screens with their matching references, and
+  preserve honest counters, real geography and existing saved progress. The earlier
+  concepts-only restriction below is superseded. See the execution checklist in
+  `docs/design/coordinated-visual-target.md`. App parity remains to be verified.
+
+- **Earlier 8 October concept approval:** after the coherence audit, the owner approved
+  `docs/design/review/coordinated-proposal/01-foundation-approved.png` as the visual
+  benchmark. This is concept approval, NOT sign-off on the current app. Trail/reward/
+  responsive/cover boards remain proposals. Read `docs/design/coordinated-visual-target.md`
+  before further visual work; it records invariants, generated-copy corrections and
+  the separate natural-movement gate. The current task is concepts only; do not infer
+  authorization to resume application edits from positive concept feedback.
 
 - **Latest owner approval and submission focus:** the owner likes the implemented
   personal-app design and Ben Nevis. Finish Fuji and Everest in that visual family,

@@ -1,3 +1,4 @@
+import { createId } from './domain/id'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Download, Flag, Mountain, Play, Square } from 'lucide-react'
 import { Expedition } from './components/Expedition'
@@ -48,12 +49,12 @@ export default function App() {
     setReturnTarget(null)
     try { localStorage.removeItem(RETURN_KEY) } catch { /* Existing storage error handling remains authoritative. */ }
     const at = Date.now()
-    runRef.current = { id: crypto.randomUUID(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, zones: structuredClone(calibration.zones), frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
+    runRef.current = { id: createId(), startedAt: at, kind, events: [], diagnostics: [], config: { ...calibration.config }, zones: structuredClone(calibration.zones), frames: 0, processingMs: 0, notes: '', userAgent: navigator.userAgent }
     setReport(null); setReportMessage(''); setNotes(''); setActive(true); setCount(0); setClock(at); setMessage(''); lastDiagnostic.current = 0
   }
   const acceptEvent = useCallback((evidence: string) => {
     const run = runRef.current; if (!run) return
-    const event: LaundryEvent = { id: crypto.randomUUID(), sessionId: run.id, at: Date.now(), action: 'folding', source: 'camera', items: 1, evidence }
+    const event: LaundryEvent = { id: createId(), sessionId: run.id, at: Date.now(), action: 'folding', source: 'camera', items: 1, evidence }
     run.events.push(event); setCount(run.events.length)
     if (run.kind === 'negative-control') { setBurst('False event logged'); return }
     const updated = appendEvent(ledgerRef.current, event)

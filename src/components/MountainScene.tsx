@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { BEN_NEVIS } from '../domain/config'
-import { routePosition } from '../domain/expedition'
+import { routePosition } from '../domain/geographicProgress'
 import { drawHighlands } from './mountainTerrain'
-import { scenePoint, overviewProjection } from '../domain/terrain'
+import { BEN_NEVIS_TRAIL, scenePoint, overviewProjection } from '../domain/terrain'
 
 // Reuse decoded images across views and accepted events. Loading an asset must not
 // invalidate the terrain cache again on every player-position update.
@@ -39,7 +39,7 @@ export function sceneAssets(finish: SceneryFinish = 'illustrated') {
     assets.rocks.src = finish === 'natural' ? '/art/highland-boulders.webp' : '/art/approved-boulders.webp'
     assets.clouds.src = finish === 'natural' ? '/art/highland-clouds.webp' : '/art/approved-clouds.webp'
     assets.marker.src = '/brand/laundry-mountain-emblem.webp'
-    assets.sock.src = finish === 'natural' ? '/art/sock-checkpoint.png' : '/art/sock-marker-teal.webp'
+    assets.sock.src = '/art/sock-checkpoint.png'
     assets.ground.src = '/textures/ben-nevis-ground-atlas.webp'
     assets.paintedSlope.src = finish === 'natural' ? '/textures/ben-nevis-natural-material.webp' : '/textures/ben-nevis-view-material.webp'
     assetSets[finish] = assets
@@ -264,9 +264,9 @@ export function MountainScene({
           }
           return
         }
-        const t = progress * (BEN_NEVIS.route.length - 1),
+        const t = progress * (BEN_NEVIS_TRAIL.length - 1),
           last = Math.floor(t)
-        BEN_NEVIS.route.forEach(([x, y], i) => {
+        BEN_NEVIS_TRAIL.forEach(([x, y], i) => {
           const p = scenePoint({ x, y }, width, height)
           if (i <= last) i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)
         })
@@ -390,8 +390,15 @@ export function MountainScene({
         ctx.save()
         if (basketArt?.body.complete && basketArt.body.naturalWidth && basketArt.limbs.complete && basketArt.limbs.naturalWidth) {
           // Same rigged artwork as active climb, static at the exact route position.
-          const size = composition?.wide ? 42 + 46 * (1 - player.progress) : 52 + 98 * (1 - player.progress)
-          ctx.translate(px - size / 2, py - size * .94)
+          const size = 43
+          ctx.fillStyle = '#fff'
+          ctx.strokeStyle = '#008668'
+          ctx.lineWidth = 3
+          ctx.beginPath()
+          ctx.arc(px, py - 27, 25, 0, Math.PI * 2)
+          ctx.fill(); ctx.stroke()
+          ctx.beginPath(); ctx.arc(px, py - 27, 22, 0, Math.PI * 2); ctx.clip()
+          ctx.translate(px - size / 2, py - 49)
           ctx.scale(size / 320, size / 320)
           const limb = (sx: number, sy: number, sw: number, sh: number, x: number, y: number, w: number, h: number) =>
             ctx.drawImage(basketArt.limbs, sx, sy, sw, sh, x, y, w, h)
@@ -412,24 +419,15 @@ export function MountainScene({
           if (marker.complete && marker.naturalWidth) ctx.drawImage(marker, -15, -15, 30, 30)
         }
         ctx.restore()
-        const labelWidth = 58,
-          // In the wide view, a label alongside the basket obscures the first
-          // checkpoint. Anchor it above the player instead, clear of the header.
-          labelX = Math.max(5, Math.min(width - labelWidth - 5, composition?.wide ? px - labelWidth / 2 : basketArt ? (px < width / 2 ? px + 32 + 38 * (1 - player.progress) : px - labelWidth - 32 - 38 * (1 - player.progress)) : px + 12)),
-          labelY = composition?.wide ? Math.max(55, py - (42 + 46 * (1 - player.progress)) - 46) : py - (108 - 56 * player.progress)
-        ctx.fillStyle = '#ffffff'
-        ctx.strokeStyle = '#087c5a'
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.roundRect(labelX, labelY, labelWidth, 40, 9)
-        ctx.fill()
-        ctx.stroke()
-        ctx.textAlign = 'center'
-        ctx.fillStyle = '#163a49'
-        ctx.font = '600 10px sans-serif'
-        ctx.fillText('You', labelX + 29, labelY + 13)
-        ctx.font = '800 15px sans-serif'
-        ctx.fillText(`${(player.progress * 100).toFixed(0)}%`, labelX + 29, labelY + 30)
+        const labelWidth = 107,
+          labelX = Math.max(5, Math.min(width - labelWidth - 5, px + 30)),
+          labelY = py - 43
+        ctx.fillStyle = '#fff'
+        ctx.strokeStyle = '#c3ddd6'
+        ctx.lineWidth = 1
+        ctx.beginPath(); ctx.roundRect(labelX, labelY, labelWidth, 29, 14); ctx.fill(); ctx.stroke()
+        ctx.textAlign = 'center'; ctx.fillStyle = '#071b42'; ctx.font = '700 12px sans-serif'
+        ctx.fillText(`You · ${Math.round(shown.current)} m`, labelX + labelWidth / 2, labelY + 19)
       }
       ctx.restore()
       if (Math.abs(metres - shown.current) > 0.01) frame = requestAnimationFrame(draw)

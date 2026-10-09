@@ -1,13 +1,13 @@
 .basket-avatar{display:block;width:100%;height:auto;overflow:visible;isolation:isolate}
 .basket-rig,.basket-arm,.basket-leg{transform-box:fill-box;transform-origin:50% 5%}
 .basket-rig{transform-origin:50% 90%}
-.is-walking .basket-rig{animation:basket-bob .48s ease-in-out infinite}
-.is-walking .basket-leg-front{animation:basket-step .48s ease-in-out infinite}
-.is-walking .basket-leg-back{animation:basket-step .48s ease-in-out -.24s infinite}
-.is-walking .basket-arm-front{animation:basket-swing .48s ease-in-out -.24s infinite}
-.is-walking .basket-arm-back{animation:basket-swing .48s ease-in-out infinite}
+.is-walking .basket-rig{animation:basket-bob .6s ease-in-out infinite}
+.is-walking .basket-leg-front{animation:basket-step .6s ease-in-out infinite}
+.is-walking .basket-leg-back{animation:basket-step .6s ease-in-out -.3s infinite}
+.is-walking .basket-arm-front{animation:basket-swing .6s ease-in-out -.3s infinite}
+.is-walking .basket-arm-back{animation:basket-swing .6s ease-in-out infinite}
 .is-celebrating .basket-rig{animation:basket-hop .7s ease-in-out 2}
-@keyframes basket-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@keyframes basket-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
 @keyframes basket-step{0%,100%{transform:rotate(-13deg) translateY(-3px)}50%{transform:rotate(13deg) translateY(3px)}}
 @keyframes basket-swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(9deg)}}
 @keyframes basket-hop{0%,100%{transform:translateY(0) scale(1)}20%{transform:translateY(5px) scale(1.04,.96)}52%{transform:translateY(-23px) rotate(-4deg)}75%{transform:translateY(0) scale(1.03,.97)}}

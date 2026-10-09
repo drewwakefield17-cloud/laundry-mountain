@@ -1,0 +1,5 @@
+Provenance: built-in imagegen edit of approved-sock-marker.png in this directory.
+
+Use case: precise-object-edit. Edit only the SOCK FABRIC COLORS in this exact game marker image. Preserve EXACTLY the pole, white/navy platform, cuff, ankle, heel, foot and toe shapes, all geometry, camera angle, relative sizes, position and framing, painted style and transparent alpha. Change teal sock fabric to warm orange/gold fabric, dark orange heel and toe patches, and pale cream cuff ribs. Main sock bright warm orange with golden sunlit planes, shaded orange lower planes. Navy pole and cap and white platform must remain unchanged. No new objects, no shape changes, no lettering. Preserve actual transparent background: pixels outside the marker fully transparent, no colored glow or added halo. Same full portrait canvas composition.
+
+Generated source: C:/Users/Nicow/.codex/generated_images/01a10e9f-2b78-78f1-8ad3-62e8d954f137/exec-baf65b0a-5c20-4038-b02e-04488f8ccfca.png

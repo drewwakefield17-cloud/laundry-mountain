@@ -1,0 +1,13 @@
+Initial composition:
+Use case: precise-object-edit
+Asset type: Laundry Mountain game HOME hero, square 1254x1254.
+Input image1 is the edit target, approved Ben Nevis home illustration. Input image2 supplies Everest/Himalayan mountain identity and snowy palette.
+Change only the Scottish environment of image1 into an Everest scene. Preserve exactly the approved graphic laundry basket character scale and lower-left position, expression, laundry shapes/colors, green rim/limbs, orange sock, and coherent natural hiking boot anatomy/pose. Its boots MUST visibly contact the nearby foreground dry rocky ledge/path with a small contact shadow, grounded in the foreground. Never position it floating over the distant glacier. Keep the two orange sock trail markers and their relative positions on near/mid foreground rocks as in image1. Keep open distant mountain view and clean composition.
+Replace the Ben Nevis plateau with a recognizable tall Everest upper pyramid among snow-covered Himalayan ridges. Glacier winds through distant left-mid valley. Foreground is solid dry warm-grey rocky ledge/path edged with patches of snow. No Scottish green hills, lake, trees or pink heather. Detailed smooth painted illustration EXACTLY matching approved reference-home finish; clean graphic mascot and richly painted landscape. Clear daylight, blue snowy shadows, restrained warm sunlit rock.
+Top-left upper25% must have naturally pale sky and soft white clouds for editable navy heading, without saturated dark blue or mountains behind the heading. No artificial rectangular white box. Lower-right needs unobstructed low-contrast rocky/snow area for a separately rendered circular progress ring, while retaining marker above/right as in target. Do NOT draw the progress ring.
+No text, UI, labels, logos, watermarks or border. No extra characters or objects. Smooth crisp artwork, no grain/noise. One finished square scene.
+
+Targeted cloud correction:
+Use case: lighting-weather
+Edit this image with one tightly targeted correction. Keep EVERYTHING in the scene exactly unchanged, especially basket, coherent boots on the foreground path, Everest mountain, both sock markers, all lower three-quarters, and square dimensions.
+Change ONLY the upper-left sky region x0–48%, y0–25%: replace its saturated blue sky with very pale almost-white soft luminous cloud/atmospheric mist, smoothly feathered into the existing sky toward the right and bottom. This must be a natural broad cloud field that supports dark navy heading text added later. It should be clearly pale white across the top-left corner, not the existing blue. No hard-edged box or panel, no text or UI. Preserve the mountain summit and rest of image exactly.

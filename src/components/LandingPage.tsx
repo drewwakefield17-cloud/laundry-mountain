@@ -1,64 +1,66 @@
-import { ArrowRight, Basket, Mountain, Sock, ShieldCheck, Check, Leaf } from './GameIcons'
-import { ClimbScene } from './ClimbScene'
-import { BasketAvatar } from './BasketAvatar'
+import { ArrowRight, ShieldCheck } from './GameIcons'
 import './landing.css'
 
 const journeys = [
-  ['01', 'Ben Nevis', 'Scotland', '1,345 m', 'Your first climb'],
-  ['02', 'Mount Fuji', 'Japan', '3,776 m', 'Future expedition'],
-  ['03', 'Everest', 'The Himalayas', '8,849 m', 'Future expedition'],
+  ['Ben Nevis', 'Scottish Highlands', '1,345 m', 'Your first climb', '/art/coordinated-home.webp'],
+  ['Mount Fuji', 'Japan', '3,776 m', 'Unlock after Ben Nevis', '/art/coordinated-fuji-card.webp'],
+  ['Everest', 'The Himalayas', '8,849 m', 'Unlock after Mount Fuji', '/art/coordinated-everest-card.webp'],
 ]
-
 export function LandingPage() {
   return <div className="landing-page">
     <a className="landing-skip" href="#landing-main">Skip to content</a>
     <header className="landing-nav">
-      <a className="landing-brand" href="/" aria-label="Laundry Mountain home">
-        <img src="/brand/laundry-mountain-emblem.webp" alt="" width="53" height="53" />
-        <span>LAUNDRY<strong>MOUNTAIN</strong></span>
-      </a>
+      <a className="landing-brand" href="/" aria-label="Laundry Mountain home"><img src="/brand/laundry-mountain-emblem.webp" alt="" width="48" height="48"/><span>LAUNDRY<strong>MOUNTAIN</strong></span></a>
       <nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#mountains">The mountains</a><a href="#questions">Good to know</a></nav>
-      <a className="landing-link" href="/?view=home">Open the app <ArrowRight size={18}/></a>
+      <a className="landing-link" href="/?view=home">Open app <ArrowRight size={18}/></a>
     </header>
-    <main id="landing-main">
+    <main id="landing-main" tabIndex={-1}>
       <section className="landing-hero" aria-labelledby="landing-title">
+        <picture className="landing-hero-art">
+          <source media="(min-width: 741px)" srcSet="/art/landing-highland-wide.webp"/>
+          <img src="/art/landing-highland-portrait.webp" alt="Your laundry basket companion on a sunlit Highland trail beneath Ben Nevis" width="1024" height="2048" fetchPriority="high"/>
+        </picture>
         <div className="landing-hero-copy">
-          <p className="landing-eyebrow"><span/> Small habits. Higher horizons.</p>
-          <h1 id="landing-title">Your laundry.<br/>A little <em>adventure.</em></h1>
-          <p className="landing-intro">There’s a mountain in that washing pile. Fold an item, earn Laundry Metres, and take your basket one step closer to the summit.</p>
+          <p className="landing-eyebrow">YOUR EVERYDAY ADVENTURE</p>
+          <h1 id="landing-title">Less pile.<br/><em>More peak.</em></h1>
+          <p className="landing-intro">Turn the laundry you finish into<br className="landing-mobile-break"/> a little mountain adventure.</p>
           <a className="landing-cta" href="/?view=welcome">Start your climb <ArrowRight size={22}/></a>
-          <p className="landing-reassurance"><ShieldCheck size={17}/> No account. No camera uploads. Your own pace.</p>
-          <div className="landing-trail-note"><Sock weight="duotone" size={33}/><p><strong>One sock stop at a time.</strong><span>A cleaner home. A higher you.</span></p></div>
+          <p className="landing-reassurance"><ShieldCheck size={18}/> No account. No camera needed.</p>
         </div>
-        <div className="landing-hero-art">
-          <ClimbScene metres={0} variant="landing" sceneryFinish="natural" />
-          <div className="landing-location"><Mountain weight="fill" size={23}/><span><small>YOUR FIRST EXPEDITION</small><strong>Ben Nevis, Scotland</strong></span><b>1,345 m</b></div>
-          <div className="landing-caption">Real laundry. Higher ground.</div>
-        </div>
+        <a className="landing-trail-sign" href="#mountains"><img src="/art/coordinated-sock-icon.webp" alt="" width="42" height="48"/><span><small>YOUR FIRST ADVENTURE</small><strong>Ben Nevis</strong><span>Scottish Highlands · 1,345 m</span></span><ArrowRight size={22}/></a>
       </section>
-      <div className="landing-values" aria-label="Made for everyday life"><span><Basket size={22}/> A chore worth cheering for</span><span><Mountain size={22}/> Real mountains to explore</span><span><Leaf size={22}/> Progress at your pace</span></div>
+      <div className="landing-values" aria-label="Your adventure at a glance"><span><i className="landing-art-icon landing-art-icon-items" aria-hidden="true"/><span><strong>1 item. 10 metres.</strong><small>Every little bit counts.</small></span></span><span><i className="landing-art-icon landing-art-icon-mountain" aria-hidden="true"/><span><strong>Three big adventures.</strong><small>Your pace. Your peaks.</small></span></span><span><i className="landing-art-icon landing-art-icon-badge" aria-hidden="true"/><span><strong>Little wins to collect.</strong><small>A trail worth coming back to.</small></span></span></div>
       <section className="landing-how" id="how-it-works" aria-labelledby="how-title">
-        <div className="landing-section-title"><p className="landing-eyebrow">THE EVERYDAY EXPEDITION</p><h2 id="how-title">From washing pile<br/>to mountain high.</h2><p>No epic workout required. Just you, your phone, and the load you were going to fold anyway.</p></div>
+        <div className="landing-section-title"><p className="landing-eyebrow">THE EVERYDAY EXPEDITION</p><h2 id="how-title">The pile goes down.<br/>You go up.</h2><p>No epic workout required. Just the laundry you were going to do anyway.</p></div>
         <ol className="landing-steps">
-          <li><span className="step-icon"><Basket weight="duotone" size={39}/></span><small>01 / SETTLE IN</small><h3>Make a start.</h3><p>Start a session, put your phone nearby, and tackle as much laundry as you like.</p></li>
-          <li><span className="step-icon"><Check weight="bold" size={37}/></span><small>02 / FOLD & GO</small><h3>Give every fold a purpose.</h3><p>Confirm your completed items to earn Laundry Metres. Your basket walks, your route grows, and the next sock stop gets closer.</p></li>
-          <li><span className="step-icon"><Sock weight="duotone" size={39}/></span><small>03 / COME BACK HIGHER</small><h3>Make progress that lasts.</h3><p>Finish a load or take a break. Your position stays saved in this browser, ready for your next climb.</p></li>
+          <li><span className="step-icon landing-art-icon landing-art-icon-items" aria-hidden="true"/><small>01 / A LITTLE LESS LAUNDRY</small><h3>Finish a few.</h3><p>Fold, hang or iron. Start a session and take it one item at a time.</p></li>
+          <li><span className="step-icon landing-art-icon landing-art-icon-mountain" aria-hidden="true"/><small>02 / A LITTLE MORE MOUNTAIN</small><h3>Bank your batch.</h3><p>Confirm your finished items. Each earns 10 metres and moves your basket up the trail.</p></li>
+          <li><span className="step-icon landing-art-icon landing-art-icon-badge" aria-hidden="true"/><small>03 / SOMETHING TO COME BACK TO</small><h3>Enjoy the view.</h3><p>Sock stops, badges and new summits. Your place is saved for your next little climb.</p></li>
         </ol>
-        <p className="landing-beta"><strong>Currently in early testing.</strong> Folding detection is still being tested on real phones. Hanging and ironing are planned next.</p>
+        <p className="landing-honesty">Your count, your climb. You confirm the items; the timer never awards metres.</p>
+      </section>
+      <section className="landing-showcase" id="inside-the-app" aria-labelledby="showcase-title">
+        <div className="landing-section-title"><p className="landing-eyebrow">A FRESH SPIN ON LAUNDRY DAY</p><h2 id="showcase-title">Your basket has<br/>better plans.</h2><p>For once, your washing has somewhere exciting to be.</p></div>
+        <div className="landing-phones">
+          <figure><div className="landing-phone"><img src="/marketing/ben-nevis-home.jpg" alt="Ben Nevis home screen with the basket, saved progress and session controls" width="390" height="844" loading="lazy"/></div><figcaption><strong>Ben Nevis</strong><span>Your first little climb.</span></figcaption></figure>
+          <figure><div className="landing-phone"><img src="/marketing/fuji-session.jpg" alt="Mount Fuji session screen showing completed items, metres climbed and Bank this batch" width="390" height="844" loading="lazy"/></div><figcaption><strong>Mount Fuji</strong><span>The pile goes down. You go up.</span></figcaption></figure>
+          <figure><div className="landing-phone"><img src="/marketing/everest-map.jpg" alt="Everest mountain view with the saved basket position and sock checkpoints" width="390" height="844" loading="lazy"/></div><figcaption><strong>Everest</strong><span>Lofty ambitions. Same basket.</span></figcaption></figure>
+        </div>
+        <p className="landing-showcase-note">Actual app screens. Example progress shown.</p>
       </section>
       <section className="landing-mountains" id="mountains" aria-labelledby="mountains-title">
-        <div className="landing-section-title"><p className="landing-eyebrow">SMALL LOADS. BIG PLACES.</p><h2 id="mountains-title">A world beyond<br/>the washing basket.</h2><p>Start in the Scottish Highlands. These are real mountains, with their own shapes, landscapes and stories.</p><a className="landing-text-link" href="/?view=mountains">Explore the expeditions <ArrowRight size={20}/></a></div>
-        <ol className="landing-journeys">{journeys.map(([number, name, country, height, status]) => <li key={name}><span>{number}</span><div><h3>{name}</h3><p>{country} <span>· {status}</span></p></div><strong>{height}</strong></li>)}</ol>
+        <div className="landing-section-title"><p className="landing-eyebrow">SMALL LOADS. BIG PLACES.</p><h2 id="mountains-title">Same basket.<br/>Bigger horizons.</h2><p>From the Highlands to the Himalayas, every summit opens a new adventure.</p></div>
+        <ol className="landing-journeys">{journeys.map(([name, place, height, status, art]) => <li key={name}><a href="/?view=mountains" aria-label={`Explore ${name}`}><img src={art} alt="" loading="lazy" width="600" height="400"/><div className="landing-mountain-title"><h3>{name}</h3><p>{place}</p></div><div className="landing-mountain-foot"><span>{status}</span><strong>{height}</strong></div></a></li>)}</ol>
       </section>
       <section className="landing-questions" id="questions" aria-labelledby="questions-title"><div className="landing-section-title"><p className="landing-eyebrow">GOOD TO KNOW</p><h2 id="questions-title">Less fuss.<br/>More fresh starts.</h2></div><div className="landing-faq">
-        <details><summary>What do I need to get started?</summary><p>Your phone and a pile of laundry. Start the timer and confirm each batch as you finish it. No camera setup or item target is needed.</p></details>
-        <details><summary>Do I need to photograph my laundry?</summary><p>No. Photos are optional, temporary previews. Counts are confirmed by you; photos are not uploaded or automatically counted in this version.</p></details>
-        <details><summary>Will my progress still be here tomorrow?</summary><p>Yes, in the same browser on the same device. Clearing browser data removes local progress. Account backup and cross-device syncing are not connected yet.</p></details>
+        <details><summary>What do I need to get started?</summary><p>Your phone or computer and a pile of laundry. Start a session, then confirm each batch as you finish it. No sign-up, camera setup or item target is needed.</p></details>
+        <details><summary>Do I need to photograph my laundry?</summary><p>No. Photos are optional, temporary previews. Counts are confirmed by you; photos are not uploaded or automatically counted.</p></details>
+        <details><summary>Will my progress still be here tomorrow?</summary><p>Yes, in the same browser on the same device. Clearing browser data removes local progress. There’s no account backup or cross-device syncing in this version.</p></details>
         <details><summary>Is this a competition?</summary><p>This is your own climb. There are no leaderboards or other climbers to keep up with. Go at your pace.</p></details>
-        <details><summary>Is the app ready for every kind of laundry?</summary><p>You can confirm folded, hung or ironed items manually. Ben Nevis is playable; Mount Fuji and Everest are currently previews. Automatic counting is planned.</p></details>
+        <details><summary>What counts as a finished item?</summary><p>A folded, hung or ironed item that you confirm in a batch. Each earns 10 Laundry Metres. Only count newly completed items in each batch; your time and speed don’t affect your progress.</p></details>
       </div></section>
-      <section className="landing-final"><div className="landing-final-basket"><BasketAvatar/></div><div><p className="landing-eyebrow">THE PILE CAN WAIT. YOUR ADVENTURE SHOULDN’T.</p><h2>Every load lifts you higher.</h2><a className="landing-cta" href="/?view=welcome">Meet your mountain <ArrowRight size={21}/></a></div></section>
+      <section className="landing-final"><img src="/art/coordinated-basket-cheer.webp" alt="" width="200" height="200" loading="lazy"/><div><p className="landing-eyebrow">YOUR NEXT LITTLE WIN IS WAITING.</p><h2>Every load lifts you higher.</h2><a className="landing-cta" href="/?view=welcome">Meet your mountain <ArrowRight size={22}/></a></div></section>
     </main>
-    <footer className="landing-footer"><p><strong>Laundry Mountain</strong><span>Real laundry. Higher ground.</span></p><div><a href="/?view=home">Open app</a><a href="/terrain-credits.html">Terrain & artwork credits</a></div><small>Built one load at a time. Early access.</small></footer>
+    <footer className="landing-footer"><p><strong>Laundry Mountain</strong><span>Real laundry. Higher ground.</span></p><div><a href="/?view=home">Open app</a><a href="/terrain-credits.html">Artwork & credits</a></div><small>Progress saved in this browser. Early access.</small></footer>
   </div>
 }

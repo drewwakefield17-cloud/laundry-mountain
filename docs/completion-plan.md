@@ -1,21 +1,40 @@
 # Laundry Mountain completion plan
 
-Updated 8 October 2026 after the owner approved the personal app / Ben Nevis finish.
+Latest follow-up: custom Basky demo v2 now exists in `../trailer/`, with actual
+owner footage and labelled photo-counting concept. Music/VO and approval remain.
+Phone HTTP session start fixed; 48 tests + build pass. Owner footage exposed slow
+cold Fuji/Everest scenery loading: fix and verify before release sign-off. Preserve
+accepted app/landing styling and exact logo. No new deployment or Canva project.
 
-## Current priority (supersedes older acceptance notes below)
+Updated 9 October 2026 after the three-mountain implementation and browser checks.
 
-The owner likes the built app and Ben Nevis. Finish Fuji and Everest in that family,
-then prioritise the working demo sequence in `submission-plan.md`: completed items,
-basket movement, checkpoint celebration, animated newly earned badge, saved progress.
-The target is a compelling truthful video and open-source repository, not a broad
-production backend. Vercel is now explicitly selected; deployment remains paused.
-The deadline is 9 October at 19:00 UK time. AI and continuous detection are deferred.
+Latest release follow-up: the first landing and DemoBro draft were rejected. The
+landing revision is now owner-approved (“much better”). Local release checks
+and a Netlify draft smoke check are complete; production remains unchanged while
+the existing-site/new-site choice is pending. Finish the custom trailer, choose a
+cover and perform physical-phone acceptance. Full current evidence and blockers:
+`design/review/release-checks/current-status.md`. These notes supersede the older
+Vercel-only next steps below; no unrelated live project may be changed.
 
-Fuji and Everest now have full overview/climb scene implementations in the existing
-app, with independent terrain, foregrounds, game trails and rigged basket. These
-remain clearly marked previews; actual expedition unlocks and saved progress still
-need the separate gameplay pass. Ben Nevis and owner session data remain unchanged.
+## Current priority (supersedes historical notes below)
 
+Ben Nevis, Fuji and Everest are implemented as playable expeditions in the approved
+visual family. Their checkpoints, selection, unlocks, summit overflow and local
+saves are connected. Build and 46 tests pass; full progression and responsive views
+were exercised on an isolated origin. Review the integrated evidence at
+`design/review/playable-mountains/index.html`.
+
+Next release work:
+1. Physical-phone acceptance of the manual loop and practical load/performance review.
+2. Record the truthful demo in `submission-plan.md`: completed laundry, confirmed
+   batch, whole-basket movement, sock checkpoint, earned badge and saved progress.
+3. Final release/package/repository check, then Vercel deployment when authorized
+   and submission. Target remains 9 October, 19:00 UK time.
+
+AI counting, camera validation and cloud services remain deferred. The owner
+approved the integrated Fuji/Everest visuals with “perfect” on 9 October.
+All three mountain designs are now fixed for release; physical checks remain.
+The older stage records below document how the app reached this point.
 
 ## Implementation checkpoint — personal adventure pass
 
@@ -50,16 +69,16 @@ coordinated board remain the visual reference. No restart or stack change.
 
 ## Where we are
 
-- Built: existing app screens; Ben Nevis live climb; manual timer/batch loop;
-  local progress, session history, badges and optional temporary photo previews.
-- Approved visual baseline: current personal app and Ben Nevis; Fuji/Everest
-  receive the same finish in the next scene pass.
-- Fuji/Everest: existing artwork/terrain previews, not playable progression.
-- Outstanding: release scope cleanup, final app design, three-mountain progression,
-  phone/gameplay acceptance, optional AI photo estimates, landing and submission.
-- Camera recognition remains unvalidated. No AI counting or cloud sync exists.
+- Built: all three playable mountains, manual timer/batch loop, per-mountain
+  positions, sequential unlocks, local saves, history, badges and temporary photos.
+- Accepted baseline: Ben Nevis and uphill movement. Fuji/Everest share that UI,
+  with distinct scenery and an integrated review ready for the owner.
+- Verified: 46 unit tests, production build, isolated full progression browser run,
+  portrait/landscape/narrow/desktop visual inspection. Existing saves preserved.
+- Remaining: physical-phone acceptance, performance/release packaging, demo and
+  authorized deployment/submission. No AI counting or cloud sync exists.
 
-## Execute in this order
+## Original implementation stages (current status above)
 
 1. **Simplify the product.** Remove community page/navigation/route competitors and
    Matterhorn, Kilimanjaro and Denali from active choices and copy. Preserve source

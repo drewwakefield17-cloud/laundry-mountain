@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createId } from '../domain/id'
+import { Fragment, Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import {
   ArrowLeft,
@@ -14,36 +15,45 @@ import {
   Timer,
   Layers,
   History,
-  ShieldCheck,
   Basket,
   Star,
   User,
   Plus,
   Bell,
   Lock,
-  Crown,
   X
 } from './GameIcons'
-import { CameraLab } from './CameraLab'
+const CameraLab = lazy(() => import('./CameraLab').then(module => ({ default: module.CameraLab })))
 import type { Calibration, Observation } from './CameraLab'
-import { MountainScene } from './MountainScene'
+import { IllustratedMountainScene } from './IllustratedMountainScene'
 import { ClimbScene } from './ClimbScene'
 import { ManualSession } from './ManualSession'
 import { manualBatch, reconcileManualSession, sessionSeconds, type Session } from '../domain/manualSession'
-import { ScenicArtwork, TrailIcon } from './ScenicArtwork'
+import { ScenicArtwork, TrailIcon, SockIcon, BadgeSymbol } from './ScenicArtwork'
 import { BasketAvatar } from './BasketAvatar'
-import { EXPEDITIONS, TerrainPreview } from './TerrainPreview'
-import { ExpeditionScene } from './ExpeditionScene'
-import { scenicExpeditionId, SCENIC_EXPEDITIONS, type ScenicExpeditionId } from '../domain/expeditionScenery'
+const TerrainPreview = lazy(() => import('./TerrainPreview').then(module => ({ default: module.TerrainPreview })))
+import { MOUNTAINS, MOUNTAIN_IDS, isMountainId, nextMountain, type MountainId } from '../domain/mountains'
+import { mountainProgress, nextUnfinishedMountain, ACTIVE_MOUNTAIN_KEY } from '../domain/mountainProgress'
+import { MountainArtwork } from './MountainArtwork'
 import { BEN_NEVIS, GAME } from '../domain/config'
 import { expeditionProgress } from '../domain/expedition'
 import { appendEvent, emptyLedger, parseLedger, STORAGE_KEY, summary } from '../domain/ledger'
 import type { LaundryAction, LaundryEvent } from '../domain/events'
+import { achievements, newlyEarned, achievementCaption } from '../domain/achievements'
+import { AchievementMedal } from './AchievementMedal'
+import { TrailReward, type TrailRewardData } from './TrailReward'
+import { prepareTrailSound, playTrailReward } from './trailSound'
+import { CloudIcon } from '@phosphor-icons/react/dist/csr/Cloud'
+import { ChartBarIcon } from '@phosphor-icons/react/dist/csr/ChartBar'
+import { SpeakerHighIcon } from '@phosphor-icons/react/dist/csr/SpeakerHigh'
+import { SpeakerSlashIcon } from '@phosphor-icons/react/dist/csr/SpeakerSlash'
 import './game.css'
 import './reference-theme.css'
 import './adventure-theme.css'
 import './visual-refinement.css'
 import './personal-adventure.css'
+import './reference-match.css'
+import './mountain-expeditions.css'
 
 type Screen =
   | 'home'
@@ -92,6 +102,7 @@ function readSessions(): Session[] {
         !Number.isFinite(s.metres) ||
         !Number.isFinite(s.base) ||
         !['active', 'finished'].includes(s.status) ||
+        (s.mountainId !== undefined && !isMountainId(s.mountainId)) ||
         (s.pausedAt !== undefined && !Number.isFinite(s.pausedAt)) ||
         (s.pausedMs !== undefined && (!Number.isFinite(s.pausedMs) || s.pausedMs < 0))
     )
@@ -101,8 +112,13 @@ function readSessions(): Session[] {
 }
 export function GameApp() {
   const [screen, setScreen] = useState<Screen>(initialScreen)
-  const [previewId, setPreviewId] = useState(() => scenicExpeditionId(new URLSearchParams(location.search).get('expedition')))
-  const preview = previewId ? SCENIC_EXPEDITIONS[previewId] : null
+  const [routeOpen, setRouteOpen] = useState(false)
+  const mainPanel = useRef<HTMLElement>(null)
+  useEffect(() => { if (mainPanel.current) mainPanel.current.scrollTop = 0 }, [screen])
+  const [viewedId, setViewedId] = useState<MountainId | null>(() => { const id = new URLSearchParams(location.search).get('expedition'); return isMountainId(id) ? id : null })
+  const [activeId, setActiveId] = useState<MountainId>(() => {
+    try { const id = localStorage.getItem(ACTIVE_MOUNTAIN_KEY); return isMountainId(id) && mountainProgress(parseLedger(localStorage.getItem(STORAGE_KEY)))[id].unlocked ? id : 'ben-nevis' } catch { return 'ben-nevis' }
+  })
   const [error, setError] = useState(''),
     blocked = useRef(false)
   const [ledger, setLedger] = useState(() => {
@@ -127,8 +143,26 @@ export function GameApp() {
     [paused, setPaused] = useState(false)
   const [observation, setObservation] = useState<Observation | null>(null),
     [clock, setClock] = useState(Date.now()),
-    [close, setClose] = useState(!previewId)
+    [close, setClose] = useState(!viewedId)
   const [burst, setBurst] = useState('')
+  const [sound, setSound] = useState(() => { try { return localStorage.getItem('laundry-mountain:sound') === 'on' } catch { return false } })
+  function toggleSound() { const next = !sound; setSound(next); if (next) prepareTrailSound(); try { localStorage.setItem('laundry-mountain:sound', next ? 'on' : 'off') } catch { /* Session preference still works. */ } }
+  const [rewards, setRewards] = useState<TrailRewardData[]>([])
+  const rewardTimer = useRef<number | undefined>(undefined)
+  const pendingRewards = useRef<TrailRewardData[]>([])
+  useEffect(() => { if (rewards[0] && sound) playTrailReward() }, [rewards, sound])
+  useEffect(() => () => window.clearTimeout(rewardTimer.current), [])
+  function badgeTotals(savedLedger = ledgerRef.current, savedSessions = sessionsRef.current) {
+    const total = summary(savedLedger)
+    return { loads: savedSessions.filter(s => s.status === 'finished' && s.items > 0).length,
+      best: Math.max(total.best, 0, ...savedSessions.map(s => s.items)), metres: total.lifetimeMetres }
+  }
+  function reveal(queue: TrailRewardData[], delay = 0) {
+    if (!queue.length) return
+    window.clearTimeout(rewardTimer.current)
+    pendingRewards.current.push(...queue)
+    rewardTimer.current = window.setTimeout(() => { const pending = pendingRewards.current; pendingRewards.current = []; setRewards(previous => [...previous, ...pending]) }, delay)
+  }
   const [profileName, setProfileName] = useState(() => {
     try {
       return localStorage.getItem('laundry-mountain:profile-name') || 'Climber'
@@ -139,11 +173,11 @@ export function GameApp() {
   const [nameDraft, setNameDraft] = useState(profileName),
     [profileMessage, setProfileMessage] = useState('')
   const [badgeTab, setBadgeTab] = useState<'All badges' | 'Earned' | 'Next up'>('All badges')
-  const [mountainTab, setMountainTab] = useState<'All mountains' | 'Your progress'>('All mountains')
   const [dialog, setDialog] = useState<{
     title: string
     body: string
     mountainId?: string
+    badgeIndex?: number
   } | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   useEffect(() => {
@@ -166,16 +200,21 @@ export function GameApp() {
     }
   }, [])
   function navigate(next: Screen) {
-    setPreviewId(null)
+    setViewedId(null)
     history.pushState(null, '', `/?view=${next}`)
     setScreen(next)
     window.scrollTo(0, 0)
   }
-  function exploreExpedition(id: ScenicExpeditionId) {
+  function exploreExpedition(id: MountainId) {
     navigate('mountain')
-    setPreviewId(id)
+    setViewedId(id)
     setClose(false)
     history.replaceState(null, '', `/?view=mountain&expedition=${id}`)
+  }
+  function chooseMountain(id: MountainId) {
+    if (blocked.current || !mountainProgress(ledgerRef.current)[id].unlocked) return false
+    try { localStorage.setItem(ACTIVE_MOUNTAIN_KEY, id); setActiveId(id); return true }
+    catch { setError('Your mountain selection could not be saved. Check browser storage.'); return false }
   }
   const saveSession = useCallback((value: Session) => {
     const list = [value, ...sessionsRef.current.filter((s) => s.id !== value.id)]
@@ -184,11 +223,15 @@ export function GameApp() {
     setSessions(list)
     setCurrent(value)
   }, [])
-  function startManual() {
+  function startManual(requestedId: MountainId = activeId) {
     if (blocked.current) return
-    const existing = sessionsRef.current.find(s => s.mode === 'manual' && s.status === 'active')
+    if (sound) prepareTrailSound()
+    if (!mountainProgress(ledgerRef.current)[requestedId].unlocked) return
+    const existing = sessionsRef.current.find(s => s.mode === 'manual' && s.status === 'active' && (s.mountainId ?? 'ben-nevis') === requestedId)
+    const targetId = existing ? requestedId : nextUnfinishedMountain(ledgerRef.current, requestedId)
+    if (!chooseMountain(targetId)) return
     const s: Session = existing ? reconcileManualSession(existing, ledgerRef.current) : {
-      id: crypto.randomUUID(), startedAt: Date.now(), mode: 'manual', load: 'Laundry',
+      id: createId(), startedAt: Date.now(), mode: 'manual', load: 'Laundry', mountainId: targetId,
       items: 0, metres: 0, base: 0, status: 'active'
     }
     try { saveSession(s); run.current = s; setClock(Date.now()); navigate('session') }
@@ -206,13 +249,30 @@ export function GameApp() {
     const s = run.current
     if (!s || s.mode !== 'manual' || s.status !== 'active' || s.pausedAt || blocked.current) return false
     try {
+      const before = badgeTotals()
       const saved = parseLedger(localStorage.getItem(STORAGE_KEY))
-      const next = appendEvent(saved, manualBatch(id, s.id, count, action, Date.now()))
+      if (saved.events.some(event => event.id === id)) return true
+      const beforeProgress = mountainProgress(saved)
+      const sessionMountain = s.mountainId ?? 'ben-nevis'
+      if (!beforeProgress[sessionMountain].unlocked) return false
+      const next = appendEvent(saved, manualBatch(id, s.id, count, action, Date.now(), sessionMountain))
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       ledgerRef.current = next; setLedger(next)
       const updated = reconcileManualSession(s, next)
       run.current = updated
       saveSession(updated)
+      const afterProgress = mountainProgress(next)
+      const queue: TrailRewardData[] = []
+      for (const mountainId of MOUNTAIN_IDS) {
+        const mountain = MOUNTAINS[mountainId]
+        const old = beforeProgress[mountainId].metres, after = afterProgress[mountainId].metres
+        const reached = mountain.checkpoints.filter(c => c.metres > old && c.metres <= after)
+        queue.push(...reached.map(c => ({ kind: 'checkpoint' as const, mountainId, name: c.name, banked: after - old, metres: after,
+          summit: c.metres === mountain.elevation,
+          carry: c.metres === mountain.elevation ? MOUNTAIN_IDS.slice(MOUNTAIN_IDS.indexOf(mountainId) + 1).reduce((sum, nextId) => sum + afterProgress[nextId].metres - beforeProgress[nextId].metres, 0) : 0 })))
+      }
+      queue.push(...newlyEarned(before, badgeTotals()).map(badge => ({ kind: 'badge' as const, badge, mountainId: sessionMountain })))
+      reveal(queue, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : 3300)
       return true
     } catch {
       blocked.current = true
@@ -223,6 +283,7 @@ export function GameApp() {
   const finish = useCallback(
     (reason = 'Session finished') => {
       if (!run.current) return
+      const before = badgeTotals()
       const value = {
         ...run.current,
         pausedMs: (run.current.pausedMs ?? 0) + (run.current.pausedAt ? Date.now() - run.current.pausedAt : 0),
@@ -234,6 +295,7 @@ export function GameApp() {
       run.current = null
       try {
         saveSession(value)
+        reveal(newlyEarned(before, badgeTotals()).map(badge => ({ kind: 'badge', badge, mountainId: value.mountainId ?? 'ben-nevis' })), 350)
       } catch {
         blocked.current = true
         setCurrent(value)
@@ -247,7 +309,8 @@ export function GameApp() {
   )
   useEffect(() => {
     const pop = () => {
-      setPreviewId(scenicExpeditionId(new URLSearchParams(location.search).get('expedition')))
+      const id = new URLSearchParams(location.search).get('expedition')
+      setViewedId(isMountainId(id) ? id : null)
       if (run.current?.mode === 'manual') { run.current = null; setScreen(initialScreen()) }
       else if (run.current) finish('Left the live session')
       else setScreen(initialScreen())
@@ -275,7 +338,7 @@ export function GameApp() {
       const s = run.current
       if (!s || blocked.current) return
       const event: LaundryEvent = {
-        id: crypto.randomUUID(),
+        id: createId(),
         sessionId: s.id,
         at: Date.now(),
         action: 'folding',
@@ -309,7 +372,7 @@ export function GameApp() {
   function start() {
     if (!calibration || blocked.current) return
     const s: Session = {
-      id: crypto.randomUUID(),
+      id: createId(),
       startedAt: Date.now(),
       load: 'Folding',
       items: 0,
@@ -329,10 +392,15 @@ export function GameApp() {
     setPaused(false)
     navigate('live')
   }
-  const stats = summary(ledger),
-    progress = expeditionProgress(stats.mountainMetres)
+  const expeditions = mountainProgress(ledger)
+  const mountainId = screen === 'camera' || screen === 'live' ? 'ben-nevis' : (screen === 'session' || screen === 'results') && current ? current.mountainId ?? 'ben-nevis' : screen === 'mountain' ? viewedId ?? activeId : activeId
+  const mountain = MOUNTAINS[mountainId]
+  const mountainState = expeditions[mountainId]
+  const locked = !mountainState.unlocked
+  const onward = nextMountain(mountainId)
+  const stats = { ...summary(ledger), mountainMetres: mountainState.metres, percent: mountainState.percent }
+  const progress = expeditionProgress(stats.mountainMetres, mountainId)
   const completedLoads = sessions.filter((s) => s.status === 'finished' && s.items > 0).length
-  const bestSessionItems = Math.max(stats.best, 0, ...sessions.map(s => s.items))
   const elapsed = current
     ? sessionSeconds(current, clock)
     : 0
@@ -346,72 +414,14 @@ export function GameApp() {
   }
   if (clock - last > GAME.momentumResetMs) streak = 0
   const multiplier = GAME.momentum.find((t) => streak >= t.items)?.multiplier ?? 1
-  const badges = [
-    {
-      name: 'First Load',
-      detail: 'Finish your first counted session',
-      earned: completedLoads >= 1,
-      Icon: Basket,
-      color: 'green'
-    },
-    {
-      name: 'On a Roll',
-      detail: 'Complete 5 items in one session',
-      earned: bestSessionItems >= 5,
-      Icon: Flame,
-      color: 'orange'
-    },
-    {
-      name: 'Mountain Climber',
-      detail: 'Reach 100 Laundry Metres',
-      earned: stats.lifetimeMetres >= 100,
-      Icon: Mountain,
-      color: 'navy'
-    },
-    {
-      name: 'Load Legend',
-      detail: 'Complete 10 counted sessions',
-      earned: completedLoads >= 10,
-      Icon: Star,
-      color: 'orange'
-    },
-    {
-      name: 'Glen Explorer',
-      detail: 'Reach the 250 m checkpoint',
-      earned: stats.lifetimeMetres >= 250,
-      Icon: Sock,
-      color: 'green'
-    },
-    {
-      name: 'Halfway Higher',
-      detail: 'Reach 675 Laundry Metres',
-      earned: stats.lifetimeMetres >= 675,
-      Icon: Leaf,
-      color: 'green'
-    },
-    {
-      name: 'Laundry Master',
-      detail: 'Complete 100 counted sessions',
-      earned: completedLoads >= 100,
-      Icon: Basket,
-      color: 'navy'
-    },
-    {
-      name: 'Steady Climber',
-      detail: 'Complete 20 items in one session',
-      earned: bestSessionItems >= 20,
-      Icon: Layers,
-      color: 'gold'
-    },
-    {
-      name: 'Summit Seeker',
-      detail: 'Reach the Ben Nevis summit',
-      earned: stats.lifetimeMetres >= 1345,
-      Icon: Crown,
-      color: 'gold'
-    }
-  ]
+  const badges = achievements(badgeTotals())
   const earnedBadges = badges.filter((b) => b.earned).length
+  const sessionBadges = current?.endedAt ? newlyEarned(
+    badgeTotals({version:1,events:ledger.events.filter(e=>e.at<current.startedAt)},sessions.filter(s=>s.id!==current.id && s.startedAt<current.startedAt)),
+    badgeTotals({version:1,events:ledger.events.filter(e=>e.at<=current.endedAt!)},sessions.filter(s=>s.startedAt<=current.startedAt))
+  ) : []
+  const sessionBadge = sessionBadges.at(-1)
+
   function scenic(mode: 'card' | 'mini' | 'map' | 'dial' | 'welcome' = 'card') {
     return (
       <div
@@ -422,33 +432,26 @@ export function GameApp() {
           } as CSSProperties
         }
       >
-        {mode === 'card' ? <ScenicArtwork /> : mode === 'welcome' ? <ScenicArtwork welcome /> : mode === 'mini' ? <ScenicArtwork companion={false} /> : mode === 'map' && !close ? <MountainScene
-          metres={stats.mountainMetres}
-          close={false}
-          finish="natural"
-          showLabel
-        /> : <ClimbScene metres={stats.mountainMetres}
+        {mode === 'card' ? (mountainId === 'ben-nevis' ? <ScenicArtwork /> : <div className="scenic-artwork artwork-home"><img className="scenic-artwork-landscape" src={`/art/playable-${mountainId}-home.webp`} alt={`${mountain.name} and your basket on the mountain trail`} fetchPriority="high" /></div>) : mode === 'welcome' ? <ScenicArtwork welcome /> : mode === 'mini' ? (mountainId === 'ben-nevis' ? <ScenicArtwork companion={false} /> : <MountainArtwork mountainId={mountainId} />) : mode === 'map' && !close ? <IllustratedMountainScene mountainId={mountainId} locked={locked} metres={stats.mountainMetres} /> : <ClimbScene key={mountainId} mountainId={mountainId} metres={stats.mountainMetres}
           variant={mode === 'map' ? 'climb' : mode}
           sceneryFinish="illustrated"
-          showProgress={mode === 'map'} />}
+          showProgress={false} />}
         {(mode === 'card' || mode === 'mini') && (
           <div className="scenic-title">
             <span>Current Mountain</span>
-            <h2>Ben Nevis</h2>
+            <h2>{mountain.name}</h2>
             <p>
               <span className="difficulty-bars">
-                <Mountain weight="fill" size={16} />
+                <ChartBarIcon weight="fill" size={20} />
               </span>{' '}
-              Scottish Highlands
+              {mountain.region}
             </p>
           </div>
         )}
         {mode === 'card' && (
           <div className="scenic-foot">
             <p>
-              Less pile.
-              <br />
-              More peak.
+              Less pile. More peak.
             </p>
             <div
               className="progress-ring"
@@ -479,12 +482,12 @@ export function GameApp() {
   }
   const title: Record<Screen, string> = {
     home: 'Home',
-    session: 'Ben Nevis',
+    session: mountain.name,
     camera: 'Camera Setup',
     live: 'Ben Nevis',
     results: 'Session Results',
-    sessions: 'Session History',
-    mountain: preview?.name ?? 'Ben Nevis',
+    sessions: 'Your trail journal',
+    mountain: mountain.name,
     welcome: 'Welcome',
     profile: 'Your Profile',
     badges: 'Achievements',
@@ -497,7 +500,7 @@ export function GameApp() {
         ? 'Good afternoon,'
         : 'Good evening,'
   return (
-    <div
+    <div data-mountain={mountainId}
       className={`game-shell screen-${screen} ${screen === 'live' || screen === 'camera' ? 'session-shell' : ''} ${screen === 'mountain' && !close ? 'overview-mode' : ''}`}
     >
       {screen !== 'welcome' && (
@@ -517,7 +520,7 @@ export function GameApp() {
                 onClick={() =>
                   setDialog({
                     title: 'Your next little win',
-                    body: `${progress.next?.name ?? 'Ben Nevis summit'}${progress.next ? ` is ${format(progress.remaining)} Laundry Metres away.` : ' — you made it.'} Your accepted progress is saved on this phone.`
+                    body: `${progress.next?.name ?? `${mountain.name} summit`}${progress.next ? ` is ${format(progress.remaining)} Laundry Metres away.` : ' — you made it.'} Your accepted progress is saved on this phone.`
                   })
                 }
               >
@@ -529,20 +532,20 @@ export function GameApp() {
             <>
               <button
                 className="icon-button"
-                aria-label={preview ? 'Back to mountains' : 'Back to home'}
-                onClick={() => (preview ? navigate('mountains') : run.current?.mode === 'manual' ? pauseManual(true) : run.current ? finish('Returned home') : navigate('home'))}
+                aria-label={screen === 'mountain' ? 'Back to mountains' : 'Back to home'}
+                onClick={() => (screen === 'mountain' ? navigate('mountains') : run.current?.mode === 'manual' ? pauseManual(true) : run.current ? finish('Returned home') : navigate('home'))}
               >
                 <ArrowLeft size={22} />
               </button>
-              <strong>{title[screen]}</strong>
+              <strong>{title[screen]}{(screen === 'mountain' || screen === 'session') && <small className="mountain-region">{mountain.region}</small>}</strong>
               {screen === 'mountain' ? (
                 <div className="summit-chip">
-                  <Crown weight="fill" />
+                  <TrailIcon kind="mountain" />
                   <span>
-                    Summit<strong>{format(preview?.elevation ?? 1345)} m</strong>
+                    Summit<strong>{format(mountain.elevation)} m</strong>
                   </span>
                 </div>
-              ) : screen === 'live' ? (
+              ) : screen === 'session' ? (<button className="sound-button" aria-label={sound ? 'Mute sound' : 'Enable sound'} aria-pressed={sound} onClick={toggleSound}>{sound ? <SpeakerHighIcon weight="fill"/> : <SpeakerSlashIcon weight="fill"/>}</button>) : screen === 'live' ? (
                 <span className="camera-live-dot">{paused ? 'Paused' : 'Front camera on'}</span>
               ) : (
                 <span className="header-balance" />
@@ -556,27 +559,28 @@ export function GameApp() {
           {error}
         </p>
       )}
-      <main className="game-main">
+      <main ref={mainPanel} className="game-main">
         {screen === 'welcome' && (
           <div className="welcome-content">
             {scenic('welcome')}
             <img
               className="welcome-logo"
-              src="/brand/laundry-mountain-stacked.webp"
-              alt="Laundry Mountain. Real laundry. Higher ground."
+              src="/brand/reference-logo.webp"
+              alt="Laundry Mountain"
             />
+            <p className="welcome-tagline">Real Laundry. Higher Ground.</p>
             <div className="welcome-bottom">
               <h1>
                 Small loads.
                 <br />
                 Big progress.
               </h1>
-              <p>Three real mountains. One less mountain of laundry.</p>
+              <p>Turn your mountain of laundry<br />into an adventure.</p>
               <button className="primary game-cta" onClick={() => navigate('home')}>
                 Get Started <ArrowRight size={20} />
               </button>
               <button className="text-button" onClick={() => navigate('home')}>
-                Return to my saved progress
+                Return to my progress
               </button>
             </div>
           </div>
@@ -585,7 +589,7 @@ export function GameApp() {
           <>
             <button
               className="mountain-card-button"
-              aria-label="Explore Ben Nevis"
+              aria-label={`Explore ${mountain.name}`}
               onClick={() => navigate('mountain')}
             >
               {scenic()}
@@ -598,11 +602,11 @@ export function GameApp() {
               </button>
               <button onClick={() => navigate('mountain')}>
                 <TrailIcon kind="mountain" />
-                <strong>{format(stats.lifetimeMetres)} m</strong>
+                <strong className={stats.lifetimeMetres >= 10000 ? 'long-distance' : undefined}>{format(stats.lifetimeMetres)} m</strong>
                 <span>Climbed</span>
               </button>
               <button onClick={() => navigate('sessions')}>
-                <TrailIcon kind="streak" />
+                <TrailIcon kind="items" />
                 <strong>{stats.items}</strong>
                 <span>Items done</span>
               </button>
@@ -612,16 +616,16 @@ export function GameApp() {
                 <span>Badges</span>
               </button>
             </div>
-            <button className="primary game-cta start-session-cta" onClick={startManual}>
+            <button className="primary game-cta start-session-cta" onClick={() => startManual()}>
               <span className="play-disc">
                 <Play weight="fill" size={17} />
               </span>
-              {sessions.some(s => s.mode === 'manual' && s.status === 'active') ? 'Continue your session' : 'Start a Laundry Session'}
+              {sessions.some(s => s.mode === 'manual' && s.status === 'active' && (s.mountainId ?? 'ben-nevis') === activeId) ? 'Continue your session' : progress.summit && onward ? `Start ${onward.name}` : 'Start a Laundry Session'}
             </button>
             <button className="next-trail" onClick={() => navigate('mountain')}>
-              <Sock weight="duotone" />
+              <SockIcon />
               <span>
-                <small>NEXT ON YOUR TRAIL</small>
+                <small>Next sock stop</small>
                 <strong>{progress.next?.name ?? 'Summit reached'}</strong>
               </span>
               <span>
@@ -640,7 +644,7 @@ export function GameApp() {
                   <p>Fold at your pace. Finish whenever you like.</p>
                 </div>
               )}
-              <CameraLab
+              <Suspense fallback={<p role="status">Opening camera setup…</p>}><CameraLab
                 active={screen === 'live'}
                 paused={paused}
                 presentation="game"
@@ -655,7 +659,7 @@ export function GameApp() {
                   count: current?.items ?? 0,
                   stage: observation?.stage
                 }}
-              />
+              /></Suspense>
               {screen === 'camera' && (
                 <div className="phone-position">
                   <Mountain weight="fill" size={25} />
@@ -753,37 +757,38 @@ export function GameApp() {
                   ))}
                 </div>
               )}
-              <BasketAvatar />
+              <div className="results-scenery">{mountainId === 'ben-nevis' ? <img src="/art/reference-results.webp" alt="Your basket celebrates with a boot on a rocky summit ledge" /> : <MountainArtwork mountainId={mountainId} pose="cheer" />}</div>
+              <span className="results-eyebrow">SESSION COMPLETE</span>
               <h1>{current.items ? 'That’s a load off.' : 'Session Finished'}</h1>
-              <p>{current.items ? `${format(current.items)} items ${current.mode === 'manual' ? 'banked' : 'folded'}. ${format(current.metres)} Laundry Metres earned.` : 'Your mountain will be here when you’re ready.'}</p>
+              <p>{current.items ? `${format(current.items)} ${current.items === 1 ? 'item' : 'items'} ${current.mode === 'manual' ? 'banked' : 'folded'}. ${format(current.metres)} Laundry Metres earned.` : 'Your mountain will be here when you’re ready.'}</p>
               {current.mode === 'manual' && <p className="manual-honesty">Manually confirmed · 10 metres per item</p>}
             </div>
             <div className="game-stat-row result-stats">
               <div>
                 <TrailIcon kind="mountain" />
                 <strong>+{format(current.metres)} m</strong>
-                <span>Elevation Gained</span>
+                <span>Climbed</span>
               </div>
               <div>
-                <TrailIcon kind="loads" />
+                <TrailIcon kind="items" />
                 <strong>{current.items}</strong>
                 <span>Items</span>
               </div>
               <div>
                 <Timer weight="duotone" />
                 <strong>{time(elapsed)}</strong>
-                <span>Session Time</span>
+                <span>Time</span>
               </div>
             </div>
             {current.items ? (
-              <div className="reward-ribbon">
-                <Flame weight="fill" />
+              <div className={`reward-ribbon ${sessionBadge ? 'earned-result' : ''}`}>
+                {sessionBadge ? <AchievementMedal badge={sessionBadge}/> : <Flame weight="fill" />}
                 <p>
                   <strong>
-                    {current.metres > current.base ? 'On a roll. On a climb.' : 'One less thing on the pile.'}
+                    {sessionBadge?.name ?? (current.metres > current.base ? 'On a roll. On a climb.' : 'One less thing on the pile.')}
                   </strong>
                   <span>
-                    {current.metres > current.base
+                    {sessionBadge ? 'New on your trail — badge earned.' : current.metres > current.base
                       ? `+${format(current.metres - current.base)} bonus Laundry Metres`
                       : 'Every completed item takes you higher.'}
                   </span>
@@ -799,9 +804,10 @@ export function GameApp() {
                 </p>
               </div>
             )}
-            {current.items > 0 && <blockquote>Less laundry. More altitude.</blockquote>}
-            <button className="primary game-cta" onClick={() => navigate('mountain')}>
-              Back to my mountain <ArrowRight size={18} />
+            {current.items > 0 && <div className="result-trail-progress"><TrailIcon kind="mountain" /><progress value={stats.mountainMetres} max={mountain.elevation} aria-label={`Current ${mountain.name} progress`} /><b>{format(stats.mountainMetres)} / {format(mountain.elevation)} m</b></div>}
+            {progress.summit && <p className="expedition-complete-note">{onward ? `${mountain.name} conquered. ${onward.name} is unlocked!` : 'All three summits reached. Every load still counts.'}</p>}
+            <button className="primary game-cta" onClick={() => { const id = progress.summit && onward ? onward.id : mountainId; if (chooseMountain(id)) exploreExpedition(id) }}>
+              {progress.summit && onward ? `Explore ${onward.name}` : 'Back to my mountain'} <ArrowRight size={18} />
             </button>
             <button className="game-cta secondary" onClick={() => navigate('sessions')}>
               View session history
@@ -830,155 +836,81 @@ export function GameApp() {
         {screen === 'mountain' && (
           <>
             <div className="map-scene">
-              {previewId ? <div className="game-scenic scenic-map"><ExpeditionScene id={previewId} close={close} /></div> : scenic('map')}
-              {preview && <div className="expedition-preview-note"><Sock weight="duotone" size={28} /><span><strong>{preview.checkpoints[0].name}</strong><small>Future expedition · explore the scenery</small></span></div>}
-              {!preview && !close && <div className="overview-next"><Sock weight="duotone" size={28} /><span><small>{progress.summit ? 'Expedition complete' : 'Next checkpoint'}</small><strong>{progress.next?.name ?? 'Summit reached'}</strong></span><b>{progress.summit ? '1,345 m' : `${format(progress.remaining)} m`}</b></div>}
-              <div className="view-control">
-                <button aria-pressed={!close} onClick={() => setClose(false)}>
-                  Full mountain
-                </button>
-                <button aria-pressed={close} onClick={() => setClose(true)}>
-                  Climb view
-                </button>
+              {scenic('map')}
+              <button className="overview-next" aria-label={!locked && mountainId !== activeId ? `Make ${mountain.name} my current climb` : progress.summit && onward ? `Explore ${onward.name}` : 'Your route checkpoints'} aria-expanded={!locked && mountainId !== activeId || progress.summit && onward ? undefined : routeOpen} onClick={() => {
+                if (!locked && mountainId !== activeId) chooseMountain(mountainId)
+                else if (progress.summit && onward) { if (chooseMountain(onward.id)) exploreExpedition(onward.id) }
+                else setRouteOpen(value => !value)
+              }}><SockIcon /><span><strong>{locked ? mountain.checkpoints[1].name : mountainId !== activeId ? `Climb ${mountain.name}` : progress.summit && onward ? `Next: ${onward.name}` : progress.next?.name ?? 'Summit reached'}</strong><small>{locked ? `Unlock after ${MOUNTAINS[MOUNTAIN_IDS[MOUNTAIN_IDS.indexOf(mountainId) - 1]].name}` : mountainId !== activeId ? 'Make this your current mountain' : progress.summit ? `${format(mountain.elevation)} m climbed` : `${format(progress.remaining)} m to go`}</small></span><ArrowRight size={23} /></button>
+              <div className="view-control reference-view-control">
+                <button className="primary" aria-label={close ? 'Climb view — switch to full mountain' : 'Full mountain view — switch to climb view'} onClick={() => setClose(!close)}><Mountain size={25}/>{close ? 'Climb view' : 'Full mountain view'}</button>
               </div>
-              <a className="terrain-credit" href="/terrain-credits.html" target="_blank" rel="noreferrer">
-                {preview ? 'Real terrain · Illustrated game trail · Credits' : 'Map data © OpenStreetMap · Terrain credits'}
-              </a>
+              <a className="terrain-credit" href="/terrain-credits.html" target="_blank" rel="noreferrer">Illustrated game trail · Mountain credits</a>
             </div>
-            {!preview && <details className="route-details">
+            <details className="route-details" open={routeOpen} onToggle={event => setRouteOpen(event.currentTarget.open)}>
               <summary aria-label="Your route checkpoints">Checkpoints</summary>
-              <div className="mountain-progress">
-                <div>
-                  <strong>{format(stats.mountainMetres)} m climbed</strong>
-                  <span>{format(1345 - stats.mountainMetres)} m to summit</span>
-                </div>
-                <progress aria-label="Ben Nevis progress" value={stats.mountainMetres} max={1345} />
-              </div>
-
-              <ol className="game-checkpoints">
-                {BEN_NEVIS.checkpoints.map((c) => (
-                  <li key={c.metres} className={stats.mountainMetres >= c.metres ? 'reached' : ''}>
-                    <span>{stats.mountainMetres >= c.metres ? <Check /> : <Sock />}</span>
-                    <div>
-                      <strong>{c.name}</strong>
-                      <p>{c.description}</p>
-                    </div>
-                    <small>{format(c.metres)} m</small>
-                  </li>
-                ))}
-              </ol>
-              <p>
-                Real Ben Nevis terrain and Mountain Path. Checkpoints measure Laundry Metres, not hiking
-                distance.
-              </p>
-            </details>}
+              <div className="mountain-progress"><div><strong>{format(stats.mountainMetres)} m climbed</strong><span>{format(mountain.elevation - stats.mountainMetres)} m to summit</span></div><progress aria-label={`${mountain.name} progress`} value={stats.mountainMetres} max={mountain.elevation} /></div>
+              <ol className="game-checkpoints">{mountain.checkpoints.map(c => <li key={c.metres} className={!locked && stats.mountainMetres >= c.metres ? 'reached' : ''}><span>{!locked && stats.mountainMetres >= c.metres ? <Check /> : <Sock />}</span><div><strong>{c.name}</strong><p>{c.description}</p></div><small>{format(c.metres)} m</small></li>)}</ol>
+              <p>A game trail inspired by {mountain.name}. Checkpoints measure Laundry Metres, not hiking distance.</p>
+              <button className="secondary game-cta" onClick={() => setRouteOpen(false)}>Back to the view</button>
+            </details>
           </>
         )}
         {screen === 'mountains' && (
           <>
-            <div className="journey-intro"><span className="eyebrow">YOUR THREE-PEAK CHALLENGE</span><h1>Big peaks.<br />Little victories.</h1><p>From the Highlands to the Himalayas.<br />One finished item at a time.</p></div>
-            <div className="segmented" aria-label="Mountain filter">
-              {(['All mountains', 'Your progress'] as const).map((t) => (
-                <button key={t} aria-pressed={mountainTab === t} onClick={() => setMountainTab(t)}>
-                  {t}
-                </button>
-              ))}
+            <div className="journey-intro">
+              <img className="intro-companion-art" src="/art/coordinated-mountains-header.webp" alt="Your basket companion standing on a rocky ledge" />
+              <h1>Mountains</h1><h2>Big peaks. Little victories.</h2>
+              <p>From the Highlands to the Himalayas.</p>
             </div>
             <div className="expedition-cards">
-              <button
-                className="expedition-card current-expedition"
-                aria-label="Explore Ben Nevis"
-                onClick={() => navigate('mountain')}
-              >
-                <span className="expedition-thumbnail"><ScenicArtwork companion={false} /></span>
-                <span className="expedition-number">01 <span>YOUR CURRENT CLIMB</span></span>
-                <span className="expedition-name">
-                  <strong>Ben Nevis</strong>
-                  <small>
-                    <Mountain weight="fill" /> Scottish Highlands
-                  </small>
-                  <span>1,345 m summit · {format(stats.mountainMetres)} m climbed</span>
-                </span>
-                <span
-                  className="mini-progress-ring"
-                  style={
-                    {
-                      '--progress': `${stats.percent * 3.6}deg`
-                    } as CSSProperties
-                  }
-                >
-                  <strong>{format(stats.percent)}%</strong>
-                </span>
-              </button>
-              {mountainTab === 'All mountains' &&
-                EXPEDITIONS.map((mountain, index) => (
-                  <button
-                    className="expedition-card"
-                    key={mountain.id}
-                    aria-label={`${mountain.name} Future expedition`}
-                    onClick={() => exploreExpedition(mountain.id)}
-                  >
-                    <span className="expedition-thumbnail">
-                      <TerrainPreview id={mountain.id} name={mountain.name} />
-                    </span>
-                    <span className="expedition-number">0{index + 2} <span>{index ? 'THE ULTIMATE PEAK' : 'A NEW HORIZON'}</span></span>
-                    <span className="expedition-name">
-                      <strong>{mountain.name}</strong>
-                      <small>
-                        <Mountain weight="fill" /> {mountain.region}
-                      </small>
-                      <span>
-                        {format(mountain.elevation)} m summit
-                      </span>
-                    </span>
-                    <span className="expedition-lock">
-                      <Lock weight="fill" />
-                      <strong>Preview</strong>
-                      <small>Coming to your trail</small>
-                    </span>
-                  </button>
-                ))}
+              {MOUNTAIN_IDS.map(id => {
+                const peak = MOUNTAINS[id], saved = expeditions[id]
+                const label = saved.summit ? 'Summit reached' : id === activeId ? 'Your current climb' : saved.unlocked ? 'Ready to climb' : id === 'fuji' ? 'Next expedition' : 'The ultimate peak'
+                return <button className={`expedition-card ${id === activeId ? 'current-expedition' : ''}`} key={id} aria-label={`Explore ${peak.name}${!saved.unlocked ? ' — locked' : ''}`} onClick={() => exploreExpedition(id)}>
+                  <span className="expedition-thumbnail"><img className={`collection-landscape ${id === 'ben-nevis' ? 'ben-nevis-card-art' : ''}`} src={id === 'ben-nevis' ? '/art/coordinated-ben-nevis-map.webp' : `/art/coordinated-${id}-card.webp`} alt={`${peak.name} illustrated landscape`} /></span>
+                  <span className="expedition-number"><span>{label}</span></span>
+                  <span className="expedition-name"><strong>{peak.name}</strong><small><Mountain weight="fill" /> {peak.region}</small><span className="expedition-elevation"><span>{saved.unlocked && <><ChartBarIcon weight="fill" size={20}/>{format(saved.metres)} m</>}</span><b>{format(peak.elevation)} m</b></span></span>
+                  {!saved.unlocked && <span className="expedition-lock"><Lock weight="fill" /></span>}
+                  {saved.summit && <span className="expedition-completed"><Check weight="bold" size={27} /></span>}
+                </button>
+              })}
             </div>
-            <p className="page-quote">Same basket. Bigger horizons.</p>
           </>
         )}
         {screen === 'sessions' && (
           <>
-            <div className="page-intro">
-              <History weight="duotone" />
-              <h1>Every load tells a story.</h1>
-              <p>Proof that the laundry got you somewhere.</p>
-            </div>
             {!sessions.length ? (
               <section className="history-empty">
                 <BasketAvatar />
                 <h2>Your first load is your first step.</h2>
                 <p>A few folds today. A little further up the mountain. Your completed sessions will live here.</p>
-                <button className="primary game-cta" onClick={startManual}>
+                <button className="primary game-cta" onClick={() => startManual()}>
                   Start your first session <ArrowRight size={16} />
                 </button>
               </section>
             ) : (
-              <div className="session-history">
-                {sessions.map((s) => (
+              <><div className="history-panorama"><>{mountainId === 'ben-nevis' ? <img src="/art/reference-profile.webp" alt="Your basket resting on a Highland rock ledge" /> : <img src={`/art/playable-${mountainId}-profile.webp`} alt="Your basket resting on a mountain ledge" />}</><strong>{mountain.name}<span>{mountain.region}</span></strong></div><h2 className="history-headline">Look how far your laundry got you.</h2><div className="history-totals"><span><TrailIcon kind="items" /><b>{completedLoads}</b> sessions</span><span><TrailIcon kind="mountain" /><b>{format(stats.lifetimeMetres)} m</b> climbed</span></div><div className="session-history">
+                {sessions.map((s,i) => (
+                  <Fragment key={s.id}>
+                  {(i===0 || new Date(s.startedAt).toDateString() !== new Date(sessions[i-1].startedAt).toDateString()) && <h3 className="history-day">{new Date(s.startedAt).toDateString() === new Date().toDateString() ? 'Today' : new Date(s.startedAt).toLocaleDateString(undefined,{day:'numeric',month:'long'})}</h3>}
                   <button
-                    key={s.id}
                     onClick={() => {
-                      if (s.mode === 'manual' && s.status === 'active') { startManual(); return }
+                      if (s.mode === 'manual' && s.status === 'active') { startManual(s.mountainId ?? 'ben-nevis'); return }
                       setCurrent(s)
                       setClock(s.endedAt ?? s.startedAt)
                       navigate('results')
                     }}
                   >
                     <span className="history-icon">
-                      <Basket weight="duotone" />
+                      <TrailIcon kind="items" />
                     </span>
                     <span>
                       <strong>
-                        {s.load} · {s.items} items{s.mode === 'manual' ? ' · Manual' : ''}
+                        {s.load === 'Laundry' ? (s.items >= 20 ? 'A load off your mind' : 'A little further up') : s.load}
                       </strong>
                       <small>
-                        {new Date(s.startedAt).toLocaleDateString(undefined, {
+                        {MOUNTAINS[s.mountainId ?? 'ben-nevis'].name} · {s.items} {s.items === 1 ? 'item' : 'items'} · {new Date(s.startedAt).toLocaleDateString(undefined, {
                           month: 'short',
                           day: 'numeric'
                         })}{' '}
@@ -990,27 +922,27 @@ export function GameApp() {
                     </span>
                     <strong>+{format(s.metres)} m</strong>
                     <ArrowRight size={17} />
-                  </button>
+                  </button></Fragment>
                 ))}
-              </div>
+              </div></>
             )}
-            <p className="page-quote">One pile at a time. One peak at a time.</p>
+            <p className="page-quote">Small loads add up.</p>
           </>
         )}
         {screen === 'badges' && (
           <>
-            <div className="collection-intro"><span className="eyebrow">A LITTLE PROOF OF PROGRESS</span><h1>Earn your stripes.</h1><p>{earnedBadges} of {badges.length} badges earned. Every one has a story.</p></div>
+            <div className="collection-intro"><span>Achievements</span><h1>Earn your stripes.</h1><p>{earnedBadges} of {badges.length} earned</p></div>
             <div className="segmented" aria-label="Badge filter">
               {(['All badges', 'Earned', 'Next up'] as const).map((t) => (
                 <button key={t} aria-pressed={badgeTab === t} onClick={() => setBadgeTab(t)}>
-                  {t}
+                  {t === 'All badges' ? 'All' : t}
                 </button>
               ))}
             </div>
             <div className="badge-grid">
               {badges
                 .filter((b) => (badgeTab === 'Earned' ? b.earned : badgeTab === 'Next up' ? !b.earned : true))
-                .map(({ name, detail, earned, Icon, color }, index) => (
+                .map((badge, index) => { const { name, detail, earned, color } = badge; return (
                   <button
                     className={`badge-card ${earned ? 'earned' : 'locked'} ${!earned && index > 5 ? 'distant-badge' : ''} badge-${color}`}
                     title={earned ? 'Earned' : 'Locked — view requirements'}
@@ -1018,52 +950,36 @@ export function GameApp() {
                     onClick={() =>
                       setDialog({
                         title: name,
+                        badgeIndex: badges.findIndex(b => b.name === name),
                         body: `${earned ? 'Earned! ' : ''}${detail}. ${earned ? 'Your accepted laundry progress earned this badge.' : 'Keep climbing to unlock this badge.'}`
                       })
                     }
                   >
-                    <span className="badge-medal">
-                      <img
-                        className={`badge-enamel badge-enamel-${color}`}
-                        src={`/art/badge-enamel-${color === 'orange' || color === 'gold' ? 'orange' : 'green'}.webp`}
-                        alt=""
-                        aria-hidden="true"
-                      />
-                      <Icon weight="fill" />
-                    </span>
+                    <AchievementMedal badge={badge} locked={!earned} />
                     <strong>{name}</strong>
-                    <small>{detail}</small>
+                    <small>{achievementCaption[badge.id]}</small>
                     {!earned && <Lock className="badge-lock" weight="fill" />}
                   </button>
-                ))}
+                )})}
             </div>
             {badgeTab === 'Earned' && !earnedBadges && (
               <p className="empty-note">
                 Your first badge is waiting at the end of your first counted session.
               </p>
             )}
-            <p className="page-quote">
-              “Small habits create
-              <br />
-              extraordinary places.”
-            </p>
           </>
         )}
         {screen === 'profile' && (
           <>
             <div className="profile-hero">
-              <div className="profile-landscape" aria-hidden="true"><ScenicArtwork companion={false} /></div>
-              <span className="profile-avatar">
-                <BasketAvatar />
-              </span>
-              <h1>{profileName}</h1>
-              <p>Your pace. Your peaks. Your pile, conquered.</p>
+              <div className="profile-landscape" aria-hidden="true">{mountainId === 'ben-nevis' ? <img src="/art/reference-profile.webp" alt="" /> : <img src={`/art/playable-${mountainId}-profile.webp`} alt="" />}</div>
+              <h1>Your trail</h1><h2>{profileName}</h2><p>Your pace. Your peaks.</p>
             </div>
             <div className="profile-progress" aria-label="Your climbing progress">
-              <button onClick={() => navigate('mountain')}><TrailIcon kind="mountain" /><span><strong>{format(stats.lifetimeMetres)} m</strong><small>Climbed so far</small></span><ArrowRight size={16}/></button>
-              <button onClick={() => navigate('badges')}><TrailIcon kind="badge" /><span><strong>{earnedBadges}</strong><small>Badges earned</small></span><ArrowRight size={16}/></button>
+              <button onClick={() => navigate('mountain')}><TrailIcon kind="mountain" /><span><strong className={stats.lifetimeMetres >= 10000 ? 'long-distance' : undefined}>{format(stats.lifetimeMetres)} m</strong><small>climbed</small></span><ArrowRight size={16}/></button>
+              <button onClick={() => navigate('badges')}><TrailIcon kind="badge" /><span><strong>{earnedBadges}</strong><small>badges</small></span><ArrowRight size={16}/></button>
             </div>
-            <div className="personal-trail-strip"><Sock weight="duotone"/><span><small>YOUR NEXT LITTLE WIN</small><strong>{progress.next?.name ?? 'Ben Nevis, conquered.'}</strong></span><b>{format(progress.remaining)} m</b></div>
+            <button className="personal-trail-strip" onClick={() => exploreExpedition(mountainId)}><SockIcon /><span><strong>{progress.next?.name ?? `${mountain.name}, conquered.`}</strong><small>{progress.summit ? 'Summit reached' : `${format(progress.remaining)} m to go`}</small></span><ArrowRight size={22}/></button>
             <form
               className="profile-form"
               onSubmit={(e) => {
@@ -1071,7 +987,7 @@ export function GameApp() {
                 saveProfile()
               }}
             >
-              <label htmlFor="climber-name">Your climber name</label>
+              <label htmlFor="climber-name">Name</label>
               <input
                 id="climber-name"
                 value={nameDraft}
@@ -1079,37 +995,28 @@ export function GameApp() {
                 onChange={(e) => setNameDraft(e.target.value)}
               />
               <button className="primary" type="submit">
-                Save name
+                Save
               </button>
               {profileMessage && <p role="status">{profileMessage}</p>}
             </form>
             <div className="profile-links">
+              <button role="switch" aria-checked={sound} onClick={toggleSound}><SpeakerHighIcon weight="fill"/>Sound<span className={`sound-switch ${sound ? 'is-on' : ''}`}>{sound ? 'On' : 'Off'}</span></button>
               <button onClick={() => navigate('sessions')}>
                 <History weight="duotone" />
                 Session history
                 <ArrowRight />
               </button>
               <button onClick={() => navigate('badges')}>
-                <Star weight="duotone" />
+                <BadgeSymbol />
                 Achievements
                 <span>
                   {earnedBadges} / {badges.length}
                 </span>
                 <ArrowRight />
               </button>
-              <button onClick={() => navigate('welcome')}>
-                <Mountain weight="duotone" />
-                Welcome to Laundry Mountain
-                <ArrowRight />
-              </button>
             </div>
             <div className="privacy-card">
-              <ShieldCheck weight="duotone" />
-              <p>
-                <strong>Saved right here.</strong>
-                <br />
-                Your name and progress stay in this browser. No account is needed.
-              </p>
+              <CloudIcon size={23}/><p>Saved in this browser.</p>
             </div>
           </>
         )}
@@ -1129,16 +1036,17 @@ export function GameApp() {
               key={s}
               className={s === 'camera' ? 'nav-add' : ''}
               aria-current={screen === s || (screen === 'mountain' && s === 'mountains') ? 'page' : undefined}
-              onClick={() => s === 'camera' ? startManual() : navigate(s)}
+              onClick={() => s === 'camera' ? startManual(screen === 'mountain' && !locked ? mountainId : activeId) : navigate(s)}
             >
               <span>
-                <Icon weight={s === 'camera' ? 'bold' : 'fill'} />
+                {s === 'badges' ? <BadgeSymbol /> : <Icon weight={s === 'camera' ? 'bold' : 'fill'} />}
               </span>
               <small>{label}</small>
             </button>
           ))}
         </nav>
       )}
+      {rewards[0] && <TrailReward reward={rewards[0]} onContinue={() => setRewards(queue => queue.slice(1))} />}
       {dialog && (
         <dialog
           ref={dialogRef}
@@ -1167,11 +1075,12 @@ export function GameApp() {
             <button className="icon-button" aria-label="Close" onClick={() => setDialog(null)}>
               <X />
             </button>
+            {dialog.badgeIndex !== undefined && <div className="dialog-badge"><AchievementMedal badge={badges[dialog.badgeIndex]} locked={!badges[dialog.badgeIndex].earned} /></div>}
             <h2 id="dialog-title">{dialog.title}</h2>
             <p>{dialog.body}</p>
             {dialog.mountainId && (
               <div className="expedition-detail-preview">
-                <TerrainPreview id={dialog.mountainId} name={dialog.title} />
+                <Suspense fallback={<p role="status">Loading terrain…</p>}><TerrainPreview id={dialog.mountainId} name={dialog.title} /></Suspense>
                 <small>Geographic terrain · illustrated seasonal colours</small>
               </div>
             )}

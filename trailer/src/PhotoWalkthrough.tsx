@@ -1,0 +1,54 @@
+import {AbsoluteFill, CanvasImage, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {clamp} from './style';
+
+const ink='#071b42';
+const button={background:'linear-gradient(#00a982,#00755e)',color:'white',borderRadius:45,boxShadow:'inset 0 3px 0 #7bddc2,0 5px 12px #08243b20',fontWeight:900} as const;
+function LaundryPhoto({after=false,width=610}: {after?:boolean;width?:number}) {
+ const {fps}=useVideoConfig();
+ return <div style={{width,height:430,overflow:'hidden',borderRadius:22,position:'relative'}}><CanvasImage src={staticFile('art/photo-counting-concept.png')} premountFor={fps} style={{position:'absolute',width:width*2,height:width,maxWidth:'none',left:after?-width:0,top:-width*.14}}/></div>;
+}
+function Tap({x,y,at}: {x:number;y:number;at:number}) {
+ const f=useCurrentFrame();const {fps}=useVideoConfig();const p=interpolate(f,[at*fps,(at+.55)*fps],[0,1],clamp);
+ return <div style={{position:'absolute',left:x-28,top:y-28,width:56,height:56,border:'5px solid #ffb34f',borderRadius:'50%',boxShadow:'0 0 0 5px #fff9',opacity:p===0||p===1?0:1-p,transform:`scale(${1+p})`,pointerEvents:'none'}}/>;
+}
+export const PhotoWalkthrough=()=>{
+ const f=useCurrentFrame();const {fps}=useVideoConfig();const t=f/fps;
+ const after=t>=3;const estimated=t>=5.3;const corrected=t>=6.5;const snapped=t>=.85;
+ const title=t<3?'Photograph your pile.':t<5.3?'Fold a batch. Photograph it again.':t<6.5?'The app suggests a count.':'Check it. Tweak it. Bank it.';
+ const titleStart=t<3?0:t<5.3?3:t<6.5?5.3:6.5;
+ return <AbsoluteFill style={{fontFamily:'Nunito',fontWeight:800,color:ink,background:'#d6eafa',overflow:'hidden'}}>
+  <CanvasImage src={staticFile('art/reference-session-portrait.webp')} premountFor={fps} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 35%',filter:'brightness(.62)'}}/>
+  <div style={{position:'absolute',top:26,right:40,color:'white',fontSize:23,padding:'9px 18px',borderRadius:30,background:'#071b42e8'}}>Photo-counting concept</div>
+  <div style={{position:'absolute',left:180,top:100,width:1560,height:835,background:'#f8fcff',borderRadius:38,boxShadow:'0 20px 70px #001c3966',boxSizing:'border-box',padding:'30px 45px'}}>
+   <div style={{width:76,height:7,background:'#bbcbd1',borderRadius:9,margin:'0 auto 20px'}}/>
+   <div style={{textAlign:'center',fontSize:16,fontWeight:900,letterSpacing:5,color:'#426079'}}>A LITTLE LESS LAUNDRY</div>
+   <div style={{textAlign:'center',fontSize:56,fontWeight:900,letterSpacing:-1,margin:'9px 0 28px'}}>What have you conquered?</div>
+   <div style={{display:'flex',gap:56}}>
+    <div style={{width:610,position:'relative'}}>
+     <LaundryPhoto after={after}/>
+     <span style={{position:'absolute',left:20,top:18,padding:'7px 16px',borderRadius:20,background:'#f8fcfff2',fontSize:22}}>{after?'After folding':snapped?'Before · saved':'Before folding'}</span>
+     {t>=3.8&&t<5.3&&<div style={{position:'absolute',left:12,right:12,height:5,background:'#64ffd1',boxShadow:'0 0 20px #11b985',top:interpolate(t,[3.8,5.3],[60,405],clamp)}}/>}
+     <AbsoluteFill style={{height:430,borderRadius:22,background:'white',opacity:Math.max(interpolate(t,[.84,.9,1.1],[0,.9,0],clamp),interpolate(t,[2.98,3.05,3.25],[0,.9,0],clamp))}}/>
+     {snapped&&<div style={{position:'absolute',right:20,bottom:115,padding:'9px 16px',background:'#00765ded',color:'white',borderRadius:20,fontSize:23}}>✓ {after?'After photo saved':'Pile recorded'}</div>}
+     <div style={{...button,textAlign:'center',fontSize:30,padding:'18px 20px',marginTop:20}}>{after?'✓ Before & after ready':snapped?'Fold a batch, then take the after photo':'◉ Take before photo'}</div>
+    </div>
+    <div style={{flex:1,textAlign:'center'}}>
+     <div style={{display:'flex',border:'2px solid #dce6ed',borderRadius:22,overflow:'hidden',height:90,alignItems:'stretch',fontSize:25}}>
+      <div style={{...button,flex:1,borderRadius:20,paddingTop:27}}>Folded</div><div style={{flex:1,paddingTop:27}}>Hung up</div><div style={{flex:1,paddingTop:27}}>Ironed</div>
+     </div>
+     <div style={{marginTop:34,fontSize:26,color:'#426079'}}>{estimated?'Suggested completed items':'Your next little victory'}</div>
+     <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:30,height:175}}>
+      <div style={{...button,width:80,height:80,lineHeight:'72px',fontSize:54}}>−</div>
+      <div style={{width:210,fontSize:130,lineHeight:1,fontWeight:900,fontVariantNumeric:'tabular-nums'}}>{estimated?(corrected?'25':'24'):'—'}</div>
+      <div style={{...button,width:80,height:80,lineHeight:'72px',fontSize:54,boxShadow:corrected?'inset 0 3px 0 #7bddc2,0 0 0 7px #b8e9d8':button.boxShadow}}>+</div>
+     </div>
+     <div style={{fontSize:26,height:68,lineHeight:1.3,color:'#276a59'}}>{estimated?(corrected?<>Checked by you.<br/>25 items = 250 Laundry Metres.</>:<>24 items suggested.<br/>Adjust anything it missed.</>):<>Before and after photos<br/>help estimate what you finished.</>}</div>
+     <div style={{...button,fontSize:31,padding:'20px 12px',marginTop:25,opacity:estimated?1:.55}}>Confirm &amp; climb {estimated?`+${corrected?'250':'240'} m`:'↑'}</div>
+     <div style={{fontSize:21,marginTop:15,color:'#426079'}}>Your count, your climb.</div>
+    </div>
+   </div>
+  </div>
+  <Tap x={530} y={753} at={.75}/><Tap x={530} y={753} at={2.9}/><Tap x={1465} y={550} at={6.35}/><Tap x={1260} y={770} at={7.8}/>
+  <div style={{position:'absolute',bottom:32,left:0,right:0,textAlign:'center',fontSize:48,fontWeight:900,color:'white',textShadow:'0 3px 20px #00132d',opacity:interpolate(t,[titleStart,titleStart+.1],[0,1],clamp),translate:`0 ${interpolate(t,[titleStart,titleStart+.2],[14,0],clamp)}px`}}>{title}</div>
+ </AbsoluteFill>;
+};

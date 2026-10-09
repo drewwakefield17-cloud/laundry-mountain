@@ -89,7 +89,7 @@ export function ExpeditionScene({ id, close, metres = 0 }: {
   const player=close?groundPoint((wide?.65:.49)+progress*(wide?.05:.075),(wide?.66:.84)-progress*(wide?.05:.10)):at(progress)
   const nearSock=groundPoint(wide?.75:.59,wide?.58:.735)
   const nearSockHeight=wide?51:86
-  const basketWidth=wide?(close?91:78):Math.min(width*(close?.36:.30),close?150:123)
+  const basketWidth=wide?(close?120:44):Math.min(width*(close?.48:.12),close?200:48)
   const next=expedition.checkpoints.find(c=>c.metres>metres)??expedition.checkpoints[3]
   const path=points.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
   return <div className={`expedition-world expedition-world--${id} ${close?'is-close':''}`}>
@@ -104,7 +104,7 @@ export function ExpeditionScene({ id, close, metres = 0 }: {
       </g>})}
     </svg>}
     {close&&<img className="expedition-near-sock" style={{left:nearSock.x-nearSockHeight*2/3*.46,top:nearSock.y-nearSockHeight*.938,width:nearSockHeight*2/3,height:nearSockHeight}} src="/art/sock-checkpoint.png" alt="" />}
-    {player&&<div className="expedition-basket" style={{left:player.x,top:player.y,width:basketWidth}}><BasketAvatar moving={motion==='walking'} celebrating={motion==='celebrating'} /></div>}
+    {player&&<div className={`expedition-basket ${close ? '' : 'expedition-pin'}`} style={{left:player.x,top:player.y,width:basketWidth}}><BasketAvatar facing={close ? 'uphill' : 'front'} moving={motion==='walking'} celebrating={motion==='celebrating'} />{!close && <span>Scenery preview</span>}</div>}
     <span className="sr-only">{expedition.name}. {next.name}. Expedition scenery preview; progress is not awarded here.</span>
     {!ready&&!error&&<span className="expedition-loading" role="status">Finding your mountain…</span>}
     {error&&<span className="expedition-loading" role="alert">This mountain couldn’t load. Open it again to retry.</span>}

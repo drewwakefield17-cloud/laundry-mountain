@@ -4,7 +4,7 @@ import shutil, sys, tempfile
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 root=Path(__file__).resolve().parent.parent
-out=root/'docs/design/review/illustrated-pass'; out.mkdir(parents=True,exist_ok=True)
+out=root/(sys.argv[2] if len(sys.argv)>2 else 'docs/design/review/illustrated-pass'); out.mkdir(parents=True,exist_ok=True)
 temp=Path(tempfile.gettempdir()); reference=Image.open(sys.argv[1]).convert('RGB')
 font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',16)
 small=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',12)

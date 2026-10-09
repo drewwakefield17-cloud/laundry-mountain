@@ -1,0 +1,8 @@
+{
+  "files": 128,
+  "bytes": 51650583,
+  "forbiddenFiles": [],
+  "possibleSecretFiles": [],
+  "indexSha256": "aba4583e322abd35abce3e418d5745db8ffd341b6cf624fa1f39675663200288",
+  "scope": "Local revised landing build; not yet uploaded to the existing Netlify draft"
+}

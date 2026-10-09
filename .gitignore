@@ -10,3 +10,7 @@ playwright-report/
 artifacts/
 .netlify/
 *.tsbuildinfo
+
+# Local caches and diagnostic output
+__pycache__/
+*.pyc

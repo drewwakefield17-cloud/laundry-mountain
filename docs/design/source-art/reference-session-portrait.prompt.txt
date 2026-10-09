@@ -1,0 +1,12 @@
+Use case: stylized-concept.
+Asset type: portrait 4:5 active-session scenic background, target1024x1280; actual app displays about390x445. NO baked characters or UI.
+REFERENCE: precisely match scenery style and composition of panel3 ACTIVE SESSION in the supplied approved Laundry Mountain board, only its upper scenic illustration. A code-rendered basket and sock marker will be separately overlaid; leave their positions clear.
+Compose for the 4:5 viewport deliberately:
+- Top15% blue sky with white cloud masses around edges; calm sky behind live navy header.
+- Recognizable real Ben Nevis broad flat plateau summit across upper22–35%, with richly painted gold-grey rock highlights and blue shadow faces. It must remain clearly visible above foreground.
+- Blue lake in left middle distance with mature darkgreen conifer pines, rolling Highland glen.
+- Sunlit angular granite rocks, heather and grasses frame lower half. A rocky TAN WALKING TRAIL approaches from bottomcenter and gently winds UP RIGHT.
+- A broad flat usable trail stepping surface at x43%,y88% for separately placed basket feet. Do not put boulder/vegetation/water at this foot location.
+- A small distinct flat rocky ledge at x82%,y65% suitable for separately placed sock-pole base. Do not draw the sock/pole/base, leave ledge clear.
+Crisp vivid detailed painted adventure scenery identical to the approved UI, confident blue/ochre planes, rich emerald pines and lavenderheather, not photoreal, not generic lowpoly, no blurred plastic3D texture. Correct depth, physically contiguous trail, no abrupt foreground seams.
+NO basket, character, sock, pole, marker, flags, routes, text, logo, badges, numbers, UI, rounded frame or panel borders. Entire image is clean opaque scenic artwork in portrait4:5. Show the mountain itself, not a close crop of foreground bushes.

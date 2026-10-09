@@ -1,0 +1,16 @@
+Use case: stylized-concept.
+Asset type: transparent 3×3 achievement medal sprite atlas for Laundry Mountain. Square 1536x1536 composition.
+REFERENCE IMAGE: copy the hexagonal enamel MEDALS in panel 4 ACHIEVEMENTS of the approved board. Generate ONLY the medals as a clean sprite atlas with no UI and no lettering. The reference's locked gray medals must become unlocked emerald enamel and warm gold rim versions, retaining their motif silhouettes.
+Geometry: EXACTLY NINE medals, arranged in a perfectly regular 3 columns ×3 rows grid. Every cell is square, medal geometric center at its cell center. All medals same size, same point-up vertical hexagon silhouette, same slim gold rim width, same frontal viewing angle, same lighting upper-left, same even transparent margin. Each hexagon occupies 78% of its cell width and 86% of height. No overlapping, no cropping.
+Exact motifs and cell order:
+TOP LEFT: emerald enamel with ivory laundry basket motif, dark cutouts and two small handles.
+TOP CENTER: orange-red enamel with ivory and warm yellow flame motif.
+TOP RIGHT: emerald enamel with ivory three jagged snowy mountain peaks, dark teal lower planes.
+MIDDLE LEFT: emerald enamel with ivory folded towels stack, three clear layers.
+MIDDLE CENTER: emerald enamel with THREE ivory pine trees, large central tree and smaller flanking trees.
+MIDDLE RIGHT: emerald enamel with ivory hiking trail signpost, vertical pole and two opposing direction arrows.
+BOTTOM LEFT: emerald enamel with ivory crown.
+BOTTOM CENTER: emerald enamel with ivory laced hiking boot.
+BOTTOM RIGHT: emerald enamel with ivory dramatic high summit peaks, distinct from top-right simple mountains.
+Style: refined illustrated enamel achievement medals for an adult outdoor adventure app, restrained dimensional shading, slender golden border and fine navy edging, clear ivory raised motifs, rich green enamel. Match the approved board exactly as practical. No toy-like thick bevels, no glitter, no extra decorative objects. No cast shadows outside rims.
+TRUE transparent alpha background all around and between nine medals. No text, no labels, no numbers, no locks, no white sheet, no grid lines, no background, no UI, no tiny circles. Exactly 9 uniformly centered and equally sized medals; all COLORED unlocked.

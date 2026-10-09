@@ -1,4 +1,5 @@
 import type { Zones } from '../vision/signals'
+import type { MountainId } from './mountains'
 export type LaundryAction = 'folding' | 'hanging' | 'ironing'
 export interface LaundryEvent {
   id: string
@@ -8,6 +9,7 @@ export interface LaundryEvent {
   source: 'camera' | 'correction' | 'manual'
   items: number // Camera: 1, correction: -1; manual: confirmed positive batch count.
   evidence: string
+  mountainId?: MountainId // Absent on original Ben Nevis saves.
 }
 
 export interface FieldRun {

@@ -1,0 +1,105 @@
+import React from 'react';
+import {AbsoluteFill, CanvasImage, Easing, interpolate, OffthreadVideo, Series, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {ThePile, BaskyWide} from './LandscapeEdit';
+import {PhotoWalkthrough} from './PhotoWalkthrough';
+import {clamp, Phone} from './style';
+import recordedCues from '../public/recordings/story-cues.json';
+import wideMountainCues from '../public/recordings/story-mountains-cues.json';
+
+// Source cues are real recorded UI events from isolated, labelled demo profiles.
+// Later-load montage does not imply one 25-item batch unlocks every mountain.
+export const STORY_CUES:Record<string,number>=recordedCues;
+const ease={...clamp,easing:Easing.bezier(.18,.8,.18,1)};
+const base:React.CSSProperties={fontFamily:'Nunito',fontWeight:900,color:'white',background:'#071b42',overflow:'hidden'};
+function Backdrop({mountain='ben',dark=true}: {mountain?:string;dark?:boolean}) {
+ const f=useCurrentFrame();const {fps}=useVideoConfig();
+ const src=mountain==='ben'?'art/landing-highland-wide.webp':`art/playable-${mountain}-landscape.webp`;
+ return <AbsoluteFill><CanvasImage src={staticFile(src)} premountFor={fps} style={{width:'100%',height:'100%',objectFit:'cover',transform:`scale(${interpolate(f,[0,180],[1.02,1.10],clamp)})`,transformOrigin:'65% 55%'}}/><AbsoluteFill style={{background:dark?'linear-gradient(90deg,#061a32e8 0%,#061a32ba 48%,#061a3233 78%)':'linear-gradient(90deg,#f4fbfff5,#f4fbffb0 52%,#f4fbff00 77%)'}}/></AbsoluteFill>;
+}
+function StepCopy({title,detail,eyebrow}: {title:React.ReactNode;detail:string;eyebrow?:string}) {
+ const f=useCurrentFrame();
+ return <div style={{position:'absolute',left:100,top:250,width:1050,opacity:interpolate(f,[0,9],[0,1],clamp),transform:`translateY(${interpolate(f,[0,17],[32,0],ease)}px)`}}>
+  {eyebrow&&<div style={{fontSize:29,color:'#ffc26c',marginBottom:27,letterSpacing:2}}>{eyebrow}</div>}
+  <div style={{fontSize:132,letterSpacing:-4,lineHeight:1.025,textShadow:'0 4px 24px #04172866'}}>{title}</div>
+  <div style={{fontSize:40,lineHeight:1.3,marginTop:38,maxWidth:965,color:'#e9f7ff'}}>{detail}</div>
+ </div>;
+}
+function Punch({children}: {children:React.ReactNode}) {
+ return <span style={{fontFamily:'Summit Block',fontWeight:900,fontSize:134,letterSpacing:-4,color:'#b8f0d9',textTransform:'uppercase'}}>{children}</span>;
+}
+function PortraitFootage({from=0,rate=1,x=1220}: {from?:number;rate?:number;x?:number}) {
+ const f=useCurrentFrame();const {fps}=useVideoConfig();
+ return <div style={{transform:`translateY(${interpolate(f,[0,15],[55,0],ease)}px)`}}><Phone x={x} y={68} width={448} aspectRatio={.5}><OffthreadVideo src={staticFile('recordings/story-portrait.webm')} trimBefore={Math.round(from*fps)} playbackRate={rate} muted style={{width:'100%',height:'100%'}}/></Phone></div>;
+}
+function Introduce() {
+ const f=useCurrentFrame();const {fps}=useVideoConfig();
+ return <AbsoluteFill style={base}><Backdrop dark={false}/>
+  <div style={{position:'absolute',left:145,top:65,width:890,textAlign:'center',color:'#071b42',fontSize:27,letterSpacing:5}}>INTRODUCING</div>
+  <CanvasImage src={staticFile('art/reference-logo.webp')} premountFor={fps} style={{position:'absolute',left:280,top:105,width:620,height:620,objectFit:'contain',transform:`scale(${interpolate(f,[0,20],[.9,1],ease)})`}}/>
+  <div style={{position:'absolute',left:75,top:730,width:1070,textAlign:'center',fontSize:80,lineHeight:1.06,color:'#071b42',letterSpacing:-3}}>Conquer your pile of laundry.<br/><span style={{color:'#00765d'}}>One load at a time.</span></div>
+  <div style={{transform:`translateX(${interpolate(f,[0,22],[220,0],ease)}px)`}}><Phone src="captures/ben-home.jpg" x={1240} y={85} width={418}/></div>
+ </AbsoluteFill>;
+}
+function StartSession() {
+ return <AbsoluteFill style={base}><Backdrop/><StepCopy title={<>Start your next<br/>laundry session.</>} detail="Basky’s ready when you are."/><PortraitFootage from={STORY_CUES['home']??3} rate={1}/></AbsoluteFill>;
+}
+function BankAndClimb() {
+ const f=useCurrentFrame();const {fps}=useVideoConfig();
+ return <AbsoluteFill style={base}>
+  <OffthreadVideo src={staticFile('recordings/story-wide.webm')} trimBefore={Math.round(5.4*fps)} muted style={{width:'100%',height:'100%'}}/>
+  <div style={{position:'absolute',left:28,right:28,bottom:13,textAlign:'center',fontSize:31,textShadow:'0 2px 7px #001d35'}}><span style={{display:'inline-block',background:'#071b42ef',borderRadius:24,padding:'10px 24px'}}>{f<66?'Confirm the batch you finished.':'25 items = 250 Laundry Metres.'}</span></div>
+ </AbsoluteFill>;
+}
+function Checkpoint() {
+ return <AbsoluteFill style={base}><Backdrop/><StepCopy eyebrow="250 METRES LATER" title={<>First<br/><Punch>checkpoint.</Punch></>} detail="A little less laundry. Every item takes Basky higher."/><PortraitFootage from={STORY_CUES['first-into-the-glen-']??11} rate={.7}/></AbsoluteFill>;
+}
+function Badge() {
+ return <AbsoluteFill style={base}><Backdrop/><StepCopy title={<>Earn your<br/><Punch>stripes.</Punch></>} detail="A badge. For doing the laundry."/><PortraitFootage from={STORY_CUES['first-glen-explorer']??16} rate={.7}/></AbsoluteFill>;
+}
+function Trail() {
+ return <AbsoluteFill style={base}><Backdrop/><StepCopy title={<>Watch your<br/>trail grow.</>} detail="Your progress is saved. The next load takes you further."/><PortraitFootage from={STORY_CUES['ben-trail']??23} rate={.8}/></AbsoluteFill>;
+}
+function BenSummit() {
+ return <AbsoluteFill style={base}><Backdrop/><StepCopy eyebrow="AFTER MORE COMPLETED LOADS" title={<>Conquer<br/><Punch>Ben Nevis.</Punch></>} detail="1,345 metres climbed. Mount Fuji unlocked."/><PortraitFootage from={STORY_CUES['ben-ben-nevis-summit-']??36} rate={.75}/></AbsoluteFill>;
+}
+function Fuji() {
+ const {fps}=useVideoConfig();
+ return <AbsoluteFill style={base}><Series>
+  <Series.Sequence durationInFrames={72} premountFor={fps}><Backdrop mountain="fuji"/><StepCopy eyebrow="YOUR NEXT EXPEDITION" title={<>Next stop:<br/>Mount Fuji.</>} detail="A new trail. New checkpoints."/><PortraitFootage from={STORY_CUES['fuji-trail']+.18}/></Series.Sequence>
+  <Series.Sequence durationInFrames={90} premountFor={fps}><OffthreadVideo src={staticFile('recordings/story-mountains-wide.webm')} trimBefore={Math.round((wideMountainCues.fuji+.1)*fps)} muted style={{width:'100%',height:'100%'}}/></Series.Sequence>
+ </Series></AbsoluteFill>;
+}
+function Everest() {
+ const {fps}=useVideoConfig();
+ return <AbsoluteFill style={base}><Series>
+  <Series.Sequence durationInFrames={72} premountFor={fps}><Backdrop mountain="everest"/><StepCopy eyebrow="AFTER MORE LOADS AND ANOTHER SUMMIT" title={<>Then take on<br/>Everest.</>} detail="From the Highlands to the roof of the world."/><PortraitFootage from={STORY_CUES['everest-trail']+.18}/></Series.Sequence>
+  <Series.Sequence durationInFrames={90} premountFor={fps}><OffthreadVideo src={staticFile('recordings/story-mountains-wide.webm')} trimBefore={Math.round((wideMountainCues.everest+.1)*fps)} muted style={{width:'100%',height:'100%'}}/></Series.Sequence>
+ </Series></AbsoluteFill>;
+}
+function FinalSummit() {
+ return <AbsoluteFill style={base}><Backdrop mountain="everest"/><StepCopy eyebrow="THE SUMMIT PAYOFF" title={<>Three peaks.<br/>One very smug<br/>laundry basket.</>} detail="Your finished loads got him here."/><PortraitFootage from={STORY_CUES['everest-everest-summit-']??87} rate={.8}/></AbsoluteFill>;
+}
+function SelectedClosing() {
+ const f=useCurrentFrame(); const {fps}=useVideoConfig();
+ return <AbsoluteFill style={{background:'#07395a',overflow:'hidden'}}><CanvasImage src={staticFile('art/owner-selected-closing.png')} premountFor={fps} style={{width:'100%',height:'100%',objectFit:'cover',transform:`scale(${interpolate(f,[0,80],[1,1.028],ease)})`,transformOrigin:'55% 45%'}}/></AbsoluteFill>;
+}
+export const ProductStory=()=>{
+ const {fps}=useVideoConfig();
+ return <AbsoluteFill style={base}><Series>
+  <Series.Sequence name="01 — The laundry problem" durationInFrames={90} premountFor={fps}><ThePile/></Series.Sequence>
+  <Series.Sequence name="02 — Basky takes it personally" durationInFrames={75} premountFor={fps}><ThePile reaction/></Series.Sequence>
+  <Series.Sequence name="03 — Introducing Laundry Mountain" durationInFrames={150} premountFor={fps}><Introduce/></Series.Sequence>
+  <Series.Sequence name="04 — Start your session" durationInFrames={90} premountFor={fps}><StartSession/></Series.Sequence>
+  <Series.Sequence name="05 — Before, after, estimate, correction — concept" durationInFrames={360} premountFor={fps}><PhotoWalkthrough/></Series.Sequence>
+  <Series.Sequence name="06 — Real batch confirmation and Basky moving" durationInFrames={162} premountFor={fps}><BankAndClimb/></Series.Sequence>
+  <Series.Sequence name="07 — Actual checkpoint reward" durationInFrames={78} premountFor={fps}><Checkpoint/></Series.Sequence>
+  <Series.Sequence name="08 — Actual earned badge" durationInFrames={78} premountFor={fps}><Badge/></Series.Sequence>
+  <Series.Sequence name="09 — Your actual saved trail" durationInFrames={105} premountFor={fps}><Trail/></Series.Sequence>
+  <Series.Sequence name="10 — Ben Nevis summit, after later loads" durationInFrames={114} premountFor={fps}><BenSummit/></Series.Sequence>
+  <Series.Sequence name="11 — Mount Fuji: real trail and moving climb" durationInFrames={162} premountFor={fps}><Fuji/></Series.Sequence>
+  <Series.Sequence name="12 — Everest: real trail and moving climb" durationInFrames={162} premountFor={fps}><Everest/></Series.Sequence>
+  <Series.Sequence name="13 — Three summit payoff" durationInFrames={105} premountFor={fps}><FinalSummit/></Series.Sequence>
+  <Series.Sequence name="14 — Basky takes on the real pile" durationInFrames={78} premountFor={fps}><BaskyWide/></Series.Sequence>
+  <Series.Sequence name="15 — Owner-selected summit closing" durationInFrames={120} premountFor={fps}><SelectedClosing/></Series.Sequence>
+ </Series></AbsoluteFill>;
+};
